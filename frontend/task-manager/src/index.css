@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+@layer components {
+  .navbar-icon {
+    @apply relative flex items-center  justify-center 
+    shadow-2xl bg-[#982598] h-12 w-12 mb-2 mt-2 text-[#F1E9E9] rounded-3xl
+    hover:rounded-xl hover:shadow-2xl 
+    transition-all duration-300 ease-linear cursor-pointer;
+  }
+
+  .navbar-tooltip {
+    @apply absolute w-auto p-2 m-2 min-w-max left-14
+    rounded-md shadow-md bg-[#982598]
+    text-[#F1E9E9] overflow-visible z-50
+    text-xs font-bold
+    transition-all duration-100 scale-0 origin-left;
+  }
+
+  .sidebar {
+    @apply w-64 h-screen flex flex-col py-4
+  bg-[#15173D] text-[#F1E9E9];
+  }
+
+  .sidebar-buttons {
+    @apply my-5 relative flex items-center justify-center text-center
+  rounded-md h-12 w-[248px] text-2xl
+  hover:bg-[#2a2c5b]  cursor-pointer;
+  }
+
+  .sidebar-icons {
+    @apply absolute flex left-6 items-center;
+  }
+
+  .add-task {
+    @apply w-[900px] border-4 border-gray-200
+  text-center;
+  }
+
+  .task-submit {
+    @apply absolute right-3 top-1/2 -translate-y-1/2 hover:bg-blue-400 hover:text-white hover:rounded-lg transition-all duration-100;
+  }
+
+  .priority {
+    @apply absolute right-25
+     hover:bg-blue-400 hover:text-white hover:rounded-lg 
+     transition-all duration-100
+     border-4 border-gray-600
+  }
+
+  .task-bar{
+    @apply  bg-[#F1E9E9] rounded-2xl hover:ring-3
+     hover:ring-[#982598] hover:shadow-2xl 
+     transition-all duration-200
+    mt-8 h-[92px] mx-4 
+  }
+}
