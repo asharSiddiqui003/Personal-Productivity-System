@@ -3,10 +3,10 @@ import { useState, useEffect } from "react";
 
 const BASE_URL = "http://localhost:3000";
 
-const Add = ({ onAdd }) => {
+const Add = ({ onTaskAdded }) => {
   const [notes, setNotes] = useState({ task: "", priority: "High" });
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [error,setError] = useState();
+  const [error, setError] = useState();
 
   function handleChange(event) {
     const task = event.target.value;
@@ -37,44 +37,46 @@ const Add = ({ onAdd }) => {
     setIsSubmitted(true);
     setError(null);
 
-    try{
-      const response = await fetch(`${BASE_URL}/addTasks`,{
-        method: 'POST',
-        header:{
-          'Content-Type' : 'application/json,'
-        },
-        body: JSON.stringify({
-          task: notes.task,
-          priority: notes.priority,
-          createdAt: new Date().toISOString
-        })
-      });
+    const requestBody = {
+      task: notes.task,
+      priority: notes.priority,
+      createdAt: new Date().toISOString(),
+    };
 
-      if(!response.ok){
+    console.log("Sending to Server: " , requestBody);
+
+    try {
+      const response = await fetch(`${BASE_URL}/addTasks`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestBody),
+      })
+      if (!response.ok) {
         throw new Error(`HTTP response status ${response.status}`);
       }
-
       const newTask = await response.json();
-
-      onAdd(newTask);
-
+      console.log("Server Returned with task fields: " + Object.keys(newTask));
       setNotes({
-      task: "",
-      priority: "",
-     });
-  } catch (e) {
-    console.log("Error adding task" + e);
-    setError("Failed to add task, please try again later.");
-  } finally {
-    setIsSubmitted(false);
+        task: "",
+        priority: "High",
+      });
+      if (onTaskAdded) {
+        onTaskAdded();
+      }
+    } catch (e) {
+      console.log("Error adding task" + e);
+      setError("Failed to add task, please try again later.");
+    } finally {
+      setIsSubmitted(false);
+    }
   }
-}
-
 
   return (
     <div className="flex items-center gap-3 w-full">
       {/* FORM */}
-      <form className="relative flex-1">
+      <form onSubmit={submitTask} className="relative flex-1">
         <input
           type="text"
           id="task"
@@ -84,7 +86,7 @@ const Add = ({ onAdd }) => {
           className="w-full border pr-10 py-2 pl-3"
         />
 
-        <button type="submit" onClick={submitTask} className="task-submit">
+        <button type="submit" className="task-submit">
           <IoMdAdd size={24} />
         </button>
       </form>

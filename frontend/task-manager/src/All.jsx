@@ -4,17 +4,12 @@ import Task from "./Task";
 import { useState } from "react";
 
 const All = () => {
-  const [tasks, setTasks] = useState([]);
 
-  const formattedDate = new Date().toLocaleDateString("en-IN", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
+  const[refreshKey, setRefreshKey] = useState(0);
 
-  function addTask(taskFromServer) {
-    setTasks((prev) => [taskFromServer, ...prev]);
-  }
+  const refreshTasks = () => {
+    setRefreshKey(prev => prev + 1); // This triggers Task to re-fetch
+  };
 
   return (
     <div className="relative left-80 top-0 h-screen w-[1120px] ">
@@ -23,12 +18,10 @@ const All = () => {
         <h1 className="text-3xl">All</h1>
       </div>
       <div className="add-task">
-        <Add onAdd={addTask} />
+        <Add onTaskAdded={refreshTasks}/>
       </div>
       <div>
-        {tasks.map((t) => (
-          <Task key={t.id} id={t.id} text={t.task} created={t.createdAt} priority={t.priority}/>
-        ))}
+        <Task refreshTrigger={refreshKey}/>
       </div>
     </div>
   );
