@@ -45,9 +45,9 @@ app.get('/tasks', async(req, res) => {
 
 app.post('/addTasks',async (req,res) => {
   try{
-     const { task, priority} = req.body;
-  const result = await db.query(`INSERT INTO tasks (title, priority) VALUES ($1,$2) RETURNING *`,
-    [task, priority]
+     const { task, priority, createdAt} = req.body;
+  const result = await db.query(`INSERT INTO tasks (title, priority, created) VALUES ($1,$2,$3) RETURNING *`,
+    [task, priority, createdAt]
   );
   res.status(201).json(result.rows[0]);
 

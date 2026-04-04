@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 
 //Add a way to store and retrieve formattedDate from DB
-//Add an option to delete the task by checking the checkbox
+
 
 const BASE_URL = "http://localhost:3000";
 
