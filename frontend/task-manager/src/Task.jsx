@@ -43,6 +43,7 @@ const Task = ({ refreshTrigger }) => {
   }
 
   const deleteTask = async (task_id) => {
+    console.log("Deleting task", task_id);
     try {
       const response = await fetch(`${BASE_URL}/tasks/${task_id}`, { method: "DELETE" });
       if (!response.ok) {
@@ -50,6 +51,9 @@ const Task = ({ refreshTrigger }) => {
       }
       const toErase = await response.json();
       console.log(toErase);
+      // Update state to remove the task
+      setActiveTasks((prev) => prev.filter((task) => task.task_id !== task_id));
+      setCompletedTasks((prev) => prev.filter((task) => task.task_id !== task_id));
     } catch (e) {
       console.log("Error deleting task", e.message);
     }
@@ -69,6 +73,23 @@ const Task = ({ refreshTrigger }) => {
       }
     } catch (e) {
       console.log("Error completing task", e);
+    }
+  };
+
+  const uncompleteTask = async (task, event) => {
+    event.stopPropagation();
+    try {
+      const response = await fetch(`${BASE_URL}/tasks/edit/${task.task_id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...task, status: 'active' }),
+      });
+      if (response.ok) {
+        setCompletedTasks((prev) => prev.filter((item) => item.task_id !== task.task_id));
+        setActiveTasks((prev) => [task, ...prev]);
+      }
+    } catch (e) {
+      console.log("Error uncompleting task", e);
     }
   };
 
@@ -121,11 +142,12 @@ const Task = ({ refreshTrigger }) => {
               <div
                 key={p.task_id}
                 className="task-bar w-full relative animate-slide-down opacity-90"
-                onClick={() => handleClick(p.task_id)}
+                onClick={() => deleteTask(p.task_id)}
               >
                 <input
                   type="checkbox"
                   checked
+                  onClick={(e) => uncompleteTask(p, e)}
                   className="w-[24px] h-[24px] absolute top-[36px] left-[70px]"
                 />
                 <p className="absolute left-[128px] top-[26px] text-3xl line-through text-gray-500">{p.title}</p>
