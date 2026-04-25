@@ -53,4 +53,52 @@
      transition-all duration-200
     mt-8 h-[92px] mx-4 
   }
+
+  .animate-slide-down {
+    animation: slide-down 220ms ease-out forwards;
+  }
+
+  @keyframes slide-down {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .edit-page {
+    @apply min-h-screen pl-80 pr-8 pt-8 bg-white text-black;
+  }
+
+  .edit-card-wrapper {
+    @apply w-full mx-auto mt-22;
+  }
+
+  .edit-card {
+    @apply mx-auto w-full max-w-[1120px] rounded-3xl 
+    border border-[#2a2c5b] bg-[#F1E9E9]/95 p-8 shadow-2xl;
+  }
+
+  .edit-label {
+    @apply text-sm uppercase tracking-[0.2em] text-black;
+  }
+
+  .edit-input {
+    @apply w-full rounded-2xl border border-[#2a2c5b] px-4 py-3 bg-white placeholder:text-[#7a7aec] focus:border-[#982598] focus:outline-none focus:ring-2 focus:ring-[#982598]/25 transition;
+  }
+
+  .edit-textarea {
+    @apply w-full rounded-3xl border border-[#2a2c5b] bg-white px-4 py-3 text-black placeholder:text-[#7a7aec] focus:border-[#982598] focus:outline-none focus:ring-2 focus:ring-[#982598]/25 transition;
+  }
+
+  .edit-button {
+    @apply inline-flex w-full sm:w-auto items-center justify-center rounded-2xl bg-[#982598] px-8 py-3 text-base font-semibold text-white shadow-lg shadow-[#982598]/20 transition hover:bg-[#ab3fb6] hover:-translate-y-0.5;
+  }
+
+  .edit-status {
+    @apply mt-4 text-sm text-[#B8AED4];
+  }
 }

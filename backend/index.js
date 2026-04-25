@@ -33,7 +33,7 @@ db.connect();
 
 app.get('/tasks', async(req, res) => {
   try{
-    const result = await db.query(`SELECT * FROM tasks`);
+    const result = await db.query(`SELECT * FROM tasks ORDER BY created DESC`);
     res.status(200).json(result.rows);
   } catch(e){
     console.log("Error Fetching data from the database");
@@ -46,8 +46,8 @@ app.get('/tasks', async(req, res) => {
 app.post('/addTasks',async (req,res) => {
   try{
      const { task, priority, createdAt} = req.body;
-  const result = await db.query(`INSERT INTO tasks (title, priority, created) VALUES ($1,$2,$3) RETURNING *`,
-    [task, priority, createdAt]
+  const result = await db.query(`INSERT INTO tasks (title, priority, created, status) VALUES ($1,$2,$3,$4) RETURNING *`,
+    [task, priority, createdAt, 'active']
   );
   res.status(201).json(result.rows[0]);
 
@@ -57,6 +57,8 @@ app.post('/addTasks',async (req,res) => {
   }
  
 });
+
+//----------------DELETE TASK------------------------
 
 app.delete('/tasks/:task_id', async (req,res) => {
   try{
@@ -72,4 +74,44 @@ app.delete('/tasks/:task_id', async (req,res) => {
   }
 });
 
+//-------------SELECT ONE TASK-----------------------
+
+app.get(`/tasks/:task_id`,async(req,res) => {
+  try{
+    const { task_id } = req.params;
+    const result = await db.query("SELECT title, description, priority, status FROM tasks WHERE task_id = $1",[task_id]);
+    res.status(200).json(result.rows[0]);
+  } catch(e){
+    console.log("Error fetching data with id: " + task_id);
+    res.status(500).json("Error fetching data with id: " + task_id);
+  }
+})
+
+app.put(`/tasks/edit/:task_id`, async(req,res) => {
+  try{
+    const { task_id } = req.params;
+    const { title, description, priority, status } = req.body;
+    const result = await db.query("UPDATE tasks SET title = $1, description = $2, priority = $3, status = $4 WHERE task_id=$5 RETURNING *"
+      ,[title,description,priority, status || 'active', task_id]
+    );
+    res.status(200).json(result.rows[0]);
+  } catch (e){
+    res.status(500).json("Error editing data : " + e);
+    console.log("Error editing data : " + e);
+  }
+})
+
+//-------------------Completed Data---------------
+app.put('/tasks/completed', async(req,res) => {
+  try{
+    const {task_id} = req.params;
+    const { status } = req.body;
+    const result = await db.query("UPDATE task SET status = $1 WHERE task_id=$2",[status,task_id]);
+    res.status(200).json(result.rows[0]);
+  } catch(e){
+    res.status(500).json("Error editing data : " + e);
+    console.log("Error editing data : " + e);
+  }
+})
 app.listen(3000, () => console.log('Server running on port 3000'));
+

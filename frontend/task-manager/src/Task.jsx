@@ -1,79 +1,144 @@
 import { useState, useEffect } from "react";
-
-//Add a way to store and retrieve formattedDate from DB
-
+import { useNavigate } from "react-router-dom";
 
 const BASE_URL = "http://localhost:3000";
 
-const Task = (refreshTrigger) => {
+const Task = ({ refreshTrigger }) => {
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [post, setPost] = useState([]);
-  const [toErase, eraseData] = useState();
+  const [activeTasks, setActiveTasks] = useState([]);
+  const [completedTasks, setCompletedTasks] = useState([]);
+  const Navigate = useNavigate();
+
+  function handleClick(task_id) {
+    Navigate(`/tasks/edit/${task_id}`);
+  }
 
   const fetchTask = async () => {
     setLoading(true);
 
     try {
       const response = await fetch(`${BASE_URL}/tasks`);
-      const post = await response.json();
-      setPost(post);
+      const data = await response.json();
+      const active = data.filter(task => task.status !== 'completed');
+      const completed = data.filter(task => task.status === 'completed');
+      setActiveTasks(active);
+      setCompletedTasks(completed);
     } catch (e) {
       console.log("Error fetching task from the Database" + e);
+      setError("Unable to load tasks.");
     } finally {
       setLoading(false);
     }
   };
 
+  const updateTask = async(completedTasks) => {
+    try{
+      const response = await fetch(`${BASE_URL}/tasks/completed`,{method: "PUT"});
+      const taskStatus = await response.json();
+      console.log(taskStatus);
+    } catch(e){
+      console.log("Error updating task status " + e);
+    }
+  }
+
   const deleteTask = async (task_id) => {
     try {
-      const response = await fetch(`${BASE_URL}/tasks/${task_id}`, { method: 'DELETE'});
-      if(!response.ok){
+      const response = await fetch(`${BASE_URL}/tasks/${task_id}`, { method: "DELETE" });
+      if (!response.ok) {
         throw new Error(`HTTP error status: ${response.status}`);
       }
       const toErase = await response.json();
-      console.log(toErase); 
-      eraseData(toErase);
-      window.location.reload();
+      console.log(toErase);
     } catch (e) {
       console.log("Error deleting task", e.message);
     }
   };
 
-  // Fetch tasks on mount AND whenever refreshTrigger changes
+  const completeTask = async (task, event) => {
+    event.stopPropagation();
+    try {
+      const response = await fetch(`${BASE_URL}/tasks/edit/${task.task_id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...task, status: 'completed' }),
+      });
+      if (response.ok) {
+        setActiveTasks((prevTasks) => prevTasks.filter((item) => item.task_id !== task.task_id));
+        setCompletedTasks((prev) => [task, ...prev]);
+      }
+    } catch (e) {
+      console.log("Error completing task", e);
+    }
+  };
+
   useEffect(() => {
     fetchTask();
   }, [refreshTrigger]);
 
-  const formattedDate = new Date().toLocaleDateString("en-IN", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
+  const formatDate = (value) =>
+    new Date(value ? value : Date.now()).toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
 
   if (isLoading) {
-    return <div className="text-6xl items-center justify-center text-gray-500">Loading Tasks....</div>;
+    return <div className="flex items-center justify-center text-6xl text-gray-500">Loading Tasks....</div>;
   }
 
-  return post.map((p) => {
-    return (
-      <div className="task-bar w-[1070px] relative">
-        <input
-          type="checkbox"
-          onClick={() => deleteTask(p.task_id)}
-          className="w-[24px] h-[24px] absolute top-[36px] left-[70px]"
-        />
-        <p className="absolute left-[128px] top-[26px] text-4xl ">{p.title}</p>
-        <p className="absolute left-[820px] top-[32px] text-2xl">
-          {formattedDate}
-        </p>
-        <div className="w-[2px] h-[60px] bg-[#982598] rounded-full absolute left-[966px] top-[18px]"></div>
-        <p className="absolute top-[32px] text-2xl left-[980px]">
-          {p.priority}
-        </p>
-      </div>
-    );
-  });
+  return (
+    <div className="task-list">
+      {error && <p className="text-red-500">{error}</p>}
+
+      {activeTasks.length === 0 && completedTasks.length === 0 ? (
+        <p className="text-xl text-gray-600">No active tasks found.</p>
+      ) : (
+        activeTasks.map((p) => (
+          <div className="task-bar w-[1070px] relative" key={p.task_id} onClick={() => handleClick(p.task_id)}>
+            <input
+              type="checkbox"
+              onClick={(e) => completeTask(p, e)}
+              className="w-[24px] h-[24px] absolute top-[36px] left-[70px]"
+            />
+            <p className="absolute left-[128px] top-[26px] text-3xl">{p.title}</p>
+            <p className="absolute left-[820px] top-[32px] text-2xl">{formatDate(p.createdAt)}</p>
+            <div className="w-[2px] h-[60px] bg-[#982598] rounded-full absolute left-[966px] top-[18px]"></div>
+            <p className="absolute top-[32px] text-2xl left-[980px]">{p.priority}</p>
+          </div>
+        ))
+      )}
+
+      {completedTasks.length > 0 && (
+        <div className="mt-12 w-full max-w-[1120px]">
+          <hr className="border-gray-300 mb-6" />
+          <div className="mb-4">
+            <h2 className="text-2xl font-semibold">Completed</h2>
+            <p className="text-sm text-gray-500">Completed tasks move here after checking the box.</p>
+          </div>
+          <div className="space-y-4">
+            {completedTasks.map((p) => (
+              <div
+                key={p.task_id}
+                className="task-bar w-full relative animate-slide-down opacity-90"
+                onClick={() => handleClick(p.task_id)}
+              >
+                <input
+                  type="checkbox"
+                  checked
+                  className="w-[24px] h-[24px] absolute top-[36px] left-[70px]"
+                />
+                <p className="absolute left-[128px] top-[26px] text-3xl line-through text-gray-500">{p.title}</p>
+                <p className="absolute left-[820px] top-[32px] text-2xl text-gray-500">{formatDate(p.createdAt)}</p>
+                <div className="w-[2px] h-[60px] bg-[#982598] rounded-full absolute left-[966px] top-[18px]"></div>
+                <p className="absolute top-[32px] text-2xl left-[980px] text-gray-500">{p.priority}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default Task;
