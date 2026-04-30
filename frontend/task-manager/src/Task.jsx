@@ -43,7 +43,6 @@ const Task = ({ refreshTrigger }) => {
   }
 
   const deleteTask = async (task_id) => {
-    console.log("Deleting task", task_id);
     try {
       const response = await fetch(`${BASE_URL}/tasks/${task_id}`, { method: "DELETE" });
       if (!response.ok) {
@@ -51,7 +50,6 @@ const Task = ({ refreshTrigger }) => {
       }
       const toErase = await response.json();
       console.log(toErase);
-      // Update state to remove the task
       setActiveTasks((prev) => prev.filter((task) => task.task_id !== task_id));
       setCompletedTasks((prev) => prev.filter((task) => task.task_id !== task_id));
     } catch (e) {
@@ -123,7 +121,7 @@ const Task = ({ refreshTrigger }) => {
               className="w-[24px] h-[24px] absolute top-[36px] left-[70px]"
             />
             <p className="absolute left-[128px] top-[26px] text-3xl">{p.title}</p>
-            <p className="absolute left-[820px] top-[32px] text-2xl">{formatDate(p.createdAt)}</p>
+            <p className="absolute left-[820px] top-[32px] text-2xl">{formatDate(p.created)}</p>
             <div className="w-[2px] h-[60px] bg-[#982598] rounded-full absolute left-[966px] top-[18px]"></div>
             <p className="absolute top-[32px] text-2xl left-[980px]">{p.priority}</p>
           </div>
@@ -151,7 +149,7 @@ const Task = ({ refreshTrigger }) => {
                   className="w-[24px] h-[24px] absolute top-[36px] left-[70px]"
                 />
                 <p className="absolute left-[128px] top-[26px] text-3xl line-through text-gray-500">{p.title}</p>
-                <p className="absolute left-[820px] top-[32px] text-2xl text-gray-500">{formatDate(p.createdAt)}</p>
+                <p className="absolute left-[820px] top-[32px] text-2xl text-gray-500">{formatDate(p.created)}</p>
                 <div className="w-[2px] h-[60px] bg-[#982598] rounded-full absolute left-[966px] top-[18px]"></div>
                 <p className="absolute top-[32px] text-2xl left-[980px] text-gray-500">{p.priority}</p>
               </div>
