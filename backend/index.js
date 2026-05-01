@@ -1,8 +1,11 @@
+require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const app = express();
 const pg = require('pg');
 const bodyparser = require('body-parser');
+
 
 const corsOption = {
   origin: "http://localhost:5173",
@@ -19,11 +22,11 @@ app.use(bodyparser.urlencoded({ extended: true }));
 
 
 const db = new pg.Client({
-  user: "postgres",
-  host: "localhost",
-  database: "tasks",
-  password: "HUB2425",
-  port: 5432,
+  user: process.env.DB_USER,
+  host: process.env.DB_HOST,
+  database: process.env.DB_NAME,
+  password: process.env.DB_PASSWORD,
+  port: process.env.DB_PORT,
 });
 
 db.connect();
@@ -90,9 +93,9 @@ app.get(`/tasks/:task_id`,async(req,res) => {
 app.put(`/tasks/edit/:task_id`, async(req,res) => {
   try{
     const { task_id } = req.params;
-    const { title, description, priority, status } = req.body;
-    const result = await db.query("UPDATE tasks SET title = $1, description = $2, priority = $3, status = $4 WHERE task_id=$5 RETURNING *"
-      ,[title,description,priority, status || 'active', task_id]
+    const { title, description, priority, status, created } = req.body;
+    const result = await db.query("UPDATE tasks SET title = $1, description = $2, priority = $3, status = $4,created = $5 WHERE task_id=$6 RETURNING *"
+      ,[title,description,priority, status || 'active', created, task_id]
     );
     res.status(200).json(result.rows[0]);
   } catch (e){
