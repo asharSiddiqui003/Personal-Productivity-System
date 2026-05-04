@@ -1,44 +1,51 @@
 import { GoStack } from "react-icons/go";
-import { FiInbox } from "react-icons/fi";
+import { FiInbox, FiActivity } from "react-icons/fi";
 import { CgNotes } from "react-icons/cg";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 
 function Sidebar() {
-    const[active, setActive] = useState("All")
-    const Navigate = useNavigate();
-    
-    useEffect(() => {
+  const [active, setActive] = useState("All")
+  const Navigate = useNavigate();
+
+  useEffect(() => {
     // Only force navigation if the user is at the base URL
     if (window.location.pathname === "/") {
-        setActive("All");
+      setActive("All");
     } else {
-        // If they landed on /inbox directly, highlight the correct button
-        const path = window.location.pathname.replace("/", "");
-        const formatted = path.charAt(0).toUpperCase() + path.slice(1);
-        setActive(formatted || "All");
+      // If they landed on /inbox directly, highlight the correct button
+      const path = window.location.pathname.replace("/", "");
+      const formatted = path.charAt(0).toUpperCase() + path.slice(1);
+      setActive(formatted || "All");
     }
-}, []);
+  }, []);
 
-    const handleClick = (id,path) => {
-        setActive(id);
-        Navigate(path)
-        console.log(`${id} Clicked!`);
-    }
+  const handleClick = (id, path) => {
+    setActive(id);
+    Navigate(path)
+    console.log(`${id} Clicked!`);
+  }
   return (
-    <div className="sidebar fixed left-16 top-0">
-      <SidebarButton 
-      icon={<GoStack className="size={24}" />} 
-      text="All" 
-      isActive={active === "All"}
-      onClick = {() => handleClick("All","/")} 
+    <motion.div 
+      initial={{ x: -250, opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      exit={{ x: -250, opacity: 0 }}
+      transition={{ duration: 0.3, ease: "easeInOut" }}
+      className="sidebar fixed left-16 top-0"
+    >
+      <SidebarButton
+        icon={<GoStack className="size={24}" />}
+        text="All"
+        isActive={active === "All"}
+        onClick={() => handleClick("All", "/")}
       />
-      <SidebarButton 
-       icon={<FiInbox className="size={24}" />} 
-       text="Inbox" 
-       isActive = {active === "Inbox"}
-       onClick = {() => handleClick("Inbox","/inbox")}
-       />
+      <SidebarButton
+        icon={<FiInbox className="size={24}" />}
+        text="Inbox"
+        isActive={active === "Inbox"}
+        onClick={() => handleClick("Inbox", "/inbox")}
+      />
       <SidebarButton
         icon={
           <svg
@@ -67,26 +74,27 @@ function Sidebar() {
           </svg>
         }
         text="Next 7D"
-        isActive = {active ==="Next 7D"}
-        onClick = {() => handleClick("Next 7D", "/next-7d")}
+        isActive={active === "Next 7D"}
+        onClick={() => handleClick("Next 7D", "/next-7d")}
       />
-      <SidebarButton 
-      icon={<CgNotes size={24} />} 
-      text="Summary" 
-      isActive = {active ==="Summary"}
-      onClick = {() => handleClick("Summary", "/summary")}
+      <SidebarButton
+        icon={<CgNotes size={24} />}
+        text="Summary"
+        isActive={active === "Summary"}
+        onClick={() => handleClick("Summary", "/summary")}
       />
-    </div>
+
+    </motion.div>
   );
 }
 
-const SidebarButton = ({ text, icon, onClick, isActive}) => {
+const SidebarButton = ({ text, icon, onClick, isActive }) => {
   return (
     <div>
-      <button 
-      className={`sidebar-buttons ${isActive ? "bg-[#2a2c5b] inset-shadow-2xs" : "" }`} 
-      onClick={onClick}
-      
+      <button
+        className={`sidebar-buttons ${isActive ? "bg-[#2a2c5b] inset-shadow-2xs" : ""}`}
+        onClick={onClick}
+
       >
         <span className="sidebar-icons">{icon}</span>
         {text}

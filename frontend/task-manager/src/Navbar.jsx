@@ -6,23 +6,25 @@ import {
 import { BiTask } from "react-icons/bi";
 import { FaRunning } from "react-icons/fa";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-function Navbar() {
-  const [active, setActive] = useState("Tasks");
+function Navbar({ activeNav, setActiveNav }) {
+  const Navigate = useNavigate();
 
-  const handleClick = (name) => {
-    setActive(name);
+  const handleClick = (name, path) => {
+    setActiveNav(name);
+    if (path) Navigate(path);
     console.log(`${name} clicked`);
   };
 
   return (
     <div className="fixed top-0 left-0 h-screen z-50 w-16 px-2 flex flex-col gap-4 bg-[#1D1F49]">
-      
+
       <NavBarIcon
         icon={<IoPersonOutline size={24} />}
         text="Profile"
-        isActive={active === "Profile"}
-        onClick={() => handleClick("Profile")}
+        isActive={activeNav === "Profile"}
+        onClick={() => handleClick("Profile", "/profile")}
       />
 
       <div className="w-full h-px bg-[#F1E9E9]" />
@@ -30,30 +32,32 @@ function Navbar() {
       <NavBarIcon
         icon={<BiTask size={24} />}
         text="Tasks"
-        isActive={active === "Tasks"}
-        onClick={() => handleClick("Tasks")}
+        isActive={activeNav === "Tasks"}
+        onClick={() => handleClick("Tasks", "/")}
       />
 
       <NavBarIcon
         icon={<IoCalendarNumberOutline size={24} />}
         text="Calendar"
-        isActive={active === "Calendar"}
-        onClick={() => handleClick("Calendar")}
+        isActive={activeNav === "Calendar"}
+        onClick={() => handleClick("Calendar", "/calendar")}
       />
 
       <NavBarIcon
         icon={<FaRunning size={24} />}
         text="Habit"
-        isActive={active === "Habit"}
-        onClick={() => handleClick("Habit")}
+        isActive={activeNav === "Habit"}
+        onClick={() => handleClick("Habit", "/habits")}
       />
 
       <NavBarIcon
         icon={<IoSearch size={24} />}
         text="Search"
-        isActive={active === "Search"}
+        isActive={activeNav === "Search"}
         onClick={() => handleClick("Search")}
       />
+
+
     </div>
   );
 }

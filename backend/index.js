@@ -82,7 +82,7 @@ app.delete('/tasks/:task_id', async (req,res) => {
 app.get(`/tasks/:task_id`,async(req,res) => {
   try{
     const { task_id } = req.params;
-    const result = await db.query("SELECT title, description, priority, status FROM tasks WHERE task_id = $1",[task_id]);
+    const result = await db.query("SELECT title, description, priority, status, created, dueDate FROM tasks WHERE task_id = $1",[task_id]);
     res.status(200).json(result.rows[0]);
   } catch(e){
     console.log("Error fetching data with id: " + task_id);
@@ -90,21 +90,25 @@ app.get(`/tasks/:task_id`,async(req,res) => {
   }
 })
 
+//-------------Edit Task---------------------------------
+
 app.put(`/tasks/edit/:task_id`, async(req,res) => {
   try{
     const { task_id } = req.params;
-    const { title, description, priority, status, created } = req.body;
-    const result = await db.query("UPDATE tasks SET title = $1, description = $2, priority = $3, status = $4,created = $5 WHERE task_id=$6 RETURNING *"
-      ,[title,description,priority, status || 'active', created, task_id]
+    let { title, description, priority, status, created, dueDate } = req.body;
+    if (dueDate === '') dueDate = null;
+    const result = await db.query("UPDATE tasks SET title = $1, description = $2, priority = $3, status = $4, created = $5, dueDate = $6 WHERE task_id = $7 RETURNING *"
+      ,[title,description,priority, status || 'active', created, dueDate, task_id]
     );
     res.status(200).json(result.rows[0]);
   } catch (e){
     res.status(500).json("Error editing data : " + e);
     console.log("Error editing data : " + e);
-  }
+  } 
 })
 
 //-------------------Completed Data---------------
+//status of data updated to complete to be saved in the database
 app.put('/tasks/completed', async(req,res) => {
   try{
     const {task_id} = req.params;
