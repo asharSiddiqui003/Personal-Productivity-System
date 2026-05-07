@@ -8,6 +8,7 @@ import Summary from './Summary'
 import Edit from './Edit'
 import Habit from './Habit'
 import Calendar from './Calendar'
+import Search from './Search'
 import { Routes, Route, useLocation } from "react-router-dom"
 import { AnimatePresence } from 'framer-motion'
 
@@ -32,6 +33,7 @@ function App() {
       <AnimatePresence>
         {activeNav === "Tasks" && <Sidebar key="sidebar" />}
       </AnimatePresence>
+      <Search isOpen={activeNav === "Search"} onClose={() => setActiveNav("Tasks")} />
       <Routes>
         <Route path="/" element = {<All />}/>
         <Route path="/inbox" element = {<Inbox />}/>

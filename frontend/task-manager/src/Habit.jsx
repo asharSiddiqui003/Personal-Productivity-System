@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FiBook, FiSun, FiCode, FiActivity, FiHeart, FiStar, FiTarget, FiCoffee, FiPlus, FiEdit2, FiTrash2 } from 'react-icons/fi';
 import windowImage from './assets/habit_window.png';
+import { useNavigate } from 'react-router-dom';
 
 const ICONS = {
     sun: { component: FiSun, color: 'text-yellow-400' },
@@ -13,15 +14,33 @@ const ICONS = {
     coffee: { component: FiCoffee, color: 'text-orange-400' },
 };
 
+const mapHabit = (dbHabit) => ({
+    id: dbHabit.id,
+    title: dbHabit.habit_name,
+    subtitle: dbHabit.subtitle,
+    streak: dbHabit.count,
+    done: dbHabit.status,
+    icon: dbHabit.icon
+});
+
 export default function Habit() {
+    const Navigate = useNavigate();
     // Habits state
-    const [habits, setHabits] = useState([
-        { id: 1, title: 'Early to Rise', subtitle: 'Get up and be amazing', streak: 0, done: false, icon: 'sun' },
-        { id: 2, title: 'Read', subtitle: 'A chapter a day', streak: 0, done: false, icon: 'book' },
-        { id: 3, title: 'Learn coding', subtitle: 'Practice makes perfect', streak: 0, done: false, icon: 'code' },
-        { id: 4, title: 'Something new', subtitle: 'Expand your horizons', streak: 0, done: false, icon: 'target' },
-        { id: 5, title: 'Exercise', subtitle: 'Stay fit and healthy', streak: 0, done: false, icon: 'activity' },
-    ]);
+    const [habits, setHabits] = useState([]);
+
+    useEffect(() => {
+        const fetchHabits = async () => {
+            try {
+                const res = await fetch('http://localhost:3000/habits');
+                const data = await res.json();
+                const rawHabits = data.rows || data || [];
+                setHabits(rawHabits.map(mapHabit));
+            } catch (e) {
+                console.error("Failed to fetch habits", e);
+            }
+        };
+        fetchHabits();
+    }, []);
 
     const [selectedHabit, setSelectedHabit] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -29,14 +48,37 @@ export default function Habit() {
 
     const [formData, setFormData] = useState({ title: '', subtitle: '', icon: 'sun' });
 
-    const handleToggleDone = (id) => {
+    const handleToggleDone = async (id) => {
+        const habitToToggle = habits.find(h => h.id === id);
+        if (!habitToToggle) return;
+
+        const newDone = !habitToToggle.done;
+        const newStreak = newDone ? habitToToggle.streak + 1 : Math.max(0, habitToToggle.streak - 1);
+
+        // Optimistic UI update
         setHabits(habits.map(h => {
             if (h.id === id) {
-                const newDone = !h.done;
-                return { ...h, done: newDone, streak: newDone ? h.streak + 1 : Math.max(0, h.streak - 1) };
+                return { ...h, done: newDone, streak: newStreak };
             }
             return h;
         }));
+        Navigate(-1);
+
+        try {
+            await fetch(`http://localhost:3000/habits/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    title: habitToToggle.title,
+                    subtitle: habitToToggle.subtitle,
+                    streak: newStreak,
+                    done: newDone,
+                    icon: habitToToggle.icon
+                })
+            });
+        } catch (e) {
+            console.error("Error updating toggle state", e);
+        }
     };
 
     const handleOpenModal = (habit = null) => {
@@ -50,40 +92,70 @@ export default function Habit() {
         setIsModalOpen(true);
     };
 
-    const handleSave = () => {
+    const handleSave = async () => {
         if (!formData.title.trim()) return;
-        
+
         if (editingHabit) {
-            setHabits(habits.map(h => h.id === editingHabit.id ? { ...h, ...formData } : h));
+            try {
+                const res = await fetch(`http://localhost:3000/habits/${editingHabit.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        title: formData.title,
+                        subtitle: formData.subtitle,
+                        streak: editingHabit.streak,
+                        done: editingHabit.done,
+                        icon: formData.icon
+                    })
+                });
+                const updatedHabit = await res.json();
+                setHabits(habits.map(h => h.id === editingHabit.id ? mapHabit(updatedHabit) : h));
+            } catch (e) {
+                console.error("Error updating habit", e);
+            }
         } else {
-            setHabits([...habits, { 
-                id: Date.now(), 
-                title: formData.title, 
-                subtitle: formData.subtitle, 
-                streak: 0, 
-                done: false, 
-                icon: formData.icon 
-            }]);
+            try {
+                const res = await fetch('http://localhost:3000/habits', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        title: formData.title,
+                        subtitle: formData.subtitle,
+                        streak: 0,
+                        done: false,
+                        icon: formData.icon
+                    })
+                });
+                const newHabit = await res.json();
+                setHabits([...habits, mapHabit(newHabit)]);
+            } catch (e) {
+                console.error("Error adding habit", e);
+            }
         }
         setIsModalOpen(false);
     };
 
-    const handleDelete = (id) => {
-        setHabits(habits.filter(h => h.id !== id));
-        if (selectedHabit === id) setSelectedHabit(null);
+    const handleDelete = async (id) => {
+        try {
+            await fetch(`http://localhost:3000/habits/${id}`, { method: 'DELETE' });
+            setHabits(habits.filter(h => h.id !== id));
+            if (selectedHabit === id) setSelectedHabit(null);
+        } catch (e) {
+            console.error("Error deleting habit", e);
+        }
     };
 
     if (selectedHabit) {
         const habit = habits.find(h => h.id === selectedHabit);
         if (!habit) return null;
-        
+
         const IconComponent = ICONS[habit.icon]?.component || FiStar;
         const iconColor = ICONS[habit.icon]?.color || 'text-white';
 
         return (
             <div className="min-h-screen pl-24 pr-8 pt-8 bg-[#15173D] text-[#F1E9E9] transition-all duration-300">
                 <div className="flex justify-between items-center mb-6 max-w-md mx-auto w-full">
-                    <button 
+                    <button
                         onClick={() => setSelectedHabit(null)}
                         className="hover:text-white text-[#B8AED4] transition-colors flex items-center space-x-2"
                     >
@@ -107,8 +179,8 @@ export default function Habit() {
                     </div>
                     <h2 className="text-4xl font-bold mb-2 text-center">{habit.title}</h2>
                     <p className="text-[#B8AED4] mb-12 text-lg text-center">{habit.subtitle}</p>
-                    
-                    <div 
+
+                    <div
                         className="w-[300px] bg-[#2a2c5b] rounded-full h-16 p-2 relative flex items-center shadow-lg border border-[#2a2c5b]/50 cursor-pointer overflow-hidden mx-auto"
                         onClick={() => handleToggleDone(habit.id)}
                     >
@@ -116,12 +188,12 @@ export default function Habit() {
                         <div className={`absolute inset-0 flex items-center justify-center font-medium pointer-events-none select-none z-10 transition-colors duration-300 ${habit.done ? 'text-white' : 'text-[#B8AED4]'}`}>
                             {habit.done ? 'Completed!' : 'Slide to complete'}
                         </div>
-                        
+
                         {/* Fill background when done */}
                         <div className={`absolute left-0 top-0 bottom-0 bg-[#982598] rounded-full transition-all duration-300 ease-out z-0 ${habit.done ? 'w-full' : 'w-0'}`}></div>
 
                         {/* Slider thumb */}
-                        <div 
+                        <div
                             className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ease-out z-20 shadow-md ${habit.done ? 'bg-white text-[#982598] translate-x-[236px]' : 'bg-white text-[#982598] translate-x-0'}`}
                         >
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
@@ -140,22 +212,22 @@ export default function Habit() {
                     {habits.map((habit) => {
                         const IconComponent = ICONS[habit.icon]?.component || FiStar;
                         const iconColor = ICONS[habit.icon]?.color || 'text-white';
-                        
+
                         return (
-                            <div 
-                                key={habit.id} 
+                            <div
+                                key={habit.id}
                                 onClick={() => setSelectedHabit(habit.id)}
                                 className={`bg-[#15173D]/60 hover:bg-[#15173D] rounded-2xl p-6 flex items-center space-x-6 cursor-pointer transition-all duration-200 border border-transparent hover:border-[#982598]/50 group relative overflow-hidden`}
                             >
                                 <div className="absolute top-2 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <button 
-                                        onClick={(e) => { e.stopPropagation(); handleOpenModal(habit); }} 
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); handleOpenModal(habit); }}
                                         className="p-1.5 rounded-lg hover:bg-indigo-500/50 text-[#B8AED4] hover:text-white transition-colors"
                                     >
                                         <FiEdit2 size={14} />
                                     </button>
-                                    <button 
-                                        onClick={(e) => { e.stopPropagation(); handleDelete(habit.id); }} 
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); handleDelete(habit.id); }}
                                         className="p-1.5 rounded-lg hover:bg-red-500/50 text-[#B8AED4] hover:text-white transition-colors"
                                     >
                                         <FiTrash2 size={14} />
@@ -171,9 +243,9 @@ export default function Habit() {
                             </div>
                         );
                     })}
-                    
+
                     {/* Add New Habit Card */}
-                    <div 
+                    <div
                         onClick={() => handleOpenModal()}
                         className={`bg-transparent hover:bg-[#15173D]/40 border-2 border-dashed border-[#B8AED4]/30 hover:border-[#982598]/50 rounded-2xl p-6 flex items-center justify-center space-x-4 cursor-pointer transition-all duration-200 group`}
                     >
@@ -190,25 +262,25 @@ export default function Habit() {
                 <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
                     <div className="bg-[#15173D] border border-[#2a2c5b] rounded-[2rem] w-full max-w-md p-8 shadow-2xl relative animate-slide-down">
                         <h2 className="text-3xl font-bold mb-6">{editingHabit ? 'Edit Habit' : 'New Habit'}</h2>
-                        
+
                         <div className="space-y-5">
                             <div>
                                 <label className="block text-sm font-medium text-[#B8AED4] mb-2 uppercase tracking-wider">Title</label>
-                                <input 
-                                    type="text" 
+                                <input
+                                    type="text"
                                     value={formData.title}
-                                    onChange={(e) => setFormData({...formData, title: e.target.value})}
+                                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                                     placeholder="e.g., Drink Water"
                                     className="w-full bg-[#2a2c5b] border border-[#2a2c5b] focus:border-[#982598] rounded-xl px-4 py-3 text-white placeholder-[#B8AED4]/50 focus:outline-none focus:ring-2 focus:ring-[#982598]/30 transition-all"
                                 />
                             </div>
-                            
+
                             <div>
                                 <label className="block text-sm font-medium text-[#B8AED4] mb-2 uppercase tracking-wider">Subtitle</label>
-                                <input 
-                                    type="text" 
+                                <input
+                                    type="text"
                                     value={formData.subtitle}
-                                    onChange={(e) => setFormData({...formData, subtitle: e.target.value})}
+                                    onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
                                     placeholder="e.g., 8 glasses a day"
                                     className="w-full bg-[#2a2c5b] border border-[#2a2c5b] focus:border-[#982598] rounded-xl px-4 py-3 text-white placeholder-[#B8AED4]/50 focus:outline-none focus:ring-2 focus:ring-[#982598]/30 transition-all"
                                 />
@@ -220,7 +292,7 @@ export default function Habit() {
                                     {Object.entries(ICONS).map(([key, { component: Icon, color }]) => (
                                         <button
                                             key={key}
-                                            onClick={() => setFormData({...formData, icon: key})}
+                                            onClick={() => setFormData({ ...formData, icon: key })}
                                             className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${formData.icon === key ? 'bg-[#982598] ring-4 ring-[#982598]/30 scale-110' : 'bg-[#2a2c5b] hover:bg-[#2a2c5b]/80'} `}
                                         >
                                             <Icon size={20} className={formData.icon === key ? 'text-white' : color} />
@@ -231,13 +303,13 @@ export default function Habit() {
                         </div>
 
                         <div className="flex space-x-4 mt-10">
-                            <button 
+                            <button
                                 onClick={() => setIsModalOpen(false)}
                                 className="flex-1 py-3 rounded-xl bg-transparent border border-[#B8AED4]/30 text-[#B8AED4] font-semibold hover:bg-[#B8AED4]/10 transition-colors"
                             >
                                 Cancel
                             </button>
-                            <button 
+                            <button
                                 onClick={handleSave}
                                 className="flex-1 py-3 rounded-xl bg-[#982598] text-white font-semibold hover:bg-indigo-500 shadow-lg hover:shadow-indigo-500/25 transition-all"
                             >
