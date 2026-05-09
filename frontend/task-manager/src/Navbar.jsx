@@ -1,6 +1,6 @@
 import {
   IoPersonOutline,
-  IoCalendarNumberOutline,
+  IoTimerOutline,
   IoSearch,
 } from "react-icons/io5";
 import { BiTask } from "react-icons/bi";
@@ -37,10 +37,10 @@ function Navbar({ activeNav, setActiveNav }) {
       />
 
       <NavBarIcon
-        icon={<IoCalendarNumberOutline size={24} />}
-        text="Calendar"
-        isActive={activeNav === "Calendar"}
-        onClick={() => handleClick("Calendar", "/calendar")}
+        icon={<IoTimerOutline size={24} />}
+        text="Pomodoro"
+        isActive={activeNav === "Pomodoro"}
+        onClick={() => handleClick("Pomodoro", "/pomodoro")}
       />
 
       <NavBarIcon

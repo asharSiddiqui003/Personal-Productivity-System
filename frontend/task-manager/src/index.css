@@ -2,29 +2,19 @@
 
 @layer components {
   .navbar-icon {
-    @apply relative flex items-center  justify-center 
-    shadow-2xl bg-[#982598] h-12 w-12 mb-2 mt-2 text-[#F1E9E9] rounded-3xl
-    hover:rounded-xl hover:shadow-2xl 
-    transition-all duration-300 ease-linear cursor-pointer;
+    @apply relative flex items-center justify-center shadow-2xl bg-[#982598] h-12 w-12 mb-2 mt-2 text-[#F1E9E9] rounded-3xl hover:rounded-xl hover:shadow-2xl transition-all duration-300 ease-linear cursor-pointer;
   }
 
   .navbar-tooltip {
-    @apply absolute w-auto p-2 m-2 min-w-max left-14
-    rounded-md shadow-md bg-[#982598]
-    text-[#F1E9E9] overflow-visible z-50
-    text-xs font-bold
-    transition-all duration-100 scale-0 origin-left;
+    @apply absolute w-auto p-2 m-2 min-w-max left-14 rounded-md shadow-md bg-[#982598] text-[#F1E9E9] overflow-visible z-50 text-xs font-bold transition-all duration-100 scale-0 origin-left;
   }
 
   .sidebar {
-    @apply w-64 h-screen flex flex-col py-4
-  bg-[#15173D] text-[#F1E9E9];
+    @apply w-64 h-screen flex flex-col py-4 bg-[#15173D] text-[#F1E9E9];
   }
 
   .sidebar-buttons {
-    @apply my-5 relative flex items-center justify-center text-center
-  rounded-md h-12 w-[248px] text-2xl
-  hover:bg-[#2a2c5b]  cursor-pointer;
+    @apply my-5 relative flex items-center justify-center text-center rounded-md h-12 w-[248px] text-2xl hover:bg-[#2a2c5b] cursor-pointer;
   }
 
   .sidebar-icons {
@@ -32,8 +22,7 @@
   }
 
   .add-task {
-    @apply w-[900px] border-4 border-gray-200
-  text-center;
+    @apply w-[900px] border-4 border-gray-200 text-center;
   }
 
   .task-submit {
@@ -41,17 +30,11 @@
   }
 
   .priority {
-    @apply absolute right-25
-     hover:bg-blue-400 hover:text-white hover:rounded-lg 
-     transition-all duration-100
-     border-4 border-gray-600
+    @apply absolute right-25 hover:bg-blue-400 hover:text-white hover:rounded-lg transition-all duration-100 border-4 border-gray-600
   }
 
-  .task-bar{
-    @apply  bg-[#F1E9E9] rounded-2xl hover:ring-3
-     hover:ring-[#982598] hover:shadow-2xl 
-     transition-all duration-200
-    mt-8 h-[92px] mx-4 
+  .task-bar {
+    @apply bg-[#F1E9E9] rounded-2xl hover:ring-3 hover:ring-[#982598] hover:shadow-2xl transition-all duration-200 mt-8 h-[92px] mx-4
   }
 
   .animate-slide-down {
@@ -63,6 +46,7 @@
       opacity: 0;
       transform: translateY(-10px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
@@ -78,8 +62,7 @@
   }
 
   .edit-card {
-    @apply mx-auto w-full max-w-[1120px] rounded-3xl 
-    border border-[#2a2c5b] bg-[#F1E9E9]/95 p-8 shadow-2xl;
+    @apply mx-auto w-full max-w-[1120px] rounded-3xl border border-[#2a2c5b] bg-[#F1E9E9]/95 p-8 shadow-2xl;
   }
 
   .edit-label {
@@ -107,15 +90,34 @@
     width: 6px;
     height: 6px;
   }
+
   .custom-scrollbar::-webkit-scrollbar-track {
-    background: rgba(42, 44, 91, 0.3); /* #2a2c5b with opacity */
+    background: rgba(42, 44, 91, 0.3);
+    /* #2a2c5b with opacity */
     border-radius: 8px;
   }
+
   .custom-scrollbar::-webkit-scrollbar-thumb {
     background: #982598;
     border-radius: 8px;
   }
+
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background: #ab3fb6;
+  }
+
+  /* Custom Number Input Spinner styled like the scrollbar */
+  .custom-number-input::-webkit-inner-spin-button,
+  .custom-number-input::-webkit-outer-spin-button {
+    opacity: 1;
+    background-color: #982598;
+    border-radius: 8px;
+    width: 16px;
+    cursor: pointer;
+  }
+
+  .custom-number-input::-webkit-inner-spin-button:hover,
+  .custom-number-input::-webkit-outer-spin-button:hover {
+    background-color: #ab3fb6;
   }
 }

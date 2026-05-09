@@ -1,6 +1,7 @@
 import { GoStack } from "react-icons/go";
 import { FiInbox, FiActivity } from "react-icons/fi";
 import { CgNotes } from "react-icons/cg";
+import { IoCalendarNumberOutline } from "react-icons/io5";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -27,7 +28,7 @@ function Sidebar() {
     console.log(`${id} Clicked!`);
   }
   return (
-    <motion.div 
+    <motion.div
       initial={{ x: -250, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       exit={{ x: -250, opacity: 0 }}
@@ -77,11 +78,12 @@ function Sidebar() {
         isActive={active === "Next 7D"}
         onClick={() => handleClick("Next 7D", "/next-7d")}
       />
+
       <SidebarButton
-        icon={<CgNotes size={24} />}
-        text="Summary"
-        isActive={active === "Summary"}
-        onClick={() => handleClick("Summary", "/summary")}
+        icon={<IoCalendarNumberOutline size={24} />}
+        text="Calendar"
+        isActive={active === "Calendar"}
+        onClick={() => handleClick("Calendar", "/calendar")}
       />
 
     </motion.div>

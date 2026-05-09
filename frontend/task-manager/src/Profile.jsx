@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { IoPersonCircleOutline, IoSaveOutline, IoCloseOutline } from "react-icons/io5";
+import { IoPersonCircleOutline, IoSaveOutline, IoCloseOutline, IoLogOutOutline } from "react-icons/io5";
 import { BiEditAlt } from "react-icons/bi";
 
-function Profile() {
+function Profile({ onLogout }) {
   const [profile, setProfile] = useState({
     name: "",
     email: "",
@@ -100,13 +100,22 @@ function Profile() {
             User Profile
           </h1>
           {!isEditing ? (
-            <button
-              onClick={() => setIsEditing(true)}
-              className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-medium transition-all shadow-lg shadow-indigo-500/20"
-            >
-              <BiEditAlt size={20} />
-              Edit Profile
-            </button>
+            <div className="flex gap-4">
+              <button
+                onClick={onLogout}
+                className="flex items-center gap-2 bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white px-5 py-2.5 rounded-xl font-medium transition-all shadow-lg border border-red-500/30 hover:shadow-red-500/20"
+              >
+                <IoLogOutOutline size={20} />
+                Logout
+              </button>
+              <button
+                onClick={() => setIsEditing(true)}
+                className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-medium transition-all shadow-lg shadow-indigo-500/20"
+              >
+                <BiEditAlt size={20} />
+                Edit Profile
+              </button>
+            </div>
           ) : (
             <div className="flex gap-3">
               <button
