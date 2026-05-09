@@ -101,4 +101,21 @@
   .edit-status {
     @apply mt-4 text-sm text-[#B8AED4];
   }
+
+  /* Custom Scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(42, 44, 91, 0.3); /* #2a2c5b with opacity */
+    border-radius: 8px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #982598;
+    border-radius: 8px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #ab3fb6;
+  }
 }

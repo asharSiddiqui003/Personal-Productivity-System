@@ -120,6 +120,36 @@ app.put('/tasks/completed', async (req, res) => {
     console.log("Error editing data : " + e);
   }
 })
+//-----------------Profile------------------------------
+
+app.get('/profile', async (req, res) => {
+  try {
+    const result = await db.query("SELECT * FROM profile WHERE id = 1");
+    if (result.rows.length > 0) {
+      res.status(200).json(result.rows[0]);
+    } else {
+      res.status(404).json("Profile not found");
+    }
+  } catch (e) {
+    console.log("Error fetching profile: " + e);
+    res.status(500).json("Error fetching profile: " + e);
+  }
+});
+
+app.put('/profile', async (req, res) => {
+  try {
+    const { name, email, bio, avatar } = req.body;
+    const result = await db.query(
+      "UPDATE profile SET name = $1, email = $2, bio = $3, avatar = $4 WHERE id = 1 RETURNING *",
+      [name, email, bio, avatar]
+    );
+    res.status(200).json(result.rows[0]);
+  } catch (e) {
+    console.log("Error updating profile: " + e);
+    res.status(500).json("Error updating profile: " + e);
+  }
+});
+
 app.listen(3000, () => console.log('Server running on port 3000'));
 
 
@@ -182,3 +212,18 @@ app.put(`/habits/:id`, async (req, res) => {
     res.status(500).json("Error Editing Data" + e);
   }
 });
+
+
+
+//------------------Search-------------------------
+
+app.get('/search', async (req, res) => {
+  try {
+    const { query } = req.query;
+    const result = await db.query("SELECT * FROM tasks WHERE title LIKE $1", [`%${query}%`]);
+    res.status(200).json(result);
+  } catch (e) {
+    res.status(500).json("Error fetching data for search: " + e);
+    console.log("Error fetching data for search: " + e);
+  }
+})

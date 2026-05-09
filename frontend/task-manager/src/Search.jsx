@@ -7,34 +7,67 @@ export default function Search({ isOpen, onClose }) {
     const [searchTerm, setSearchTerm] = useState('');
     const [activeFilter, setActiveFilter] = useState('All');
     const [activeSort, setActiveSort] = useState('Newest');
-
-    // ==========================================
-    // EVENT HANDLERS SKELETON
-    // You can connect these to your database fetching logic
-    // ==========================================
+    const [results, setResults] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleSearchChange = (e) => {
-        const value = e.target.value;
-        setSearchTerm(value);
-        // TODO: Add your database search logic here using the 'value'
+        setSearchTerm(e.target.value);
     };
 
     const handleFilterClick = (filter) => {
         setActiveFilter(filter);
-        // TODO: Add your database filtering logic here using the 'filter'
     };
 
     const handleSortChange = (e) => {
-        const sort = e.target.value;
-        setActiveSort(sort);
-        // TODO: Add your database sorting logic here using the 'sort'
+        setActiveSort(e.target.value);
     };
 
     const handleResultClick = (resultId) => {
-        // TODO: Handle navigation or opening the specific item
+        // Handle navigation to the specific item
         console.log(`Navigating to item ${resultId}`);
         onClose();
     };
+
+    // Debounced fetch effect for searching
+    useEffect(() => {
+        if (!searchTerm.trim()) {
+            setResults([]);
+            return;
+        }
+
+        const fetchResults = async () => {
+            setIsLoading(true);
+            try {
+                const res = await fetch(`http://localhost:3000/search?query=${encodeURIComponent(searchTerm)}`);
+                const data = await res.json();
+
+                const rows = data.rows || data || [];
+
+                // Map tasks from the backend to the generic result structure
+                // Note: The current backend query only searches 'tasks'
+                const formattedResults = rows.map(item => ({
+                    id: item.task_id,
+                    type: 'Task',
+                    title: item.title,
+                    date: item.created ? new Date(item.created).toLocaleDateString() : 'No date',
+                    timestamp: item.created ? new Date(item.created).getTime() : 0
+                }));
+
+                setResults(formattedResults);
+            } catch (error) {
+                console.error("Error fetching search results:", error);
+                setResults([]);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        const delayDebounceFn = setTimeout(() => {
+            fetchResults();
+        }, 300);
+
+        return () => clearTimeout(delayDebounceFn);
+    }, [searchTerm]);
 
     // Close modal when pressing the Escape key
     useEffect(() => {
@@ -49,12 +82,89 @@ export default function Search({ isOpen, onClose }) {
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [isOpen, onClose]);
 
-    // Placeholder mock data to demonstrate styling
-    const mockResults = [
-        { id: 1, type: 'Task', title: 'Complete project proposal', date: 'Today' },
-        { id: 2, type: 'Habit', title: 'Drink 8 glasses of water', date: 'Daily' },
-        { id: 3, type: 'Event', title: 'Team Meeting', date: 'Tomorrow, 10:00 AM' },
-    ];
+    // Compute displayed results directly
+    const displayedResults = results
+        .filter(r => activeFilter === 'All' || activeFilter === r.type)
+        .sort((a, b) => {
+            if (activeSort === 'Newest') return b.timestamp - a.timestamp;
+            if (activeSort === 'Oldest') return a.timestamp - b.timestamp;
+            if (activeSort === 'A-Z') return a.title.localeCompare(b.title);
+            return 0; // Default/Relevance
+        });
+
+    // Helper to get color class based on type
+    const getResultColorClass = (type) => {
+        if (type === 'Task') {
+            return 'bg-blue-500/20 text-blue-400';
+        } else if (type === 'Habit') {
+            return 'bg-pink-500/20 text-pink-400';
+        } else {
+            return 'bg-purple-500/20 text-purple-400';
+        }
+    };
+
+    // Helper to render the results area without nested ternaries
+    const renderResultsArea = () => {
+        if (isLoading) {
+            return (
+                <div className="flex flex-col items-center justify-center py-16 text-center">
+                    <div className="w-10 h-10 border-4 border-[#982598] border-t-transparent rounded-full animate-spin mb-4"></div>
+                    <p className="text-[#B8AED4] text-lg">Searching...</p>
+                </div>
+            );
+        } else if (searchTerm && displayedResults.length > 0) {
+            return (
+                <div className="space-y-3 pb-4">
+                    <h3 className="text-xs font-bold text-[#B8AED4] uppercase tracking-widest mb-4 px-2">
+                        Found {displayedResults.length} results
+                    </h3>
+
+                    {displayedResults.map((result) => (
+                        <div
+                            key={result.id}
+                            onClick={() => handleResultClick(result.id)}
+                            className="group flex items-center justify-between p-4 rounded-2xl bg-[#1D1F49]/50 hover:bg-[#2a2c5b] border border-transparent hover:border-[#982598]/30 transition-all cursor-pointer shadow-sm hover:shadow-md"
+                        >
+                            <div className="flex items-center space-x-4">
+                                {/* Dynamic Icon based on type */}
+                                <div className={`p-3 rounded-xl ${getResultColorClass(result.type)}`}>
+                                    {result.type === 'Task' && <FiCheckSquare size={20} />}
+                                    {result.type === 'Habit' && <FiActivity size={20} />}
+                                    {result.type === 'Event' && <FiCalendar size={20} />}
+                                </div>
+
+                                <div>
+                                    <h4 className="text-lg font-semibold text-white group-hover:text-[#982598] transition-colors">{result.title}</h4>
+                                    <span className="text-sm text-[#B8AED4]">{result.type} &bull; {result.date}</span>
+                                </div>
+                            </div>
+
+                            {/* Hover Arrow indicator */}
+                            <div className="w-8 h-8 rounded-full bg-[#15173D] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
+                                <span className="text-[#982598] font-bold">&rarr;</span>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            );
+        } else if (searchTerm) {
+            return (
+                <div className="flex flex-col items-center justify-center py-16 text-center">
+                    <div className="w-20 h-20 rounded-full bg-[#2a2c5b]/50 flex items-center justify-center mb-6">
+                        <IoSearch size={36} className="text-[#B8AED4]/40" />
+                    </div>
+                    <p className="text-xl font-semibold text-[#F1E9E9]">No results found for "{searchTerm}"</p>
+                    <p className="text-md text-[#B8AED4] mt-2 max-w-sm">We couldn't find what you're looking for. Try adjusting your filters or search terms.</p>
+                </div>
+            );
+        } else {
+            return (
+                <div className="flex flex-col items-center justify-center py-16 text-center">
+                    <p className="text-[#B8AED4] text-lg">Start typing to search your workspace...</p>
+                </div>
+            );
+        }
+    };
 
     return (
         <AnimatePresence>
@@ -136,57 +246,7 @@ export default function Search({ isOpen, onClose }) {
 
                         {/* Results Area */}
                         <div className="flex-1 overflow-y-auto p-4 custom-scrollbar bg-[#15173D]">
-                            {searchTerm && mockResults.length > 0 ? (
-                                <div className="space-y-3 pb-4">
-                                    <h3 className="text-xs font-bold text-[#B8AED4] uppercase tracking-widest mb-4 px-2">
-                                        Found {mockResults.length} results
-                                    </h3>
-
-                                    {mockResults.map((result) => (
-                                        <div
-                                            key={result.id}
-                                            onClick={() => handleResultClick(result.id)}
-                                            className="group flex items-center justify-between p-4 rounded-2xl bg-[#1D1F49]/50 hover:bg-[#2a2c5b] border border-transparent hover:border-[#982598]/30 transition-all cursor-pointer shadow-sm hover:shadow-md"
-                                        >
-                                            <div className="flex items-center space-x-4">
-                                                {/* Dynamic Icon based on type */}
-                                                <div className={`p-3 rounded-xl ${result.type === 'Task' ? 'bg-blue-500/20 text-blue-400' :
-                                                    result.type === 'Habit' ? 'bg-pink-500/20 text-pink-400' :
-                                                        'bg-purple-500/20 text-purple-400'
-                                                    }`}>
-                                                    {result.type === 'Task' && <FiCheckSquare size={20} />}
-                                                    {result.type === 'Habit' && <FiActivity size={20} />}
-                                                    {result.type === 'Event' && <FiCalendar size={20} />}
-                                                </div>
-
-                                                <div>
-                                                    <h4 className="text-lg font-semibold text-white group-hover:text-[#982598] transition-colors">{result.title}</h4>
-                                                    <span className="text-sm text-[#B8AED4]">{result.type} &bull; {result.date}</span>
-                                                </div>
-                                            </div>
-
-                                            {/* Hover Arrow indicator */}
-                                            <div className="w-8 h-8 rounded-full bg-[#15173D] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
-                                                <span className="text-[#982598] font-bold">&rarr;</span>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : searchTerm ? (
-                                // Empty state when typing but no results
-                                <div className="flex flex-col items-center justify-center py-16 text-center">
-                                    <div className="w-20 h-20 rounded-full bg-[#2a2c5b]/50 flex items-center justify-center mb-6">
-                                        <IoSearch size={36} className="text-[#B8AED4]/40" />
-                                    </div>
-                                    <p className="text-xl font-semibold text-[#F1E9E9]">No results found for "{searchTerm}"</p>
-                                    <p className="text-md text-[#B8AED4] mt-2 max-w-sm">We couldn't find what you're looking for. Try adjusting your filters or search terms.</p>
-                                </div>
-                            ) : (
-                                // Initial empty state
-                                <div className="flex flex-col items-center justify-center py-16 text-center">
-                                    <p className="text-[#B8AED4] text-lg">Start typing to search your workspace...</p>
-                                </div>
-                            )}
+                            {renderResultsArea()}
                         </div>
                     </motion.div>
                 </div>
