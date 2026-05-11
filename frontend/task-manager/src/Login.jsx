@@ -1,21 +1,45 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { IoMailOutline, IoLockClosedOutline, IoArrowForwardOutline } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
 
 function Login({ onLogin }) {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    // Simulate network request before logging in
-    // You will replace this with your actual backend fetch call
-    setTimeout(() => {
+    setErrorMessage("");
+
+    try {
+      const response = await fetch("http://localhost:4000/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        // Securely store the tokens returned by authServer.js
+        localStorage.setItem("accessToken", data.accessToken);
+        localStorage.setItem("refreshToken", data.refreshToken);
+        
+        // Trigger the parent component to render the dashboard
+        onLogin(); 
+      } else {
+        const errorText = await response.json();
+        setErrorMessage(errorText || "Invalid credentials");
+      }
+    } catch (err) {
+      console.error(err);
+      setErrorMessage("Network error: Could not reach the server.");
+    } finally {
       setLoading(false);
-      onLogin(); 
-    }, 800);
+    }
   };
 
   return (
@@ -42,6 +66,16 @@ function Login({ onLogin }) {
           <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">Welcome Back</h1>
           <p className="text-gray-400 text-sm">Sign in to manage your tasks and habits</p>
         </div>
+
+        {errorMessage && (
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm text-center font-medium shadow-inner"
+          >
+            {errorMessage}
+          </motion.div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-4">
@@ -104,7 +138,14 @@ function Login({ onLogin }) {
         </form>
 
         <p className="mt-8 text-center text-sm text-gray-400">
-          Don't have an account? <a href="#" className="text-indigo-400 hover:text-indigo-300 font-medium transition-colors ml-1">Sign up</a>
+          Don't have an account?{" "}
+          <button 
+            type="button" 
+            onClick={() => navigate('/signup')} 
+            className="text-indigo-400 hover:text-indigo-300 font-medium transition-colors ml-1"
+          >
+            Sign up
+          </button>
         </p>
       </motion.div>
     </div>

@@ -16,13 +16,27 @@ const Pomodoro = () => {
   const [showSavePrompt, setShowSavePrompt] = useState(false);
 
   useEffect(() => {
+    const fetchSessions = async () => {
+      try {
+        const response = await fetch("http://localhost:3000/pomodoro");
+        if (response.ok) {
+          const data = await response.json();
+          setSavedSessions(data);
+        }
+      } catch (error) {
+        console.error("Error fetching sessions:", error);
+      }
+    };
+    fetchSessions();
+  }, []);
+
+  useEffect(() => {
     let interval = null;
     if (isActive && timeLeft > 0) {
       interval = setInterval(() => {
         setTimeLeft((time) => time - 1);
       }, 1000);
     } else if (timeLeft === 0 && isActive) {
-      // Auto-trigger save prompt when time is up
       setIsActive(false);
       setShowSavePrompt(true);
     }
@@ -58,15 +72,28 @@ const Pomodoro = () => {
     setIsEditingTime(false);
   };
 
-  const handleSaveSession = () => {
+  const handleSaveSession = async () => {
     const duration = currentTotalTime - timeLeft;
-    setSavedSessions([...savedSessions, {
-      id: Date.now(),
+    const sessionData = {
       title: taskTitle || "Untitled Task",
       duration: duration,
-      date: new Date().toISOString(),
       mode: mode
-    }]);
+    };
+
+    try {
+      const response = await fetch("http://localhost:3000/pomodoro", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(sessionData)
+      });
+      if (response.ok) {
+        const newSession = await response.json();
+        setSavedSessions([...savedSessions, newSession]);
+      }
+    } catch (error) {
+      console.error("Error saving session:", error);
+    }
+
     setShowSavePrompt(false);
     resetTimer();
     setTaskTitle("");

@@ -11,6 +11,7 @@ import Pomodoro from './Pomodoro'
 import Search from './Search'
 import Profile from './Profile'
 import Login from './Login'
+import Signup from './Signup'
 import Introduction from './Introduction'
 import { Routes, Route, useLocation, Navigate } from "react-router-dom"
 import { AnimatePresence } from 'framer-motion'
@@ -51,15 +52,16 @@ function App() {
     updateNavFromPath();
   }, [location.pathname]);
 
-  if (!isAuthenticated) {
-    return (
-      <Routes>
-        <Route path="/" element={<Introduction />} />
-        <Route path="/login" element={<Login onLogin={handleLogin} />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    );
-  }
+  // if (!isAuthenticated) {
+  //   return (
+  //     <Routes>
+  //       <Route path="/" element={<Introduction />} />
+  //       <Route path="/login" element={<Login onLogin={handleLogin} />} />
+  //       <Route path="/signup" element={<Signup />} />
+  //       <Route path="*" element={<Navigate to="/" replace />} />
+  //     </Routes>
+  //   );
+  // }
 
   return (
     <div>

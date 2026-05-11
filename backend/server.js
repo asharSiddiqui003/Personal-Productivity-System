@@ -5,6 +5,7 @@ const cors = require('cors');
 const app = express();
 const pg = require('pg');
 const bodyparser = require('body-parser');
+const bcrypt = require('bcrypt');
 
 
 const corsOption = {
@@ -227,3 +228,135 @@ app.get('/search', async (req, res) => {
     console.log("Error fetching data for search: " + e);
   }
 })
+
+//-------------------Pomodoro------------------------- 
+
+//------------------Get Details-------------------------
+app.get('/pomodoro', async (req, res) => {
+  try {
+    const result = await db.query("SELECT * FROM pomodoro")
+    res.status(200).json(result);
+  } catch (e) {
+    console.log("Error fetching data for pomodoro" + e);
+    res.status(500).json("Error fetching data for pomodoro" + e);
+  }
+})
+
+//------------------Insert Details-------------------------
+
+app.post("/pomodoro", async (req, res) => {
+  try {
+    const { title, duration, mode } = req.body;
+    const result = await db.query("INSERT INTO pomodoro (title, duration, mode) VALUES ($1,$2,$3) RETURNING*", [title, duration, mode]);
+    res.status(201).json(result.rows[0]);
+  } catch (e) {
+    console.log("Error updating data for pomodoro" + e);
+    res.status(500).json("Error updating data for pomodoro" + e);
+  }
+})
+
+//------------------Profile-----------------------------
+
+//-----------------FETCH DETAIL-----------------------
+
+app.get('/profile', async (req, res) => {
+  try {
+    const result = await db.query("SELECT * FROM profile")
+    res.status(200).json(result);
+  } catch (e) {
+    console.log("Error fetching data for profile: " + e);
+    res.status(500).json("Error fetching data for profile: " + e);
+  }
+})
+
+//------------------GET DETAIL PER ID--------------------
+
+app.put('/profile/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, email, bio, avatar } = req.body;
+    const result = await db.query("UPDATE profile SET name = $1, email = $2, bio = $3, avatar = $4 WHERE id = $5 RETURNING*", [name, email, bio, avatar, id]);
+    res.status(200).json(result.rows[0]);
+  } catch (e) {
+    console.log("Error updating data for profile: " + e);
+    res.status(500).json("Error updating data for profile: " + e);
+  }
+})
+
+//------------------UPATE--------------------
+app.put('/profile', async (req, res) => {
+  try {
+    const { name, email, bio, avatar } = req.body;
+    const result = await db.query("UPDATE profile SET name = $1, email = $2, bio = $3, avatar = $4 WHERE id = $5 RETURNING*", [name, email, bio, avatar, id]);
+    res.status(200).json(result.rows[0]);
+  } catch (e) {
+    console.log("Error updating data for profile: " + e);
+    res.status(500).json("Error updating data for profile: " + e);
+  }
+})
+
+app.delete('/profile/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await db.query("DELETE FROM profile WHERE id = $1 RETURNING*", [id]);
+    res.status(200).json(result.rows[0]);
+  } catch (e) {
+    console.log("Error deleting data for profile: " + e);
+    res.status(500).json("Error deleting data for profile: " + e);
+  }
+})
+
+
+//----------------------LOGIN----------------------
+
+//-------------------INSERT INFO------------------
+
+
+app.post("/users", async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const result = await db.query("INSERT INTO profile (email,password) VALUES($1,$2) RETURNING*", [email, hashedPassword]);
+    res.status(201).json(result.rows[0]);
+  } catch (e) {
+    console.log("Error inserting data for login" + e);
+    res.status(500).json("Error inserting data for login" + e);
+  }
+})
+
+app.post("/users/login", async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const result = await db.query("SELECT * FROM profile WHERE email = $1", [email]);
+    if (result.rows.length === 0) {
+      return res.status(404).json("User not found");
+    }
+    const user = result.rows[0];
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json("Invalid password");
+    }
+    res.status(200).json("User verified");
+  } catch (e) {
+    console.log("Error verifying user" + e);
+    res.status(500).json("Error verifying user" + e);
+  }
+})
+
+app.get('/posts', authenticateToken, async (req, res) => {
+  const user = await db.query("SELECT * FROM profile WHERE email = $1", [req.user.name]);
+  res.json(user.rows);
+})
+
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers.authorization;
+  const token = authHeader && authHeader.split(' ')[1]
+  if (token == null) return res.status(401).json('Error authenticating token');
+
+  jwt.verify(token, process.env.ACCESS_TOKEN, (err, user) => {
+    if (err) return res.sendStatus(403);//403 says that we see you have a token but the token is not longer valid 
+    req.user = user
+    next()
+  })
+}
+
