@@ -6,6 +6,9 @@ const app = express();
 const pg = require('pg');
 const bodyparser = require('body-parser');
 const bcrypt = require('bcrypt');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 
 
 const corsOption = {
@@ -19,6 +22,28 @@ const corsOption = {
 app.use(cors());
 app.use(bodyparser.json());
 app.use(bodyparser.urlencoded({ extended: true }));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Multer storage configuration
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/');
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({ storage: storage });
+
+// File upload endpoint
+app.post('/upload', upload.single('file'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json("No file uploaded");
+  }
+  const fileUrl = `http://localhost:3000/uploads/${req.file.filename}`;
+  res.status(200).json({ url: fileUrl });
+});
 
 
 

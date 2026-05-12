@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { FiBook, FiSun, FiCode, FiActivity, FiHeart, FiStar, FiTarget, FiCoffee, FiPlus, FiEdit2, FiTrash2 } from 'react-icons/fi';
+import { FiBook, FiSun, FiCode, FiActivity, FiHeart, FiStar, FiTarget, FiCoffee, FiPlus, FiEdit2, FiTrash2, FiX } from 'react-icons/fi';
 import windowImage from './assets/habit_window.png';
 import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const ICONS = {
     sun: { component: FiSun, color: 'text-yellow-400' },
@@ -147,66 +148,6 @@ export default function Habit() {
         }
     };
 
-    if (selectedHabit) {
-        const habit = habits.find(h => h.id === selectedHabit);
-        if (!habit) return null;
-
-        const IconComponent = ICONS[habit.icon]?.component || FiStar;
-        const iconColor = ICONS[habit.icon]?.color || 'text-white';
-
-        return (
-            <div className="min-h-screen px-4 md:pl-28 md:pr-8 pt-8 pb-8 text-[#F1E9E9] transition-all duration-300">
-                <div className="flex justify-between items-center mb-6 max-w-md mx-auto w-full">
-                    <button
-                        onClick={() => setSelectedHabit(null)}
-                        className="hover:text-white text-[#B8AED4] transition-colors flex items-center space-x-2"
-                    >
-                        <span>&larr;</span> <span>Back to Habits</span>
-                    </button>
-                    <div className="flex space-x-3">
-                        <button onClick={() => { setSelectedHabit(null); handleOpenModal(habit); }} className="p-2 rounded-xl transition-colors text-[#B8AED4] hover:text-white" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }} onMouseEnter={e => e.currentTarget.style.background = 'rgba(99,102,241,0.4)'} onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}>
-                            <FiEdit2 size={18} />
-                        </button>
-                        <button onClick={() => handleDelete(habit.id)} className="p-2 rounded-xl transition-colors text-[#B8AED4] hover:text-white" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }} onMouseEnter={e => e.currentTarget.style.background = 'rgba(239,68,68,0.4)'} onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}>
-                            <FiTrash2 size={18} />
-                        </button>
-                    </div>
-                </div>
-                <div className="max-w-md mx-auto mt-4 flex flex-col items-center">
-                    <div className="w-full max-w-[320px] aspect-square rounded-[3rem] overflow-hidden mb-8 shadow-2xl shadow-[#982598]/10 border-4 border-[#2a2c5b] relative group">
-                        <img src={windowImage} alt="Habit illustration" className="w-full h-full object-cover" />
-                        <div className="absolute top-4 right-4 w-12 h-12 rounded-full bg-[#15173D]/80 backdrop-blur-sm flex items-center justify-center shadow-lg border border-white/10">
-                            <IconComponent size={24} className={iconColor} />
-                        </div>
-                    </div>
-                    <h2 className="text-4xl font-bold mb-2 text-center">{habit.title}</h2>
-                    <p className="text-[#B8AED4] mb-12 text-lg text-center">{habit.subtitle}</p>
-
-                    <div
-                        className={`w-[300px] rounded-full h-16 p-2 relative flex items-center shadow-lg overflow-hidden mx-auto transition-opacity duration-300 ${isCompleting ? 'cursor-default opacity-90' : 'cursor-pointer'}`}
-                        style={{ background: 'rgba(10,9,30,0.85)', border: '1px solid rgba(152,37,152,0.25)' }}
-                        onClick={() => handleComplete(habit.id)}
-                    >
-                        {/* Background text */}
-                        <div className={`absolute inset-0 flex items-center justify-center font-medium pointer-events-none select-none z-10 transition-colors duration-300 ${isCompleting ? 'text-white' : 'text-[#B8AED4]'}`}>
-                            {isCompleting ? 'Completed! 🎉' : 'Click to complete'}
-                        </div>
-
-                        {/* Fill background on completion */}
-                        <div className={`absolute left-0 top-0 bottom-0 bg-[#982598] rounded-full transition-all duration-500 ease-out z-0 ${isCompleting ? 'w-full' : 'w-0'}`}></div>
-
-                        {/* Slider thumb */}
-                        <div
-                            className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-500 ease-out z-20 shadow-md bg-white text-[#982598] ${isCompleting ? 'translate-x-[236px]' : 'translate-x-0'}`}
-                        >
-                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
     return (
         <div className="min-h-screen px-4 md:pl-28 md:pr-8 pt-8 pb-8 text-[#F1E9E9] transition-all duration-300">
             <div className="rounded-[2rem] p-8 w-full relative" style={{ background: 'rgba(10,9,30,0.84)', border: '1px solid rgba(152,37,152,0.18)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 24px 64px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.04)' }}>
@@ -305,7 +246,68 @@ export default function Habit() {
                 </div>
             </div>
 
-            {/* Modal */}
+            {/* Completion Modal */}
+            <AnimatePresence>
+                {selectedHabit && (() => {
+                    const habit = habits.find(h => h.id === selectedHabit);
+                    if (!habit) return null;
+                    const IconComponent = ICONS[habit.icon]?.component || FiStar;
+                    const iconColor = ICONS[habit.icon]?.color || 'text-white';
+
+                    return (
+                        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+                            <motion.div 
+                                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                                className="w-full max-w-md p-8 relative" 
+                                style={{ background: 'rgba(10,9,30,0.97)', border: '1px solid rgba(152,37,152,0.25)', borderRadius: '2.5rem', backdropFilter: 'blur(24px)', boxShadow: '0 32px 80px rgba(0,0,0,0.7)' }}
+                            >
+                                <button
+                                    onClick={() => setSelectedHabit(null)}
+                                    className="absolute top-6 right-6 text-[#B8AED4] hover:text-white transition-colors"
+                                >
+                                    <FiX size={24} />
+                                </button>
+
+                                <div className="flex flex-col items-center">
+                                    <div className="w-full max-w-[240px] aspect-square rounded-[2rem] overflow-hidden mb-6 shadow-2xl shadow-[#982598]/10 border-2 border-[#2a2c5b] relative group">
+                                        <img src={windowImage} alt="Habit illustration" className="w-full h-full object-cover" />
+                                        <div className="absolute top-3 right-3 w-10 h-10 rounded-full bg-[#15173D]/80 backdrop-blur-sm flex items-center justify-center shadow-lg border border-white/10">
+                                            <IconComponent size={20} className={iconColor} />
+                                        </div>
+                                    </div>
+                                    <h2 className="text-3xl font-bold mb-1 text-center text-white">{habit.title}</h2>
+                                    <p className="text-[#B8AED4] mb-10 text-center">{habit.subtitle}</p>
+
+                                    <div
+                                        className={`w-[280px] rounded-full h-14 p-1.5 relative flex items-center shadow-lg overflow-hidden mx-auto transition-opacity duration-300 ${isCompleting ? 'cursor-default opacity-90' : 'cursor-pointer'}`}
+                                        style={{ background: 'rgba(10,9,30,0.85)', border: '1px solid rgba(152,37,152,0.25)' }}
+                                        onClick={() => handleComplete(habit.id)}
+                                    >
+                                        {/* Background text */}
+                                        <div className={`absolute inset-0 flex items-center justify-center text-sm font-bold uppercase tracking-widest pointer-events-none select-none z-10 transition-colors duration-300 ${isCompleting ? 'text-white' : 'text-[#B8AED4]'}`}>
+                                            {isCompleting ? 'Completed! 🎉' : 'Click to complete'}
+                                        </div>
+
+                                        {/* Fill background on completion */}
+                                        <div className={`absolute left-0 top-0 bottom-0 bg-[#982598] rounded-full transition-all duration-500 ease-out z-0 ${isCompleting ? 'w-full' : 'w-0'}`}></div>
+
+                                        {/* Slider thumb */}
+                                        <div
+                                            className={`w-11 h-11 rounded-full flex items-center justify-center transition-all duration-500 ease-out z-20 shadow-md bg-white text-[#982598] ${isCompleting ? 'translate-x-[220px]' : 'translate-x-0'}`}
+                                        >
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
+                                        </div>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        </div>
+                    );
+                })()}
+            </AnimatePresence>
+
+            {/* Add/Edit Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
                     <div className="w-full max-w-md p-8 relative animate-slide-down" style={{ background: 'rgba(10,9,30,0.97)', border: '1px solid rgba(152,37,152,0.25)', borderRadius: '2rem', backdropFilter: 'blur(24px)', boxShadow: '0 32px 80px rgba(0,0,0,0.7)' }}>

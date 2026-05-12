@@ -1,8 +1,31 @@
 import { useState, useEffect, useMemo } from "react";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import EditModal from "./EditModal";
 
 const BASE_URL = "http://localhost:3000";
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { y: 20, opacity: 0 },
+  show: { 
+    y: 0, 
+    opacity: 1,
+    transition: {
+      type: "spring",
+      stiffness: 100,
+      damping: 15
+    }
+  },
+};
 
 const Task = ({ refreshTrigger, filterPriority = "All", sortBy = "date-newest" }) => {
   const [isLoading, setLoading] = useState(false);
@@ -30,7 +53,6 @@ const Task = ({ refreshTrigger, filterPriority = "All", sortBy = "date-newest" }
 
   const fetchTask = async () => {
     setLoading(true);
-
     try {
       const response = await fetch(`${BASE_URL}/tasks`);
       const data = await response.json();
@@ -117,7 +139,7 @@ const Task = ({ refreshTrigger, filterPriority = "All", sortBy = "date-newest" }
     });
 
   if (isLoading) {
-    return <div className="flex items-center justify-center text-6xl text-gray-500">Loading Tasks....</div>;
+    return <div className="flex items-center justify-center text-6xl text-gray-500 h-screen">Loading Tasks....</div>;
   }
 
   return (
@@ -129,50 +151,75 @@ const Task = ({ refreshTrigger, filterPriority = "All", sortBy = "date-newest" }
           {filterPriority !== "All" ? `No "${filterPriority}" priority tasks found.` : "No active tasks found."}
         </p>
       ) : (
-        displayedTasks.map((p) => (
-          <div className="task-bar w-[1070px] relative" key={p.task_id} onClick={() => handleClick(p.task_id)}>
-            <input
-              type="checkbox"
-              onClick={(e) => completeTask(p, e)}
-              className="w-[24px] h-[24px] absolute top-[36px] left-[70px]"
-            />
-            <p className="absolute left-[128px] top-[26px] text-3xl text-[#F1E9E9] font-medium">{p.title}</p>
-            <p className="absolute left-[820px] top-[32px] text-2xl text-[#B8AED4]">{formatDate(p.created)}</p>
-            <div className="w-[2px] h-[60px] bg-[#982598] rounded-full absolute left-[966px] top-[18px]"></div>
-            <p className="absolute top-[32px] text-2xl left-[980px] text-[#F1E9E9]">{p.priority}</p>
-          </div>
-        ))
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="show"
+          className="space-y-4"
+        >
+          {displayedTasks.map((p) => (
+            <motion.div 
+              variants={itemVariants}
+              className="task-bar w-[1070px] relative" 
+              key={p.task_id} 
+              onClick={() => handleClick(p.task_id)}
+            >
+              <input
+                type="checkbox"
+                onClick={(e) => completeTask(p, e)}
+                className="w-[24px] h-[24px] absolute top-[36px] left-[70px] cursor-pointer z-10"
+              />
+              <p className="absolute left-[128px] top-[26px] text-3xl text-[#F1E9E9] font-medium">{p.title}</p>
+              <p className="absolute left-[820px] top-[32px] text-2xl text-[#B8AED4]">{formatDate(p.created)}</p>
+              <div className="w-[2px] h-[60px] bg-[#982598] rounded-full absolute left-[966px] top-[18px]"></div>
+              <p className="absolute top-[32px] text-2xl left-[980px] text-[#F1E9E9]">{p.priority}</p>
+            </motion.div>
+          ))}
+        </motion.div>
       )}
 
       {completedTasks.length > 0 && (
-        <div className="mt-12 w-full max-w-[1120px]">
-          <hr className="border-gray-300 mb-6" />
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="mt-12 w-full max-w-[1120px]"
+        >
+          <hr className="border-gray-300 mb-6 opacity-20" />
           <div className="mb-4 ml-6">
             <h2 className="text-2xl text-[#E8D9F7] font-semibold">Completed</h2>
             <p className="text-sm text-gray-400">Completed tasks move here after checking the box.</p>
           </div>
-          <div className="space-y-4">
+          <motion.div 
+            variants={containerVariants}
+            initial="hidden"
+            animate="show"
+            className="space-y-4"
+          >
             {completedTasks.map((p) => (
-              <div
+              <motion.div
                 key={p.task_id}
-                className="task-bar w-[1070px] relative animate-slide-down opacity-90"
+                variants={itemVariants}
+                className="task-bar w-[1070px] relative opacity-90"
                 onClick={() => deleteTask(p.task_id)}
               >
                 <input
                   type="checkbox"
                   checked
+                  onChange={() => {}} // Controlled input
                   onClick={(e) => uncompleteTask(p, e)}
-                  className="w-[24px] h-[24px] absolute top-[36px] left-[70px]"
+                  className="w-[24px] h-[24px] absolute top-[36px] left-[70px] cursor-pointer z-10"
                 />
                 <p className="absolute left-[128px] top-[26px] text-3xl line-through text-gray-500">{p.title}</p>
                 <p className="absolute left-[820px] top-[32px] text-2xl text-gray-500">{formatDate(p.created)}</p>
                 <div className="w-[2px] h-[60px] bg-[#982598] rounded-full absolute left-[966px] top-[18px]"></div>
                 <p className="absolute top-[32px] text-2xl left-[980px] text-gray-500">{p.priority}</p>
-              </div>
+              </motion.div>
             ))}
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       )}
+
 
       {/* Edit Modal */}
       <AnimatePresence>

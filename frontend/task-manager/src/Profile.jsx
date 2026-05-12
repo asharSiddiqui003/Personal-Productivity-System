@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   IoPersonCircleOutline,
@@ -10,6 +10,7 @@ import {
   IoEyeOffOutline,
   IoCheckmarkCircleOutline,
   IoAlertCircleOutline,
+  IoCameraOutline,
 } from "react-icons/io5";
 import { BiEditAlt } from "react-icons/bi";
 
@@ -31,6 +32,8 @@ function Profile({ onLogout }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef(null);
 
   // Password change state
   const [pwSection, setPwSection] = useState(false);
@@ -82,6 +85,33 @@ function Profile({ onLogout }) {
       console.error("Failed to update profile:", error);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    setUploading(true);
+    try {
+      const response = await fetch("http://localhost:3000/upload", {
+        method: "POST",
+        body: formData,
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setProfile((prev) => ({ ...prev, avatar: data.url }));
+      } else {
+        alert("Failed to upload image");
+      }
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      alert("Error uploading image");
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -212,14 +242,36 @@ function Profile({ onLogout }) {
               </div>
 
               {isEditing && (
-                <div className="w-full max-w-[240px] animate-in fade-in slide-in-from-top-2 duration-300">
-                  <label className="block text-xs font-bold text-[#B8AED4] mb-2 uppercase tracking-widest">Avatar URL</label>
-                  <input
-                    type="text" name="avatar" value={profile.avatar} onChange={handleChange}
-                    className="w-full rounded-xl px-4 py-2.5 text-sm text-white placeholder-[#B8AED4]/30 focus:outline-none focus:ring-2 focus:ring-[#982598]/40 transition-all"
-                    style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
-                    placeholder="https://example.com/photo.png"
-                  />
+                <div className="w-full max-w-[240px] animate-in fade-in slide-in-from-top-2 duration-300 space-y-4">
+                  <div className="flex flex-col items-center">
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handleFileChange}
+                      className="hidden"
+                      accept="image/*"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current.click()}
+                      disabled={uploading}
+                      className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all hover:scale-105 active:scale-95 text-white disabled:opacity-50"
+                      style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
+                    >
+                      <IoCameraOutline size={18} />
+                      {uploading ? "Uploading..." : "Upload Photo"}
+                    </button>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-xs font-bold text-[#B8AED4] mb-2 uppercase tracking-widest text-center">Or Avatar URL</label>
+                    <input
+                      type="text" name="avatar" value={profile.avatar} onChange={handleChange}
+                      className="w-full rounded-xl px-4 py-2.5 text-sm text-white placeholder-[#B8AED4]/30 focus:outline-none focus:ring-2 focus:ring-[#982598]/40 transition-all text-center"
+                      style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
+                      placeholder="https://example.com/photo.png"
+                    />
+                  </div>
                 </div>
               )}
             </div>
