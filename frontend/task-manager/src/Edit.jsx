@@ -131,7 +131,10 @@ const Edit = () => {
     return (
       <div className="edit-page">
         <div className="flex justify-center items-center h-64">
-          <p className="text-gray-500">Loading task...</p>
+          <div className="flex items-center gap-3 text-[#B8AED4]">
+            <div className="w-5 h-5 rounded-full border-2 border-[#982598] border-t-transparent animate-spin" />
+            <p className="text-lg">Loading task...</p>
+          </div>
         </div>
       </div>
     );
@@ -140,13 +143,13 @@ const Edit = () => {
   return (
     <div className="edit-page">
       <div className="flex items-center gap-3 mb-6">
-        <FaEdit className="text-[#982598]" size={32} />
-        <h1 className="text-4xl font-semibold tracking-tight">Edit Task</h1>
+        <FaEdit className="text-[#982598]" size={24} />
+        <h1 className="text-3xl font-bold text-white tracking-tight">Edit Task</h1>
       </div>
 
       <div className="edit-card-wrapper">
         <div className="edit-card">
-          <form onSubmit={handleSave} className="space-y-6">
+          <form onSubmit={handleSave} className="space-y-5">
             <div className="space-y-2">
               <label htmlFor="title" className="edit-label">
                 Title
@@ -171,7 +174,7 @@ const Edit = () => {
                 name="description"
                 value={taskData.description}
                 onChange={handleChange}
-                rows={6}
+                rows={4}
                 placeholder="Write the task details here"
                 className="edit-textarea"
               />
@@ -234,7 +237,9 @@ const Edit = () => {
 
           {status && (
             <p
-              className={`edit-status mt-4 ${status.includes("successfully") ? "text-green-600" : "text-red-600"}`}
+              className={`edit-status mt-4 ${
+                status.includes("successfully") ? "text-green-400" : "text-red-400"
+              }`}
             >
               {status}
             </p>

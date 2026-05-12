@@ -43,42 +43,44 @@ export default function Habit() {
     }, []);
 
     const [selectedHabit, setSelectedHabit] = useState(null);
+    const [isCompleting, setIsCompleting] = useState(false); // drives slider animation
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingHabit, setEditingHabit] = useState(null);
 
+    // Reset animation every time a different habit is opened
+    useEffect(() => {
+        setIsCompleting(false);
+    }, [selectedHabit]);
+
     const [formData, setFormData] = useState({ title: '', subtitle: '', icon: 'sun' });
 
-    const handleToggleDone = async (id) => {
-        const habitToToggle = habits.find(h => h.id === id);
-        if (!habitToToggle) return;
+    const handleComplete = async (id) => {
+        if (isCompleting) return; // block double-click
 
-        const newDone = !habitToToggle.done;
-        const newStreak = newDone ? habitToToggle.streak + 1 : Math.max(0, habitToToggle.streak - 1);
+        const habit = habits.find(h => h.id === id);
+        if (!habit) return;
 
-        // Optimistic UI update
-        setHabits(habits.map(h => {
-            if (h.id === id) {
-                return { ...h, done: newDone, streak: newStreak };
-            }
-            return h;
-        }));
-        Navigate(-1);
-
+        const newStreak = habit.streak + 1;
+        setIsCompleting(true);
+        setHabits(prev => prev.map(h => h.id === id ? { ...h, streak: newStreak } : h));
         try {
             await fetch(`http://localhost:3000/habits/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    title: habitToToggle.title,
-                    subtitle: habitToToggle.subtitle,
+                    title: habit.title,
+                    subtitle: habit.subtitle,
                     streak: newStreak,
-                    done: newDone,
-                    icon: habitToToggle.icon
+                    done: true,
+                    icon: habit.icon
                 })
             });
         } catch (e) {
-            console.error("Error updating toggle state", e);
+            console.error("Error completing habit", e);
         }
+        setTimeout(() => {
+            setSelectedHabit(null);
+        }, 1000);
     };
 
     const handleOpenModal = (habit = null) => {
@@ -153,7 +155,7 @@ export default function Habit() {
         const iconColor = ICONS[habit.icon]?.color || 'text-white';
 
         return (
-            <div className="min-h-screen pl-24 pr-8 pt-8 bg-[#15173D] text-[#F1E9E9] transition-all duration-300">
+            <div className="min-h-screen px-4 md:pl-28 md:pr-8 pt-8 pb-8 text-[#F1E9E9] transition-all duration-300">
                 <div className="flex justify-between items-center mb-6 max-w-md mx-auto w-full">
                     <button
                         onClick={() => setSelectedHabit(null)}
@@ -162,10 +164,10 @@ export default function Habit() {
                         <span>&larr;</span> <span>Back to Habits</span>
                     </button>
                     <div className="flex space-x-3">
-                        <button onClick={() => { setSelectedHabit(null); handleOpenModal(habit); }} className="p-2 rounded-xl bg-[#2a2c5b] hover:bg-indigo-500 transition-colors text-[#B8AED4] hover:text-white">
+                        <button onClick={() => { setSelectedHabit(null); handleOpenModal(habit); }} className="p-2 rounded-xl transition-colors text-[#B8AED4] hover:text-white" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }} onMouseEnter={e => e.currentTarget.style.background = 'rgba(99,102,241,0.4)'} onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}>
                             <FiEdit2 size={18} />
                         </button>
-                        <button onClick={() => handleDelete(habit.id)} className="p-2 rounded-xl bg-[#2a2c5b] hover:bg-red-500 transition-colors text-[#B8AED4] hover:text-white">
+                        <button onClick={() => handleDelete(habit.id)} className="p-2 rounded-xl transition-colors text-[#B8AED4] hover:text-white" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }} onMouseEnter={e => e.currentTarget.style.background = 'rgba(239,68,68,0.4)'} onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}>
                             <FiTrash2 size={18} />
                         </button>
                     </div>
@@ -181,20 +183,21 @@ export default function Habit() {
                     <p className="text-[#B8AED4] mb-12 text-lg text-center">{habit.subtitle}</p>
 
                     <div
-                        className="w-[300px] bg-[#2a2c5b] rounded-full h-16 p-2 relative flex items-center shadow-lg border border-[#2a2c5b]/50 cursor-pointer overflow-hidden mx-auto"
-                        onClick={() => handleToggleDone(habit.id)}
+                        className={`w-[300px] rounded-full h-16 p-2 relative flex items-center shadow-lg overflow-hidden mx-auto transition-opacity duration-300 ${isCompleting ? 'cursor-default opacity-90' : 'cursor-pointer'}`}
+                        style={{ background: 'rgba(10,9,30,0.85)', border: '1px solid rgba(152,37,152,0.25)' }}
+                        onClick={() => handleComplete(habit.id)}
                     >
                         {/* Background text */}
-                        <div className={`absolute inset-0 flex items-center justify-center font-medium pointer-events-none select-none z-10 transition-colors duration-300 ${habit.done ? 'text-white' : 'text-[#B8AED4]'}`}>
-                            {habit.done ? 'Completed!' : 'Slide to complete'}
+                        <div className={`absolute inset-0 flex items-center justify-center font-medium pointer-events-none select-none z-10 transition-colors duration-300 ${isCompleting ? 'text-white' : 'text-[#B8AED4]'}`}>
+                            {isCompleting ? 'Completed! 🎉' : 'Click to complete'}
                         </div>
 
-                        {/* Fill background when done */}
-                        <div className={`absolute left-0 top-0 bottom-0 bg-[#982598] rounded-full transition-all duration-300 ease-out z-0 ${habit.done ? 'w-full' : 'w-0'}`}></div>
+                        {/* Fill background on completion */}
+                        <div className={`absolute left-0 top-0 bottom-0 bg-[#982598] rounded-full transition-all duration-500 ease-out z-0 ${isCompleting ? 'w-full' : 'w-0'}`}></div>
 
                         {/* Slider thumb */}
                         <div
-                            className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ease-out z-20 shadow-md ${habit.done ? 'bg-white text-[#982598] translate-x-[236px]' : 'bg-white text-[#982598] translate-x-0'}`}
+                            className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-500 ease-out z-20 shadow-md bg-white text-[#982598] ${isCompleting ? 'translate-x-[236px]' : 'translate-x-0'}`}
                         >
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
                         </div>
@@ -205,40 +208,82 @@ export default function Habit() {
     }
 
     return (
-        <div className="min-h-screen pl-24 pr-8 pt-8 pb-20 bg-[#15173D] text-[#F1E9E9] transition-all duration-300 relative">
-            <h1 className="text-4xl font-bold mb-8">Habits</h1>
-            <div className="bg-[#2a2c5b] rounded-[2rem] p-8 shadow-2xl border border-[#2a2c5b]/50 w-full max-w-5xl mx-auto">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="min-h-screen px-4 md:pl-28 md:pr-8 pt-8 pb-8 text-[#F1E9E9] transition-all duration-300">
+            <div className="rounded-[2rem] p-8 w-full relative" style={{ background: 'rgba(10,9,30,0.84)', border: '1px solid rgba(152,37,152,0.18)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 24px 64px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.04)' }}>
+
+                {/* Heading */}
+                <div className="mb-6">
+                    <h1 className="text-2xl font-bold text-white">Habits</h1>
+                    <p className="text-[#B8AED4] text-sm">Track your daily habits and build streaks</p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                     {habits.map((habit) => {
                         const IconComponent = ICONS[habit.icon]?.component || FiStar;
                         const iconColor = ICONS[habit.icon]?.color || 'text-white';
+                        const GOAL = 30;
+                        const progress = Math.min((habit.streak / GOAL) * 100, 100);
+                        const daysLeft = GOAL - habit.streak;
 
                         return (
                             <div
                                 key={habit.id}
                                 onClick={() => setSelectedHabit(habit.id)}
-                                className={`bg-[#15173D]/60 hover:bg-[#15173D] rounded-2xl p-6 flex items-center space-x-6 cursor-pointer transition-all duration-200 border border-transparent hover:border-[#982598]/50 group relative overflow-hidden`}
+                                className="rounded-2xl p-5 flex flex-col gap-4 cursor-pointer transition-all duration-200 group relative overflow-hidden"
+                                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
+                                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.borderColor = 'rgba(152,37,152,0.4)'; }}
+                                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'; }}
                             >
-                                <div className="absolute top-2 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                {/* Edit / Delete — appear on hover */}
+                                <div className="absolute top-3 right-3 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                                     <button
                                         onClick={(e) => { e.stopPropagation(); handleOpenModal(habit); }}
-                                        className="p-1.5 rounded-lg hover:bg-indigo-500/50 text-[#B8AED4] hover:text-white transition-colors"
+                                        className="p-1.5 rounded-lg text-[#B8AED4] hover:text-white transition-colors"
+                                        style={{ background: 'rgba(255,255,255,0.08)' }}
                                     >
-                                        <FiEdit2 size={14} />
+                                        <FiEdit2 size={13} />
                                     </button>
                                     <button
                                         onClick={(e) => { e.stopPropagation(); handleDelete(habit.id); }}
-                                        className="p-1.5 rounded-lg hover:bg-red-500/50 text-[#B8AED4] hover:text-white transition-colors"
+                                        className="p-1.5 rounded-lg text-[#B8AED4] hover:text-red-400 transition-colors"
+                                        style={{ background: 'rgba(255,255,255,0.08)' }}
                                     >
-                                        <FiTrash2 size={14} />
+                                        <FiTrash2 size={13} />
                                     </button>
                                 </div>
-                                <div className="w-16 h-16 rounded-full bg-[#2a2c5b] flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0 shadow-inner">
-                                    <IconComponent size={28} className={iconColor} />
+
+                                {/* Icon */}
+                                <div
+                                    className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform"
+                                    style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)' }}
+                                >
+                                    <IconComponent size={22} className={iconColor} />
                                 </div>
-                                <div className="flex-1 pr-6 min-w-0">
-                                    <h3 className="font-bold text-xl truncate">{habit.title}</h3>
-                                    <p className="text-md text-[#B8AED4]">{habit.streak} day{habit.streak !== 1 && 's'}</p>
+
+                                {/* Title + subtitle */}
+                                <div className="flex-1 min-w-0">
+                                    <h3 className="font-bold text-base text-white truncate leading-tight">{habit.title}</h3>
+                                    <p className="text-sm text-[#7a7aac] truncate mt-0.5">{habit.subtitle || 'Daily habit'}</p>
+                                </div>
+
+                                {/* Streak + progress bar */}
+                                <div>
+                                    <div className="flex justify-between items-center mb-2">
+                                        <span className="text-xs text-[#7a7aac]">Streak</span>
+                                        <span className="text-sm font-bold" style={{ color: '#c060c0' }}>
+                                            🔥 {habit.streak} {habit.streak === 1 ? 'day' : 'days'}
+                                        </span>
+                                    </div>
+                                    {/* Progress bar */}
+                                    <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                                        <div
+                                            className="h-full rounded-full transition-all duration-700"
+                                            style={{ width: `${progress}%`, background: 'linear-gradient(90deg, #982598, #c060c0)' }}
+                                        />
+                                    </div>
+                                    <p className="text-[10px] text-white/25 mt-1.5">
+                                        {daysLeft > 0 ? `${daysLeft} days to 30-day goal` : '🎉 30-day goal reached!'}
+                                    </p>
                                 </div>
                             </div>
                         );
@@ -247,12 +292,15 @@ export default function Habit() {
                     {/* Add New Habit Card */}
                     <div
                         onClick={() => handleOpenModal()}
-                        className={`bg-transparent hover:bg-[#15173D]/40 border-2 border-dashed border-[#B8AED4]/30 hover:border-[#982598]/50 rounded-2xl p-6 flex items-center justify-center space-x-4 cursor-pointer transition-all duration-200 group`}
+                        className="rounded-2xl p-5 flex flex-col items-center justify-center gap-3 cursor-pointer transition-all duration-200 group"
+                        style={{ border: '2px dashed rgba(184,174,212,0.2)', minHeight: '180px' }}
+                        onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(152,37,152,0.5)'; e.currentTarget.style.background = 'rgba(152,37,152,0.04)'; }}
+                        onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(184,174,212,0.2)'; e.currentTarget.style.background = 'transparent'; }}
                     >
-                        <div className="w-12 h-12 rounded-full bg-[#B8AED4]/10 flex items-center justify-center group-hover:bg-[#982598]/20 transition-colors">
-                            <FiPlus size={24} className="text-[#B8AED4] group-hover:text-white" />
+                        <div className="w-11 h-11 rounded-xl flex items-center justify-center transition-colors" style={{ background: 'rgba(184,174,212,0.08)' }}>
+                            <FiPlus size={22} className="text-[#B8AED4] group-hover:text-white transition-colors" />
                         </div>
-                        <h3 className="font-bold text-xl text-[#B8AED4] group-hover:text-white">Add Habit</h3>
+                        <span className="text-sm font-semibold text-[#B8AED4] group-hover:text-white transition-colors">Add Habit</span>
                     </div>
                 </div>
             </div>
@@ -260,7 +308,7 @@ export default function Habit() {
             {/* Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-                    <div className="bg-[#15173D] border border-[#2a2c5b] rounded-[2rem] w-full max-w-md p-8 shadow-2xl relative animate-slide-down">
+                    <div className="w-full max-w-md p-8 relative animate-slide-down" style={{ background: 'rgba(10,9,30,0.97)', border: '1px solid rgba(152,37,152,0.25)', borderRadius: '2rem', backdropFilter: 'blur(24px)', boxShadow: '0 32px 80px rgba(0,0,0,0.7)' }}>
                         <h2 className="text-3xl font-bold mb-6">{editingHabit ? 'Edit Habit' : 'New Habit'}</h2>
 
                         <div className="space-y-5">
@@ -271,7 +319,8 @@ export default function Habit() {
                                     value={formData.title}
                                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                                     placeholder="e.g., Drink Water"
-                                    className="w-full bg-[#2a2c5b] border border-[#2a2c5b] focus:border-[#982598] rounded-xl px-4 py-3 text-white placeholder-[#B8AED4]/50 focus:outline-none focus:ring-2 focus:ring-[#982598]/30 transition-all"
+                                    className="w-full focus:border-[#982598] rounded-xl px-4 py-3 text-white placeholder-[#B8AED4]/50 focus:outline-none focus:ring-2 focus:ring-[#982598]/30 transition-all"
+                                    style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
                                 />
                             </div>
 
@@ -282,7 +331,8 @@ export default function Habit() {
                                     value={formData.subtitle}
                                     onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
                                     placeholder="e.g., 8 glasses a day"
-                                    className="w-full bg-[#2a2c5b] border border-[#2a2c5b] focus:border-[#982598] rounded-xl px-4 py-3 text-white placeholder-[#B8AED4]/50 focus:outline-none focus:ring-2 focus:ring-[#982598]/30 transition-all"
+                                    className="w-full focus:border-[#982598] rounded-xl px-4 py-3 text-white placeholder-[#B8AED4]/50 focus:outline-none focus:ring-2 focus:ring-[#982598]/30 transition-all"
+                                    style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
                                 />
                             </div>
 

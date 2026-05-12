@@ -81,19 +81,18 @@ const Add = ({ onTaskAdded }) => {
           type="text"
           id="task"
           value={notes.task}
-          placeholder="Add task here"
+          placeholder="Add a new task…"
           onChange={handleChange}
-          className="w-full border pr-10 py-2 pl-3"
+          className="w-full bg-[#0a0b16]/60 border border-white/10 rounded-xl py-3 pl-4 pr-10 text-white placeholder-gray-500 focus:outline-none focus:border-[#982598] focus:ring-1 focus:ring-[#982598]/40 transition-all"
         />
-
         <button type="submit" className="task-submit">
-          <IoMdAdd size={24} />
+          <IoMdAdd size={22} />
         </button>
       </form>
 
       {/* DROPDOWN */}
       <select
-        className="priority border py-2 px-3"
+        className="priority"
         value={notes.priority}
         onChange={handlePriorityChange}
       >
@@ -101,7 +100,7 @@ const Add = ({ onTaskAdded }) => {
         <option value="Medium">Medium</option>
         <option value="Low">Low</option>
       </select>
-      {error && <p className="text-red-500 text-sm">{error}</p>}
+      {error && <p className="text-red-400 text-sm">{error}</p>}
     </div>
   );
 };

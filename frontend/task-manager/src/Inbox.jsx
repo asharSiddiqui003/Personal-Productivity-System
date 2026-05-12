@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
 import { FiInbox } from "react-icons/fi";
+import { AnimatePresence } from "framer-motion";
 import Add from "./Add";
+import EditModal from "./EditModal";
 
 const BASE_URL = "http://localhost:3000";
 
@@ -10,7 +11,7 @@ const Inbox = () => {
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [activeTasks, setActiveTasks] = useState([]);
-  const navigate = useNavigate();
+  const [selectedTaskId, setSelectedTaskId] = useState(null);
 
   const refreshTasks = () => {
     setRefreshKey((prev) => prev + 1);
@@ -50,7 +51,7 @@ const Inbox = () => {
   };
 
   const handleClick = (task_id) => {
-    navigate(`/tasks/edit/${task_id}`);
+    setSelectedTaskId(task_id);
   };
 
   useEffect(() => {
@@ -66,10 +67,10 @@ const Inbox = () => {
 
   // Extract the common layout into a wrapper component or fragment
 const InboxLayout = ({ children }) => (
-  <div className="relative left-80 top-0 h-screen w-[1120px]">
-    <div className="flex items-center gap-2 my-2 font-bold">
-      <FiInbox size={36} />
-      <h1 className="text-3xl">Inbox</h1>
+  <div className="relative md:left-[336px] top-0 min-h-screen w-full md:w-[calc(100%-336px)] px-4 md:px-0 md:pr-8">
+    <div className="flex items-center gap-3 my-4">
+      <FiInbox size={32} className="text-[#982598]" />
+      <h1 className="text-3xl font-bold text-white tracking-tight">Inbox</h1>
     </div>
 
     <div className="add-task mb-8">
@@ -100,33 +101,46 @@ if (error) {
 }
 
 return (
-  <InboxLayout>
-    {activeTasks.length === 0 ? (
-      <p className="text-xl text-gray-600">No active tasks found.</p>
-    ) : (
-      <div className="space-y-6">
-        {activeTasks.map((task) => (
-          <div
-            key={task.task_id}
-            className="task-bar w-full max-w-[1120px] relative cursor-pointer"
-            onClick={() => handleClick(task.task_id)}
-          >
-            <input
-              type="checkbox"
-              onClick={(e) => completeTask(task, e)}
-              className="w-[24px] h-[24px] absolute top-[36px] left-[70px]"
-            />
-            <p className="absolute left-[128px] top-[26px] text-3xl">{task.title}</p>
-            <p className="absolute left-[820px] top-[32px] text-2xl">
-              {formatDate(task.created)}
-            </p>
-            <div className="w-[2px] h-[60px] bg-[#982598] rounded-full absolute left-[966px] top-[18px]"></div>
-            <p className="absolute top-[32px] text-2xl left-[980px]">{task.priority}</p>
-          </div>
-        ))}
-      </div>
-    )}
-  </InboxLayout>
+  <>
+    <InboxLayout>
+      {activeTasks.length === 0 ? (
+        <p className="text-xl text-[#B8AED4]">No active tasks found.</p>
+      ) : (
+        <div className="space-y-6">
+          {activeTasks.map((task) => (
+            <div
+              key={task.task_id}
+              className="task-bar w-full max-w-[1120px] relative cursor-pointer"
+              onClick={() => handleClick(task.task_id)}
+            >
+              <input
+                type="checkbox"
+                onClick={(e) => completeTask(task, e)}
+                className="w-[24px] h-[24px] absolute top-[36px] left-[70px]"
+              />
+              <p className="absolute left-[128px] top-[26px] text-3xl text-[#F1E9E9] font-medium">{task.title}</p>
+              <p className="absolute left-[820px] top-[32px] text-2xl text-[#B8AED4]">
+                {formatDate(task.created)}
+              </p>
+              <div className="w-[2px] h-[60px] bg-[#982598] rounded-full absolute left-[966px] top-[18px]"></div>
+              <p className="absolute top-[32px] text-2xl left-[980px] text-[#F1E9E9]">{task.priority}</p>
+            </div>
+          ))}
+        </div>
+      )}
+    </InboxLayout>
+
+    {/* Edit Modal */}
+    <AnimatePresence>
+      {selectedTaskId && (
+        <EditModal
+          taskId={selectedTaskId}
+          onClose={() => setSelectedTaskId(null)}
+          onTaskUpdated={() => setRefreshKey((k) => k + 1)}
+        />
+      )}
+    </AnimatePresence>
+  </>
 );
 };
 

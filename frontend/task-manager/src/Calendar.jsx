@@ -78,7 +78,7 @@ export default function Calendar() {
     };
 
     return (
-        <div className="min-h-screen pl-24 pr-8 pt-8 pb-12 bg-[#15173D] text-[#F1E9E9] transition-all duration-300">
+        <div className="min-h-screen px-4 md:pl-28 md:pr-8 pt-8 pb-12 text-[#F1E9E9] transition-all duration-300">
             <div className="max-w-6xl mx-auto">
                 {/* Header */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
@@ -87,7 +87,7 @@ export default function Calendar() {
                         <p className="text-[#B8AED4]">Your tasks mapped to your schedule</p>
                     </div>
 
-                    <div className="flex items-center space-x-3 text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-4 py-2 rounded-xl shadow-lg">
+                    <div className="flex items-center space-x-3 px-4 py-2 rounded-xl" style={{ background: 'rgba(152,37,152,0.1)', border: '1px solid rgba(152,37,152,0.22)', color: '#c060c0' }}>
                         <FiCheckCircle size={20} />
                         <span className="font-semibold">Synced with Tasks</span>
                     </div>
@@ -101,7 +101,7 @@ export default function Calendar() {
                 )}
 
                 {/* Calendar Card */}
-                <div className="bg-[#2a2c5b] rounded-[2rem] p-8 shadow-2xl border border-[#2a2c5b]/50">
+                <div className="rounded-[2rem] p-8" style={{ background: 'rgba(10,9,30,0.84)', border: '1px solid rgba(152,37,152,0.18)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 24px 64px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.04)' }}>
 
                     {/* Month Controls */}
                     <div className="flex justify-between items-center mb-8">
@@ -109,10 +109,10 @@ export default function Calendar() {
                             {format(currentDate, "MMMM yyyy")}
                         </h2>
                         <div className="flex space-x-2">
-                            <button onClick={prevMonth} className="p-3 bg-[#15173D] rounded-xl hover:bg-[#982598] transition-colors shadow-md">
+                            <button onClick={prevMonth} className="p-3 rounded-xl hover:bg-[#982598] transition-colors" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }}>
                                 <FiChevronLeft size={24} />
                             </button>
-                            <button onClick={nextMonth} className="p-3 bg-[#15173D] rounded-xl hover:bg-[#982598] transition-colors shadow-md">
+                            <button onClick={nextMonth} className="p-3 rounded-xl hover:bg-[#982598] transition-colors" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }}>
                                 <FiChevronRight size={24} />
                             </button>
                         </div>
@@ -137,11 +137,18 @@ export default function Calendar() {
                             return (
                                 <div
                                     key={i}
-                                    className={`
-                                        min-h-[120px] rounded-2xl p-3 border border-transparent transition-all
-                                        ${!isCurrentMonth ? 'opacity-30 bg-[#1D1F49]/30' : 'bg-[#15173D]/60 hover:border-[#982598]/50'}
-                                        ${isToday ? 'ring-2 ring-[#982598] bg-[#982598]/10 shadow-inner' : ''}
+                                    className={`min-h-[120px] rounded-2xl p-3 border transition-all
+                                        ${!isCurrentMonth ? 'opacity-25' : 'hover:border-[#982598]/40'}
+                                        ${isToday ? 'ring-2 ring-[#982598]' : ''}
                                     `}
+                                    style={{
+                                        background: isToday
+                                            ? 'rgba(152,37,152,0.12)'
+                                            : isCurrentMonth
+                                                ? 'rgba(255,255,255,0.03)'
+                                                : 'rgba(0,0,0,0.2)',
+                                        borderColor: isToday ? 'rgba(152,37,152,0.6)' : 'rgba(255,255,255,0.06)',
+                                    }}
                                 >
                                     <div className="flex justify-between items-start mb-2">
                                         <span className={`text-lg font-bold ${isToday ? 'text-[#982598]' : 'text-[#F1E9E9]'}`}>

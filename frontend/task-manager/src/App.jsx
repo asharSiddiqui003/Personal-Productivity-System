@@ -4,7 +4,6 @@ import Sidebar from './Sidebar'
 import All from './All'
 import Inbox from './Inbox'
 import Next7D from './Next7D'
-import Edit from './Edit'
 import Habit from './Habit'
 import Calendar from './Calendar'
 import Pomodoro from './Pomodoro'
@@ -15,13 +14,14 @@ import Signup from './Signup'
 import Introduction from './Introduction'
 import { Routes, Route, useLocation, Navigate } from "react-router-dom"
 import { AnimatePresence } from 'framer-motion'
-
+import GlobalBackground from './GlobalBackground'
 
 function App() {
   const [activeNav, setActiveNav] = useState("Tasks");
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     return localStorage.getItem('isAuthenticated') === 'true';
   });
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const location = useLocation();
 
   const handleLogin = () => {
@@ -52,37 +52,56 @@ function App() {
     updateNavFromPath();
   }, [location.pathname]);
 
+  // Close mobile sidebar on route change
+  useEffect(() => {
+    setMobileSidebarOpen(false);
+  }, [location.pathname]);
+
   if (!isAuthenticated) {
     return (
-      <Routes>
-        <Route path="/" element={<Introduction />} />
-        <Route path="/login" element={<Login onLogin={handleLogin} />} />
-        <Route path="/signup" element={<Signup onLogin={handleLogin} />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+      <>
+        <GlobalBackground />
+        <Routes>
+          <Route path="/" element={<Introduction />} />
+          <Route path="/login" element={<Login onLogin={handleLogin} />} />
+          <Route path="/signup" element={<Signup onLogin={handleLogin} />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </>
     );
   }
 
   return (
-    <div>
-      <Navbar activeNav={activeNav} setActiveNav={setActiveNav} />
-      <AnimatePresence>
-        {activeNav === "Tasks" && <Sidebar key="sidebar" />}
-      </AnimatePresence>
-      <Search isOpen={activeNav === "Search"} onClose={updateNavFromPath} />
-      <Routes>
-        <Route path="/login" element={<Navigate to="/" replace />} />
-        <Route path="/" element={<All />} />
-        <Route path="/inbox" element={<Inbox />} />
-        <Route path="/next-7d" element={<Next7D />} />
-        <Route path='/tasks/edit/:task_id' element={<Edit />} />
-        <Route path="/habits" element={<Habit />} />
-        <Route path="/calendar" element={<Calendar />} />
-        <Route path="/pomodoro" element={<Pomodoro />} />
-        <Route path="/profile" element={<Profile onLogout={handleLogout} />} />
-      </Routes>
-    </div>
-
+    <>
+      <GlobalBackground />
+      <div className="pb-16 md:pb-0">
+        <Navbar
+          activeNav={activeNav}
+          setActiveNav={setActiveNav}
+          onHamburgerClick={() => setMobileSidebarOpen(o => !o)}
+        />
+        <AnimatePresence>
+          {activeNav === "Tasks" && (
+            <Sidebar
+              key="sidebar"
+              mobileOpen={mobileSidebarOpen}
+              onMobileClose={() => setMobileSidebarOpen(false)}
+            />
+          )}
+        </AnimatePresence>
+        <Search isOpen={activeNav === "Search"} onClose={updateNavFromPath} />
+        <Routes>
+          <Route path="/login" element={<Navigate to="/" replace />} />
+          <Route path="/" element={<All />} />
+          <Route path="/inbox" element={<Inbox />} />
+          <Route path="/next-7d" element={<Next7D />} />
+          <Route path="/habits" element={<Habit />} />
+          <Route path="/calendar" element={<Calendar />} />
+          <Route path="/pomodoro" element={<Pomodoro />} />
+          <Route path="/profile" element={<Profile onLogout={handleLogout} />} />
+        </Routes>
+      </div>
+    </>
   )
 }
 

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { FiCheckCircle, FiClock, FiCalendar, FiArrowRight, FiMessageSquare, FiX, FiMail, FiCheck, FiLayout, FiLayers } from "react-icons/fi";
+import logo from "./assets/logo.png";
 
 const Introduction = () => {
   const navigate = useNavigate();
@@ -15,11 +16,11 @@ const Introduction = () => {
 
       {/* Navbar */}
       <nav className="relative z-10 flex items-center justify-between px-12 py-6 max-w-7xl mx-auto">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-gradient-to-br from-[#982598] to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/30">
-            <FiCheckCircle size={28} className="text-white" />
+        <div className="flex items-center gap-3 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+          <div className="w-12 h-12 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center shadow-lg overflow-hidden">
+            <img src={logo} alt="Floworg Logo" className="w-10 h-10 object-contain" />
           </div>
-          <span className="text-2xl font-black tracking-widest text-white">TASKMASTER</span>
+          <span className="text-2xl font-black tracking-widest text-white uppercase">Floworg</span>
         </div>
         <button 
           onClick={() => navigate('/login')}
@@ -67,12 +68,15 @@ const Introduction = () => {
             className="flex flex-col sm:flex-row gap-6 justify-center lg:justify-start"
           >
             <button 
-              onClick={() => navigate('/login')}
+              onClick={() => navigate('/signup')}
               className="flex items-center justify-center gap-3 px-10 py-5 rounded-2xl font-bold text-lg bg-gradient-to-r from-[#982598] to-[#ab3fb6] hover:scale-105 transition-transform shadow-xl shadow-purple-500/25"
             >
               Get Started Free <FiArrowRight size={24} />
             </button>
-            <button className="px-10 py-5 rounded-2xl font-bold text-lg bg-[#2a2c5b]/30 border border-[#2a2c5b] hover:bg-[#2a2c5b]/60 transition-colors backdrop-blur-md">
+            <button 
+              onClick={() => document.getElementById('features').scrollIntoView({ behavior: 'smooth' })}
+              className="px-10 py-5 rounded-2xl font-bold text-lg bg-[#2a2c5b]/30 border border-[#2a2c5b] hover:bg-[#2a2c5b]/60 transition-colors backdrop-blur-md"
+            >
               Explore Features
             </button>
           </motion.div>
@@ -129,7 +133,7 @@ const Introduction = () => {
       </main>
 
       {/* Features Grid */}
-      <section className="relative z-10 bg-[#1D1F49]/30 border-y border-[#2a2c5b]">
+      <section id="features" className="relative z-10 bg-[#1D1F49]/30 border-y border-[#2a2c5b]">
         <div className="max-w-7xl mx-auto px-12 py-24">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-black mb-6">Everything you need to focus</h2>
@@ -309,7 +313,7 @@ const Introduction = () => {
           
           <div className="flex justify-center mb-16">
             <button 
-              onClick={() => navigate('/login')}
+              onClick={() => navigate('/signup')}
               className="flex items-center gap-3 px-10 py-5 rounded-2xl font-bold text-lg bg-gradient-to-r from-[#982598] to-[#ab3fb6] hover:scale-105 transition-transform shadow-xl shadow-purple-500/25"
             >
               Get Started <FiArrowRight size={24} />
@@ -334,11 +338,11 @@ const Introduction = () => {
       {/* NEW SECTION 8: Footer Navigation */}
       <footer className="relative z-10 bg-[#0f1123] border-t border-[#2a2c5b] pt-16 pb-8 px-12">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8 mb-12">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-[#982598] to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/30">
-              <FiCheckCircle size={20} className="text-white" />
+          <div className="flex items-center gap-3 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+            <div className="w-10 h-10 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center shadow-lg overflow-hidden">
+              <img src={logo} alt="Floworg Logo" className="w-8 h-8 object-contain" />
             </div>
-            <span className="text-xl font-black tracking-widest text-white">TASKMASTER</span>
+            <span className="text-xl font-black tracking-widest text-white uppercase">Floworg</span>
           </div>
           <div className="flex flex-wrap justify-center gap-8 text-[#B8AED4] font-medium">
             <a href="#" className="hover:text-white hover:underline decoration-[#982598] decoration-2 underline-offset-4 transition-all">Privacy Policy</a>
@@ -348,7 +352,7 @@ const Introduction = () => {
           </div>
         </div>
         <div className="text-center text-[#B8AED4]/40 text-sm">
-          <p>© {new Date().getFullYear()} TaskMaster. Designed with deep focus in mind.</p>
+          <p>© {new Date().getFullYear()} Floworg. Designed for deep productivity.</p>
         </div>
       </footer>
 
@@ -377,7 +381,10 @@ const Introduction = () => {
                   <label className="block text-sm font-medium text-[#B8AED4] mb-2">What can we improve?</label>
                   <textarea className="w-full bg-[#0f1123] border border-[#2a2c5b] rounded-xl p-3 focus:outline-none focus:border-[#982598] text-white resize-none h-24 placeholder-[#B8AED4]/30 transition-colors" placeholder="It would be great if..."></textarea>
                 </div>
-                <button className="w-full bg-[#982598] hover:bg-[#ab3fb6] text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-purple-500/20 hover:scale-[1.02]">
+                <button 
+                  onClick={() => { alert('Thank you for your feedback! Our team will review it.'); setIsFeedbackOpen(false); }}
+                  className="w-full bg-[#982598] hover:bg-[#ab3fb6] text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-purple-500/20 hover:scale-[1.02]"
+                >
                   Submit Feedback
                 </button>
               </div>

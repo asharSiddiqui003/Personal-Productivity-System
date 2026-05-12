@@ -1,6 +1,8 @@
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Add from "./Add";
+import EditModal from "./EditModal";
 import { useState, useEffect, useMemo } from "react";
+import { AnimatePresence } from "framer-motion";
 
 const BASE_URL = "http://localhost:3000";
 
@@ -9,8 +11,8 @@ const Next7D = () => {
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [allTasks, setAllTasks] = useState([]);
+  const [selectedTaskId, setSelectedTaskId] = useState(null);
   const navigate = useNavigate();
-  const location = useLocation();
 
   const refreshTasks = () => {
     setRefreshKey((prev) => prev + 1);
@@ -99,7 +101,7 @@ const Next7D = () => {
     });
 
   const handleClick = (task_id) => {
-    navigate(`/tasks/edit/${task_id}`);
+    setSelectedTaskId(task_id);
   };
 
   // Task Item Component
@@ -114,14 +116,14 @@ const Next7D = () => {
         onClick={(e) => completeTask(task, e)}
         className="w-[24px] h-[24px] absolute top-[36px] left-[70px]"
       />
-      <p className="absolute left-[128px] top-[26px] text-3xl">
+      <p className="absolute left-[128px] top-[26px] text-3xl text-[#F1E9E9] font-medium">
         {task.title}
       </p>
-      <p className="absolute left-[820px] top-[32px] text-2xl">
+      <p className="absolute left-[820px] top-[32px] text-2xl text-[#B8AED4]">
         {formatDate(task.created)}
       </p>
       <div className="w-[2px] h-[60px] bg-[#982598] rounded-full absolute left-[966px] top-[18px]"></div>
-      <p className="absolute top-[32px] text-2xl left-[980px]">
+      <p className="absolute top-[32px] text-2xl left-[980px] text-[#F1E9E9]">
         {task.priority}
       </p>
     </div>
@@ -135,8 +137,8 @@ const Next7D = () => {
       <div className="mb-8">
         <div className="flex items-center gap-2 mb-4">
           <span className="text-2xl">{icon}</span>
-          <h2 className="text-2xl font-bold text-gray-800">{title}</h2>
-          <span className="bg-gray-200 rounded-full px-2 py-1 text-sm font-semibold text-gray-700">
+          <h2 className="text-2xl font-bold text-white">{title}</h2>
+          <span className="bg-[#982598]/20 border border-[#982598]/30 rounded-full px-2.5 py-0.5 text-sm font-semibold text-[#982598]">
             {tasks.length}
           </span>
         </div>
@@ -149,13 +151,13 @@ const Next7D = () => {
 
   // Layout wrapper
   const NextLayout = ({ children }) => (
-    <div className="relative left-80 top-0 h-screen w-[1120px]">
-      <div className="flex items-center gap-2 my-2 font-bold">
+    <div className="relative md:left-[336px] top-0 min-h-screen w-full md:w-[calc(100%-336px)] px-4 md:px-0 md:pr-8">
+      <div className="flex items-center gap-3 my-4">
         <svg
           viewBox="0 0 35 24"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="w-9 h-9 text-black font-extrabold"
+          className="w-8 h-8 text-[#982598]"
         >
           <path
             d="M25.8159 7.81367L23.1909 16.5637C23.1503 16.6988 23.0673 16.8173 22.9541 16.9015C22.8409 16.9857 22.7036 17.0312 22.5625 17.0312C22.4986 17.0313 22.435 17.0219 22.3738 17.0034C22.2076 16.9528 22.0682 16.8384 21.9862 16.6853C21.9042 16.5321 21.8863 16.3527 21.9363 16.1863L24.3054 8.28125H20.8125C20.6385 8.28125 20.4715 8.21211 20.3485 8.08904C20.2254 7.96597 20.1562 7.79905 20.1562 7.625C20.1562 7.45095 20.2254 7.28403 20.3485 7.16096C20.4715 7.03789 20.6385 6.96875 20.8125 6.96875H25.1875C25.2898 6.96878 25.3907 6.99272 25.4821 7.03867C25.5735 7.08462 25.6529 7.15129 25.7139 7.23338C25.775 7.31547 25.816 7.41069 25.8337 7.51144C25.8514 7.6122 25.8453 7.71569 25.8159 7.81367Z"
@@ -175,7 +177,7 @@ const Next7D = () => {
             strokeLinejoin="round"
           />
         </svg>
-        <h1 className="text-3xl">Next 7 Days</h1>
+        <h1 className="text-3xl font-bold text-white tracking-tight">Next 7 Days</h1>
       </div>
 
       <div className="add-task mb-8">
@@ -221,11 +223,24 @@ const Next7D = () => {
 
   // Main render with grouped sections
   return (
-    <NextLayout>
-      <TaskSection title="Today" icon="📅" tasks={groupedTasks.today} />
-      <TaskSection title="Tomorrow" icon="🌅" tasks={groupedTasks.tomorrow} />
-      <TaskSection title="Next 7 Days" icon="📆" tasks={groupedTasks.nextWeek} />
-    </NextLayout>
+    <>
+      <NextLayout>
+        <TaskSection title="Today" icon="📅" tasks={groupedTasks.today} />
+        <TaskSection title="Tomorrow" icon="🌅" tasks={groupedTasks.tomorrow} />
+        <TaskSection title="Next 7 Days" icon="📆" tasks={groupedTasks.nextWeek} />
+      </NextLayout>
+
+      {/* Edit Modal */}
+      <AnimatePresence>
+        {selectedTaskId && (
+          <EditModal
+            taskId={selectedTaskId}
+            onClose={() => setSelectedTaskId(null)}
+            onTaskUpdated={() => setRefreshKey((k) => k + 1)}
+          />
+        )}
+      </AnimatePresence>
+    </>
   );
 };
 

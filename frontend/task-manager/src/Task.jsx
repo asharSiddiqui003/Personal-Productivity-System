@@ -1,17 +1,31 @@
-import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useState, useEffect, useMemo } from "react";
+import { AnimatePresence } from "framer-motion";
+import EditModal from "./EditModal";
 
 const BASE_URL = "http://localhost:3000";
 
-const Task = ({ refreshTrigger }) => {
+const Task = ({ refreshTrigger, filterPriority = "All", sortBy = "date-newest" }) => {
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [activeTasks, setActiveTasks] = useState([]);
   const [completedTasks, setCompletedTasks] = useState([]);
-  const Navigate = useNavigate();
+  const [selectedTaskId, setSelectedTaskId] = useState(null);
+
+  // Apply filter + sort to active tasks
+  const displayedTasks = useMemo(() => {
+    let tasks = [...activeTasks];
+    if (filterPriority !== "All") {
+      tasks = tasks.filter(t => t.priority?.toLowerCase() === filterPriority.toLowerCase());
+    }
+    if (sortBy === "date-newest") tasks.sort((a, b) => new Date(b.created) - new Date(a.created));
+    else if (sortBy === "date-oldest") tasks.sort((a, b) => new Date(a.created) - new Date(b.created));
+    else if (sortBy === "a-z") tasks.sort((a, b) => a.title.localeCompare(b.title));
+    else if (sortBy === "z-a") tasks.sort((a, b) => b.title.localeCompare(a.title));
+    return tasks;
+  }, [activeTasks, filterPriority, sortBy]);
 
   function handleClick(task_id) {
-    Navigate(`/tasks/edit/${task_id}`);
+    setSelectedTaskId(task_id);
   }
 
   const fetchTask = async () => {
@@ -32,12 +46,12 @@ const Task = ({ refreshTrigger }) => {
     }
   };
 
-  const updateTask = async(completedTasks) => {
-    try{
-      const response = await fetch(`${BASE_URL}/tasks/completed`,{method: "PUT"});
+  const updateTask = async (completedTasks) => {
+    try {
+      const response = await fetch(`${BASE_URL}/tasks/completed`, { method: "PUT" });
       const taskStatus = await response.json();
       console.log(taskStatus);
-    } catch(e){
+    } catch (e) {
       console.log("Error updating task status " + e);
     }
   }
@@ -110,20 +124,22 @@ const Task = ({ refreshTrigger }) => {
     <div className="task-list">
       {error && <p className="text-red-500">{error}</p>}
 
-      {activeTasks.length === 0 && completedTasks.length === 0 ? (
-        <p className="text-xl text-gray-600">No active tasks found.</p>
+      {displayedTasks.length === 0 && completedTasks.length === 0 ? (
+        <p className="text-lg text-[#7a7aac] mt-6 ml-4">
+          {filterPriority !== "All" ? `No "${filterPriority}" priority tasks found.` : "No active tasks found."}
+        </p>
       ) : (
-        activeTasks.map((p) => (
+        displayedTasks.map((p) => (
           <div className="task-bar w-[1070px] relative" key={p.task_id} onClick={() => handleClick(p.task_id)}>
             <input
               type="checkbox"
               onClick={(e) => completeTask(p, e)}
               className="w-[24px] h-[24px] absolute top-[36px] left-[70px]"
             />
-            <p className="absolute left-[128px] top-[26px] text-3xl">{p.title}</p>
-            <p className="absolute left-[820px] top-[32px] text-2xl">{formatDate(p.created)}</p>
+            <p className="absolute left-[128px] top-[26px] text-3xl text-[#F1E9E9] font-medium">{p.title}</p>
+            <p className="absolute left-[820px] top-[32px] text-2xl text-[#B8AED4]">{formatDate(p.created)}</p>
             <div className="w-[2px] h-[60px] bg-[#982598] rounded-full absolute left-[966px] top-[18px]"></div>
-            <p className="absolute top-[32px] text-2xl left-[980px]">{p.priority}</p>
+            <p className="absolute top-[32px] text-2xl left-[980px] text-[#F1E9E9]">{p.priority}</p>
           </div>
         ))
       )}
@@ -131,15 +147,15 @@ const Task = ({ refreshTrigger }) => {
       {completedTasks.length > 0 && (
         <div className="mt-12 w-full max-w-[1120px]">
           <hr className="border-gray-300 mb-6" />
-          <div className="mb-4">
-            <h2 className="text-2xl font-semibold">Completed</h2>
-            <p className="text-sm text-gray-500">Completed tasks move here after checking the box.</p>
+          <div className="mb-4 ml-6">
+            <h2 className="text-2xl text-[#E8D9F7] font-semibold">Completed</h2>
+            <p className="text-sm text-gray-400">Completed tasks move here after checking the box.</p>
           </div>
           <div className="space-y-4">
             {completedTasks.map((p) => (
               <div
                 key={p.task_id}
-                className="task-bar w-full relative animate-slide-down opacity-90"
+                className="task-bar w-[1070px] relative animate-slide-down opacity-90"
                 onClick={() => deleteTask(p.task_id)}
               >
                 <input
@@ -157,6 +173,17 @@ const Task = ({ refreshTrigger }) => {
           </div>
         </div>
       )}
+
+      {/* Edit Modal */}
+      <AnimatePresence>
+        {selectedTaskId && (
+          <EditModal
+            taskId={selectedTaskId}
+            onClose={() => setSelectedTaskId(null)}
+            onTaskUpdated={fetchTask}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };

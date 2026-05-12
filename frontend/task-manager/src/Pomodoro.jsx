@@ -108,24 +108,22 @@ const Pomodoro = () => {
   const progress = ((currentTotalTime - timeLeft) / currentTotalTime) * 100;
 
   return (
-    <div className="ml-16 min-h-screen bg-[#15173D] text-[#F1E9E9] p-8">
-      <div className="w-[1120px] mx-auto pb-16">
+    <div className="md:ml-20 min-h-screen text-[#F1E9E9] p-4 md:p-8">
+      <div className="max-w-5xl mx-auto pb-16">
 
-        {/* Header */}
-        <div className="mb-8 mt-4">
-          <h1 className="text-4xl font-bold mb-2">Pomodoro</h1>
-          <p className="text-[#B8AED4]">Stay focused and manage your breaks</p>
-        </div>
+        <div className="rounded-[2rem] p-6 md:p-12 w-full min-h-[75vh] flex flex-col items-center justify-center relative overflow-hidden" style={{ background: 'rgba(10,9,30,0.84)', border: '1px solid rgba(152,37,152,0.18)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 24px 64px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.04)' }}>
 
-        {/* Main Card */}
-        <div className="bg-[#2a2c5b] rounded-[2rem] p-12 shadow-2xl border border-[#2a2c5b]/50 w-full min-h-[75vh] flex flex-col items-center justify-center relative overflow-hidden">
+          <div className="absolute top-6 left-6 md:top-8 md:left-10">
+            <h1 className="text-2xl font-bold text-white">Pomodoro</h1>
+            <p className="text-[#B8AED4] text-sm">Stay focused and manage your breaks</p>
+          </div>
 
           {/* Save Prompt Modal */}
           {showSavePrompt && (
-            <div className="absolute inset-0 bg-[#15173D]/80 backdrop-blur-sm z-50 flex items-center justify-center p-8">
-              <div className="bg-[#2a2c5b] p-8 rounded-3xl shadow-2xl border border-[#982598]/50 max-w-md w-full">
+            <div className="absolute inset-0 backdrop-blur-sm z-50 flex items-center justify-center p-8 " style={{ background: 'rgba(0,0,0,0.72)' }}>
+              <div className="p-8 rounded-3xl shadow-2xl max-w-md w-full" style={{ background: 'rgba(10,9,30,0.97)', border: '1px solid rgba(152,37,152,0.3)', backdropFilter: 'blur(24px)' }}>
                 <h2 className="text-3xl font-bold text-white mb-6">Save Session?</h2>
-                <div className="bg-[#15173D] rounded-xl p-6 mb-8">
+                <div className="rounded-xl p-6 mb-8" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
                   <p className="text-[#B8AED4] mb-2 text-sm uppercase tracking-wider">Task</p>
                   <p className="text-xl font-semibold text-white mb-4">{taskTitle || "Untitled Task"}</p>
                   <p className="text-[#B8AED4] mb-2 text-sm uppercase tracking-wider">Time Focused</p>
@@ -151,36 +149,33 @@ const Pomodoro = () => {
             </div>
           )}
 
-          {/* Mode Selectors */}
-          <div className="flex gap-4 mb-16 bg-[#15173D] p-2 rounded-2xl shadow-inner">
+          <div className="flex gap-2 md:gap-4 mb-10 md:mb-16 p-2 rounded-2xl mt-14" style={{ background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(255,255,255,0.06)' }}>
             {["work", "short", "long"].map((m) => (
               <button
                 key={m}
                 onClick={() => switchMode(m)}
-                className={`px-8 py-3 rounded-xl font-bold text-lg transition-all shadow-sm ${mode === m
+                className={`px-4 md:px-8 py-2 md:py-3 rounded-xl font-bold text-sm md:text-lg transition-all shadow-sm ${mode === m
                   ? "bg-[#982598] text-white"
                   : "text-[#B8AED4] hover:bg-[#982598]/30 hover:text-white"
                   }`}
               >
-                {m === "work" ? "Focus" : m === "short" ? "Short Break" : "Long Break"}
+                {m === "work" ? "Focus" : m === "short" ? "Short" : "Long"}
               </button>
             ))}
           </div>
 
-          {/* Task Title Input */}
-          <div className="w-full max-w-2xl mb-10">
+          <div className="w-full max-w-md md:max-w-2xl mb-6 md:mb-10 px-4">
             <input
               type="text"
               placeholder="What are you working on?"
               value={taskTitle}
               onChange={(e) => setTaskTitle(e.target.value)}
-              className="w-full text-center text-3xl font-bold bg-transparent text-white placeholder-[#B8AED4]/40 focus:outline-none focus:border-b-2 focus:border-[#982598] transition-all pb-2"
+              className="w-full text-center text-xl md:text-3xl font-bold bg-transparent text-white placeholder-[#B8AED4]/40 focus:outline-none focus:border-b-2 focus:border-[#982598] transition-all pb-2"
             />
           </div>
 
-          {/* Timer Display */}
-          <div className="relative flex items-center justify-center mb-16">
-            <svg className="w-[440px] h-[440px] transform -rotate-90">
+          <div className="relative flex items-center justify-center mb-10 md:mb-16">
+            <svg className="w-[280px] h-[280px] md:w-[440px] md:h-[440px] transform -rotate-90" viewBox="0 0 440 440">
               <circle
                 cx="220"
                 cy="220"
@@ -251,7 +246,6 @@ const Pomodoro = () => {
             </div>
           </div>
 
-          {/* Controls */}
           <div className="flex gap-8">
             <button
               onClick={toggleTimer}
@@ -261,7 +255,8 @@ const Pomodoro = () => {
             </button>
             <button
               onClick={resetTimer}
-              className="w-24 h-24 rounded-lg transition-all shadow-xl flex items-center justify-center bg-[#2a2c5b]/30 text-[#B8AED4] hover:bg-[#ab3fb6] hover:text-white hover:scale-105"
+              className="w-24 h-24 rounded-lg transition-all shadow-xl flex items-center justify-center hover:bg-[#ab3fb6] hover:text-white hover:scale-105 text-[#B8AED4]"
+              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
             >
               <FiRefreshCw size={40} />
             </button>
@@ -269,7 +264,8 @@ const Pomodoro = () => {
             {(currentTotalTime - timeLeft > 0) && (
               <button
                 onClick={() => { setIsActive(false); setShowSavePrompt(true); }}
-                className="w-24 h-24 rounded-lg transition-all shadow-xl flex items-center justify-center bg-[#2a2c5b]/30 text-[#B8AED4] hover:bg-[#ab3fb6] hover:text-white hover:scale-105"
+                className="w-24 h-24 rounded-lg transition-all shadow-xl flex items-center justify-center hover:bg-[#ab3fb6] hover:text-white hover:scale-105 text-[#B8AED4]"
+                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
                 title="Save Session"
               >
                 <FiSave size={40} />
@@ -277,13 +273,12 @@ const Pomodoro = () => {
             )}
           </div>
 
-          {/* Display Saved Sessions temporarily */}
           {savedSessions.length > 0 && (
-            <div className="mt-16 w-full max-w-2xl border-t border-[#15173D] pt-8">
+            <div className="mt-16 w-full max-w-2xl pt-8" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
               <h3 className="text-xl font-bold mb-4 text-[#B8AED4]">Today's Logs</h3>
               <div className="space-y-3">
                 {savedSessions.map(session => (
-                  <div key={session.id} className="flex justify-between items-center bg-[#15173D] p-5 rounded-xl shadow-inner">
+                  <div key={session.id} className="flex justify-between items-center p-5 rounded-xl" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
                     <div>
                       <p className="font-semibold text-white text-lg">{session.title}</p>
                       <p className="text-xs text-[#B8AED4] uppercase tracking-wider">{new Date(session.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {session.mode}</p>
