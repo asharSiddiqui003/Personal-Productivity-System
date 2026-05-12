@@ -52,16 +52,16 @@ function App() {
     updateNavFromPath();
   }, [location.pathname]);
 
-  // if (!isAuthenticated) {
-  //   return (
-  //     <Routes>
-  //       <Route path="/" element={<Introduction />} />
-  //       <Route path="/login" element={<Login onLogin={handleLogin} />} />
-  //       <Route path="/signup" element={<Signup />} />
-  //       <Route path="*" element={<Navigate to="/" replace />} />
-  //     </Routes>
-  //   );
-  // }
+  if (!isAuthenticated) {
+    return (
+      <Routes>
+        <Route path="/" element={<Introduction />} />
+        <Route path="/login" element={<Login onLogin={handleLogin} />} />
+        <Route path="/signup" element={<Signup onLogin={handleLogin} />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    );
+  }
 
   return (
     <div>

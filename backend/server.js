@@ -32,8 +32,28 @@ const db = new pg.Client({
 
 db.connect();
 
+// Seed default profile on startup (table already exists — no CREATE TABLE needed)
+async function seedDefaultProfile() {
+  try {
+    const res = await db.query("SELECT * FROM profile WHERE id = 1");
+    if (res.rows.length === 0) {
+      await db.query(`
+        INSERT INTO profile (id, name, email, bio, avatar) 
+        VALUES (1, 'Ashar Siddiqui', 'ashar@example.com', 'Passionate developer building awesome apps.', '')
+      `);
+      console.log("Default profile seeded.");
+    } else {
+      console.log("Profile already exists — skipping seed.");
+    }
+  } catch (err) {
+    console.error("Seed error:", err.message);
+  }
+}
+seedDefaultProfile();
+
 
 // ---------------API Routes--------------------
+
 
 app.get('/tasks', async (req, res) => {
   try {
@@ -123,9 +143,12 @@ app.put('/tasks/completed', async (req, res) => {
 })
 //-----------------Profile------------------------------
 
-app.get('/profile', async (req, res) => {
+// Fetch logged-in user's profile by email (from JWT payload)
+app.get('/profile/me', async (req, res) => {
   try {
-    const result = await db.query("SELECT * FROM profile WHERE id = 1");
+    const { email } = req.query;
+    if (!email) return res.status(400).json("Email is required");
+    const result = await db.query("SELECT id, name, email, bio, avatar FROM profile WHERE email = $1", [email]);
     if (result.rows.length > 0) {
       res.status(200).json(result.rows[0]);
     } else {
@@ -137,17 +160,38 @@ app.get('/profile', async (req, res) => {
   }
 });
 
-app.put('/profile', async (req, res) => {
+// Update profile info (name, bio, avatar) by email
+app.put('/profile/me', async (req, res) => {
   try {
-    const { name, email, bio, avatar } = req.body;
+    const { email: queryEmail } = req.query;
+    const { name, bio, avatar } = req.body;
+    if (!queryEmail) return res.status(400).json("Email is required");
     const result = await db.query(
-      "UPDATE profile SET name = $1, email = $2, bio = $3, avatar = $4 WHERE id = 1 RETURNING *",
-      [name, email, bio, avatar]
+      "UPDATE profile SET name = $1, bio = $2, avatar = $3 WHERE email = $4 RETURNING id, name, email, bio, avatar",
+      [name, bio, avatar, queryEmail]
     );
     res.status(200).json(result.rows[0]);
   } catch (e) {
     console.log("Error updating profile: " + e);
     res.status(500).json("Error updating profile: " + e);
+  }
+});
+
+// Change password — verify current, then save hashed new password
+app.patch('/profile/password', async (req, res) => {
+  try {
+    const { email, currentPassword, newPassword } = req.body;
+    if (!email || !currentPassword || !newPassword) return res.status(400).json("All fields are required");
+    const result = await db.query("SELECT password FROM profile WHERE email = $1", [email]);
+    if (result.rows.length === 0) return res.status(404).json("User not found");
+    const isValid = await bcrypt.compare(currentPassword, result.rows[0].password);
+    if (!isValid) return res.status(401).json("Current password is incorrect");
+    const hashed = await bcrypt.hash(newPassword, 10);
+    await db.query("UPDATE profile SET password = $1 WHERE email = $2", [hashed, email]);
+    res.status(200).json("Password updated successfully");
+  } catch (e) {
+    console.log("Error changing password: " + e);
+    res.status(500).json("Error changing password: " + e);
   }
 });
 
@@ -313,14 +357,14 @@ app.delete('/profile/:id', async (req, res) => {
 
 
 app.post("/users", async (req, res) => {
-  const { email, password } = req.body;
+  const { name, email, password } = req.body;
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
-    const result = await db.query("INSERT INTO profile (email,password) VALUES($1,$2) RETURNING*", [email, hashedPassword]);
+    const result = await db.query("INSERT INTO profile (name,email,password) VALUES($1,$2,$3) RETURNING*", [name, email, hashedPassword]);
     res.status(201).json(result.rows[0]);
   } catch (e) {
     console.log("Error inserting data for login" + e);
-    res.status(500).json("Error inserting data for login" + e);
+    res.status(500).json("Error inserting data for login " + e);
   }
 })
 

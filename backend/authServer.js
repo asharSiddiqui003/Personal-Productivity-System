@@ -95,6 +95,41 @@ app.delete('/logout', async (req, res) => {
     }
 })
 
+
+//-----------------OAuth--------------------
+
+app.post('/auth/google', async (req, res) => {
+    const { access_token } = req.body;
+    try {
+        // Get user info from Google
+        const googleRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+            headers: { Authorization: `Bearer ${access_token}` }
+        });
+        const googleUser = await googleRes.json();
+        if (!googleUser.email) return res.status(400).json("Invalid Google token");
+
+        let result = await db.query("SELECT * FROM profile WHERE email = $1", [googleUser.email]);
+        if (result.rows.length === 0) {
+            result = await db.query(
+                "INSERT INTO profile (name, email) VALUES ($1, $2) RETURNING *",
+                [googleUser.name, googleUser.email]
+            );
+        }
+
+        const payload = { name: googleUser.email };
+        const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN, { expiresIn: '15m' });
+        const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN, { expiresIn: '7d' });
+        await db.query("INSERT INTO refreshTokens (token, user_email) VALUES ($1, $2)", [refreshToken, googleUser.email]);
+
+        res.json({ accessToken, refreshToken });
+    } catch (err) {
+        console.error("Google auth error:", err);
+        res.status(500).json("Google authentication failed");
+    }
+});
+
 app.listen(process.env.AUTH_PORT, () => {
     console.log(`Auth server running on port ${process.env.AUTH_PORT}`)
 })
+
+
