@@ -6,16 +6,29 @@ require('dotenv').config();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
-app.use(cors());
+const corsOption = {
+    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+    optionSuccessStatus: 200
+}
+
+app.use(cors(corsOption));
 app.use(express.json());
 
-const db = new pg.Client({
+const dbConfig = process.env.DATABASE_URL ? {
+    connectionString: process.env.DATABASE_URL,
+    ssl: { rejectUnauthorized: false }
+} : {
     user: process.env.DB_USER,
     host: process.env.DB_HOST,
     database: process.env.DB_NAME,
     password: process.env.DB_PASSWORD,
     port: process.env.DB_PORT,
-});
+};
+
+const db = new pg.Client(dbConfig);
 
 db.connect();
 

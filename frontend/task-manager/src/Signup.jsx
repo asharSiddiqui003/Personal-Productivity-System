@@ -34,6 +34,9 @@ function GoogleIcon() {
   );
 }
 
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const AUTH_URL = import.meta.env.VITE_AUTH_URL || "http://localhost:4000";
+
 function Signup({ onLogin }) {
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
@@ -61,7 +64,7 @@ function Signup({ onLogin }) {
     setErrorMessage("");
 
     try {
-      const response = await fetch("http://localhost:3000/users", {
+      const response = await fetch(`${BASE_URL}/users`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: username, email, password }),
@@ -88,7 +91,7 @@ function Signup({ onLogin }) {
       setGoogleLoading(true);
       setErrorMessage("");
       try {
-        const res = await fetch("http://localhost:4000/auth/google", {
+        const res = await fetch(`${AUTH_URL}/auth/google`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ access_token: tokenResponse.access_token }),

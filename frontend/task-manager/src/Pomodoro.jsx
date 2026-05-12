@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { FiPlay, FiPause, FiRefreshCw, FiEdit2, FiCheck, FiSave } from "react-icons/fi";
 
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
 const Pomodoro = () => {
   const [mode, setMode] = useState("work");
   const [timeLeft, setTimeLeft] = useState(25 * 60);
@@ -18,7 +20,7 @@ const Pomodoro = () => {
   useEffect(() => {
     const fetchSessions = async () => {
       try {
-        const response = await fetch("http://localhost:3000/pomodoro");
+        const response = await fetch(`${BASE_URL}/pomodoro`);
         if (response.ok) {
           const data = await response.json();
           setSavedSessions(data);
@@ -81,7 +83,7 @@ const Pomodoro = () => {
     };
 
     try {
-      const response = await fetch("http://localhost:3000/pomodoro", {
+      const response = await fetch(`${BASE_URL}/pomodoro`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(sessionData)

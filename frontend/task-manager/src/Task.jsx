@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import EditModal from "./EditModal";
 
-const BASE_URL = "http://localhost:3000";
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 const containerVariants = {
   hidden: { opacity: 0 },

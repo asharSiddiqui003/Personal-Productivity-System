@@ -10,6 +10,8 @@ import {
 } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 
+const AUTH_URL = import.meta.env.VITE_AUTH_URL || "http://localhost:4000";
+
 function Login({ onLogin }) {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
@@ -24,7 +26,7 @@ function Login({ onLogin }) {
     setErrorMessage("");
 
     try {
-      const response = await fetch("http://localhost:4000/login", {
+      const response = await fetch(`${AUTH_URL}/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),

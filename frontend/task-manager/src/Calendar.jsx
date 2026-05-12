@@ -16,7 +16,7 @@ export default function Calendar() {
         setIsLoading(true);
         setError(null);
         try {
-            const response = await fetch('http://localhost:3000/tasks');
+            const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/tasks`);
             if (!response.ok) {
                 throw new Error('Failed to fetch tasks');
             }

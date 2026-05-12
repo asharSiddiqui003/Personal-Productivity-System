@@ -12,14 +12,14 @@ const fs = require('fs');
 
 
 const corsOption = {
-  origin: "http://localhost:5173",
+  origin: process.env.FRONTEND_URL || "http://localhost:5173",
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
   optionSuccessStatus: 200
 }
 
-app.use(cors());
+app.use(cors(corsOption));
 app.use(bodyparser.json());
 app.use(bodyparser.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -41,19 +41,24 @@ app.post('/upload', upload.single('file'), (req, res) => {
   if (!req.file) {
     return res.status(400).json("No file uploaded");
   }
-  const fileUrl = `http://localhost:3000/uploads/${req.file.filename}`;
+  const fileUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
   res.status(200).json({ url: fileUrl });
 });
 
 
 
-const db = new pg.Client({
+const dbConfig = process.env.DATABASE_URL ? {
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false } // Required for most cloud DBs
+} : {
   user: process.env.DB_USER,
   host: process.env.DB_HOST,
   database: process.env.DB_NAME,
   password: process.env.DB_PASSWORD,
   port: process.env.DB_PORT,
-});
+};
+
+const db = new pg.Client(dbConfig);
 
 db.connect();
 
@@ -220,7 +225,8 @@ app.patch('/profile/password', async (req, res) => {
   }
 });
 
-app.listen(3000, () => console.log('Server running on port 3000'));
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 
 

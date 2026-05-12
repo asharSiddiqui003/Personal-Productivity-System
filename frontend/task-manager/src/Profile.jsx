@@ -26,6 +26,8 @@ function getEmailFromToken() {
   }
 }
 
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
 function Profile({ onLogout }) {
   const [profile, setProfile] = useState({ name: "", email: "", bio: "", avatar: "" });
   const [isEditing, setIsEditing] = useState(false);
@@ -51,7 +53,7 @@ function Profile({ onLogout }) {
   const fetchProfile = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`http://localhost:3000/profile/me?email=${encodeURIComponent(userEmail)}`);
+      const res = await fetch(`${BASE_URL}/profile/me?email=${encodeURIComponent(userEmail)}`);
       if (res.ok) {
         const data = await res.json();
         setProfile({
@@ -71,7 +73,7 @@ function Profile({ onLogout }) {
   const handleSave = async () => {
     try {
       setSaving(true);
-      const res = await fetch(`http://localhost:3000/profile/me?email=${encodeURIComponent(userEmail)}`, {
+      const res = await fetch(`${BASE_URL}/profile/me?email=${encodeURIComponent(userEmail)}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(profile),
@@ -97,7 +99,7 @@ function Profile({ onLogout }) {
 
     setUploading(true);
     try {
-      const response = await fetch("http://localhost:3000/upload", {
+      const response = await fetch(`${BASE_URL}/upload`, {
         method: "POST",
         body: formData,
       });
@@ -140,7 +142,7 @@ function Profile({ onLogout }) {
     try {
       setPwLoading(true);
       setPwMessage(null);
-      const res = await fetch("http://localhost:3000/profile/password", {
+      const res = await fetch(`${BASE_URL}/profile/password`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: userEmail, currentPassword: pwForm.current, newPassword: pwForm.newPw }),

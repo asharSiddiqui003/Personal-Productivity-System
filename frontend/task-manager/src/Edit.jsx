@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { FaEdit } from "react-icons/fa";
 
-const BASE_URL = "http://localhost:3000";
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 const Edit = () => {
   const { task_id } = useParams();

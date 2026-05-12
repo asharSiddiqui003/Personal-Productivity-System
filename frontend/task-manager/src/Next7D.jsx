@@ -4,9 +4,9 @@ import EditModal from "./EditModal";
 import { useState, useEffect, useMemo } from "react";
 import { AnimatePresence } from "framer-motion";
 
-const BASE_URL = "http://localhost:3000";
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
-const Next7D = () => {
+export default function Next7D() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -242,6 +242,4 @@ const Next7D = () => {
       </AnimatePresence>
     </>
   );
-};
-
-export default Next7D;
+}

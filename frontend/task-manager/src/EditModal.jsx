@@ -3,7 +3,7 @@ import { FaEdit } from "react-icons/fa";
 import { IoClose } from "react-icons/io5";
 import { motion } from "framer-motion";
 
-const BASE_URL = "http://localhost:3000";
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 const EditModal = ({ taskId, onClose, onTaskUpdated }) => {
   const [taskData, setTaskData] = useState({

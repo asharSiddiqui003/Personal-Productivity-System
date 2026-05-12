@@ -4,7 +4,7 @@ import { AnimatePresence } from "framer-motion";
 import Add from "./Add";
 import EditModal from "./EditModal";
 
-const BASE_URL = "http://localhost:3000";
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 const Inbox = () => {
   const [refreshKey, setRefreshKey] = useState(0);

@@ -3,6 +3,8 @@ import { IoSearch, IoClose } from 'react-icons/io5';
 import { FiFilter, FiCalendar, FiCheckSquare, FiActivity } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
 export default function Search({ isOpen, onClose }) {
     const [searchTerm, setSearchTerm] = useState('');
     const [activeFilter, setActiveFilter] = useState('All');
@@ -38,7 +40,7 @@ export default function Search({ isOpen, onClose }) {
         const fetchResults = async () => {
             setIsLoading(true);
             try {
-                const res = await fetch(`http://localhost:3000/search?query=${encodeURIComponent(searchTerm)}`);
+                const res = await fetch(`${BASE_URL}/search?query=${encodeURIComponent(searchTerm)}`);
                 const data = await res.json();
 
                 const rows = data.rows || data || [];

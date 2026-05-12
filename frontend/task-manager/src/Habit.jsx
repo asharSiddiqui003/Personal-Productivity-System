@@ -24,6 +24,8 @@ const mapHabit = (dbHabit) => ({
     icon: dbHabit.icon
 });
 
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
 export default function Habit() {
     const Navigate = useNavigate();
     // Habits state
@@ -32,7 +34,7 @@ export default function Habit() {
     useEffect(() => {
         const fetchHabits = async () => {
             try {
-                const res = await fetch('http://localhost:3000/habits');
+                const res = await fetch(`${BASE_URL}/habits`);
                 const data = await res.json();
                 const rawHabits = data.rows || data || [];
                 setHabits(rawHabits.map(mapHabit));
@@ -100,7 +102,7 @@ export default function Habit() {
 
         if (editingHabit) {
             try {
-                const res = await fetch(`http://localhost:3000/habits/${editingHabit.id}`, {
+                const res = await fetch(`${BASE_URL}/habits/${editingHabit.id}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -118,7 +120,7 @@ export default function Habit() {
             }
         } else {
             try {
-                const res = await fetch('http://localhost:3000/habits', {
+                const res = await fetch(`${BASE_URL}/habits`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -140,7 +142,7 @@ export default function Habit() {
 
     const handleDelete = async (id) => {
         try {
-            await fetch(`http://localhost:3000/habits/${id}`, { method: 'DELETE' });
+            await fetch(`${BASE_URL}/habits/${id}`, { method: 'DELETE' });
             setHabits(habits.filter(h => h.id !== id));
             if (selectedHabit === id) setSelectedHabit(null);
         } catch (e) {
