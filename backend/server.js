@@ -152,7 +152,7 @@ app.delete('/tasks/:task_id', authenticateToken, async (req, res) => {
 
 //-------------SELECT ONE TASK-----------------------
 
-app.get(`/tasks/:task_id`, async (req, res) => {
+app.get(`/tasks/:task_id`, authenticateToken, async (req, res) => {
   try {
     const { task_id } = req.params;
     const result = await db.query("SELECT title, description, priority, status, created, dueDate FROM tasks WHERE task_id = $1", [task_id]);
@@ -165,7 +165,7 @@ app.get(`/tasks/:task_id`, async (req, res) => {
 
 //-------------Edit Task---------------------------------
 
-app.put(`/tasks/edit/:task_id`, async (req, res) => {
+app.put(`/tasks/edit/:task_id`, authenticateToken, async (req, res) => {
   try {
     const { task_id } = req.params;
     let { title, description, priority, status, created, dueDate } = req.body;
@@ -182,7 +182,7 @@ app.put(`/tasks/edit/:task_id`, async (req, res) => {
 
 //-------------------Completed Data---------------
 //status of data updated to complete to be saved in the database
-app.put('/tasks/completed', async (req, res) => {
+app.put('/tasks/completed', authenticateToken, async (req, res) => {
   try {
     const { task_id } = req.params;
     const { status } = req.body;
@@ -451,15 +451,5 @@ app.get('/posts', authenticateToken, async (req, res) => {
   res.json(user.rows);
 })
 
-function authenticateToken(req, res, next) {
-  const authHeader = req.headers.authorization;
-  const token = authHeader && authHeader.split(' ')[1]
-  if (token == null) return res.status(401).json('Error authenticating token');
-
-  jwt.verify(token, process.env.ACCESS_TOKEN, (err, user) => {
-    if (err) return res.sendStatus(403);//403 says that we see you have a token but the token is not longer valid 
-    req.user = user
-    next()
-  })
-}
+// End of file
 
