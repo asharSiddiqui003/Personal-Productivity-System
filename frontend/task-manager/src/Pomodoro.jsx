@@ -119,7 +119,7 @@ const Pomodoro = () => {
   const progress = ((currentTotalTime - timeLeft) / currentTotalTime) * 100;
 
   return (
-    <div className="relative md:left-[312px] top-0 min-h-screen w-full md:w-[calc(100%-312px)] text-[#F1E9E9] p-4 md:p-8">
+    <div className="md:ml-[340px] top-0 min-h-screen w-full md:w-[calc(100%-340px)] text-[#F1E9E9] p-4 md:p-8">
       <div className="max-w-5xl mx-auto pb-16">
 
         <div className="rounded-[2rem] p-6 md:p-12 w-full min-h-[75vh] flex flex-col items-center justify-center relative overflow-hidden" style={{ background: 'rgba(10,9,30,0.84)', border: '1px solid rgba(152,37,152,0.18)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 24px 64px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.04)' }}>

@@ -76,7 +76,7 @@ const Inbox = () => {
 
   // Extract the common layout into a wrapper component or fragment
 const InboxLayout = ({ children }) => (
-  <div className="relative md:left-[312px] top-0 min-h-screen w-full md:w-[calc(100%-312px)] px-4 md:px-0 md:pr-8">
+  <div className="md:ml-[340px] top-0 min-h-screen w-full md:w-[calc(100%-340px)] px-4 md:px-0 md:pr-8">
     <div className="flex items-center gap-3 my-4">
       <FiInbox size={32} className="text-[#982598]" />
       <h1 className="text-3xl font-bold text-white tracking-tight">Inbox</h1>
