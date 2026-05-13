@@ -84,7 +84,7 @@ export default function Calendar() {
     };
 
     return (
-        <div className="md:ml-[340px] top-0 min-h-screen w-full md:w-[calc(100%-340px)] text-[#F1E9E9] p-4 md:p-8 pt-8 pb-12 transition-all duration-300">
+        <div className="relative md:left-[336px] top-0 min-h-screen w-full md:w-[calc(100%-336px)] text-[#F1E9E9] p-4 md:p-8 pt-8 pb-12 transition-all duration-300">
             <div className="max-w-6xl mx-auto">
                 {/* Header */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">

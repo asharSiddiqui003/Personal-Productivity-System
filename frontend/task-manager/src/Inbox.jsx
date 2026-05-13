@@ -76,7 +76,7 @@ const Inbox = () => {
 
   // Extract the common layout into a wrapper component or fragment
 const InboxLayout = ({ children }) => (
-  <div className="md:ml-[340px] top-0 min-h-screen w-full md:w-[calc(100%-340px)] px-4 md:px-0 md:pr-8">
+  <div className="relative md:left-[336px] top-0 min-h-screen w-full md:w-[calc(100%-336px)] px-4 md:px-0 md:pr-8">
     <div className="flex items-center gap-3 my-4">
       <FiInbox size={32} className="text-[#982598]" />
       <h1 className="text-3xl font-bold text-white tracking-tight">Inbox</h1>
@@ -119,7 +119,7 @@ return (
           {activeTasks.map((task) => (
             <div
               key={task.task_id}
-              className="task-bar w-full max-w-[1120px] flex items-center px-8 md:px-12 py-4 cursor-pointer mb-4 gap-4"
+              className="task-bar w-auto max-w-[1120px] flex items-center px-8 md:px-12 py-4 cursor-pointer mb-4 gap-4"
               onClick={() => handleClick(task.task_id)}
             >
               <input

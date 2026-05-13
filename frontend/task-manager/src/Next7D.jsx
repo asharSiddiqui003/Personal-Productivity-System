@@ -116,7 +116,7 @@ export default function Next7D() {
   const TaskItem = ({ task }) => (
     <div
       key={task.task_id}
-      className="task-bar w-full max-w-[1120px] flex items-center px-8 md:px-12 py-4 cursor-pointer mb-4 gap-4"
+      className="task-bar w-auto max-w-[1120px] flex items-center px-8 md:px-12 py-4 cursor-pointer mb-4 gap-4"
       onClick={() => handleClick(task.task_id)}
     >
       <input
@@ -165,7 +165,7 @@ export default function Next7D() {
 
   // Layout wrapper
   const NextLayout = ({ children }) => (
-    <div className="md:ml-[340px] top-0 min-h-screen w-full md:w-[calc(100%-340px)] px-4 md:px-0 md:pr-8">
+    <div className="relative md:left-[336px] top-0 min-h-screen w-full md:w-[calc(100%-336px)] px-4 md:px-0 md:pr-8">
       <div className="flex items-center gap-3 my-4">
         <svg
           viewBox="0 0 35 24"

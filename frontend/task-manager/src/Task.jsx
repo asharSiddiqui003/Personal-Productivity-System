@@ -181,7 +181,7 @@ const Task = ({ refreshTrigger, filterPriority = "All", sortBy = "date-newest" }
           {displayedTasks.map((p) => (
             <motion.div 
               variants={itemVariants}
-              className="task-bar w-full max-w-[1070px] flex items-center px-8 md:px-12 py-4 cursor-pointer mb-4 gap-4" 
+              className="task-bar w-auto max-w-[1070px] flex items-center px-8 md:px-12 py-4 cursor-pointer mb-4 gap-4" 
               key={p.task_id} 
               onClick={() => handleClick(p.task_id)}
             >

@@ -158,7 +158,7 @@ export default function Habit() {
     };
 
     return (
-        <div className="min-h-screen px-4 md:pl-[340px] md:pr-8 pt-8 pb-8 text-[#F1E9E9] transition-all duration-300">
+        <div className="min-h-screen px-4 md:pl-28 md:pr-8 pt-8 pb-8 text-[#F1E9E9] transition-all duration-300">
             <div className="rounded-[2rem] p-8 w-full relative" style={{ background: 'rgba(10,9,30,0.84)', border: '1px solid rgba(152,37,152,0.18)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 24px 64px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.04)' }}>
 
                 {/* Heading */}
