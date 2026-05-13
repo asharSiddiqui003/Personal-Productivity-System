@@ -53,10 +53,16 @@ function Profile({ onLogout }) {
   const fetchProfile = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${BASE_URL}/profile/me?email=${encodeURIComponent(userEmail)}`);
+      const token = localStorage.getItem("accessToken");
+      const res = await fetch(`${BASE_URL}/profile`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       if (res.ok) {
         const data = await res.json();
         setProfile({
+          id: data.id,
           name: data.name || "",
           email: data.email || "",
           bio: data.bio || "",
@@ -73,14 +79,24 @@ function Profile({ onLogout }) {
   const handleSave = async () => {
     try {
       setSaving(true);
-      const res = await fetch(`${BASE_URL}/profile/me?email=${encodeURIComponent(userEmail)}`, {
+      const token = localStorage.getItem("accessToken");
+      const res = await fetch(`${BASE_URL}/profile/${profile.id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify(profile),
       });
       if (res.ok) {
         const data = await res.json();
-        setProfile({ name: data.name || "", email: data.email || "", bio: data.bio || "", avatar: data.avatar || "" });
+        setProfile({ 
+          id: data.id,
+          name: data.name || "", 
+          email: data.email || "", 
+          bio: data.bio || "", 
+          avatar: data.avatar || "" 
+        });
         setIsEditing(false);
       }
     } catch (error) {

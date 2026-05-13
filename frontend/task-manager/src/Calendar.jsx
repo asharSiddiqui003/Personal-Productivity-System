@@ -16,7 +16,13 @@ export default function Calendar() {
         setIsLoading(true);
         setError(null);
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/tasks`);
+            const token = localStorage.getItem("accessToken");
+            const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+            const response = await fetch(`${BASE_URL}/tasks`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
             if (!response.ok) {
                 throw new Error('Failed to fetch tasks');
             }

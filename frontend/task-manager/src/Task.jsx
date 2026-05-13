@@ -54,7 +54,12 @@ const Task = ({ refreshTrigger, filterPriority = "All", sortBy = "date-newest" }
   const fetchTask = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${BASE_URL}/tasks`);
+      const token = localStorage.getItem("accessToken");
+      const response = await fetch(`${BASE_URL}/tasks`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       const data = await response.json();
       const active = data.filter(task => task.status !== 'completed');
       const completed = data.filter(task => task.status === 'completed');
@@ -70,7 +75,13 @@ const Task = ({ refreshTrigger, filterPriority = "All", sortBy = "date-newest" }
 
   const updateTask = async (completedTasks) => {
     try {
-      const response = await fetch(`${BASE_URL}/tasks/completed`, { method: "PUT" });
+      const token = localStorage.getItem("accessToken");
+      const response = await fetch(`${BASE_URL}/tasks/completed`, { 
+        method: "PUT",
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       const taskStatus = await response.json();
       console.log(taskStatus);
     } catch (e) {
@@ -80,7 +91,13 @@ const Task = ({ refreshTrigger, filterPriority = "All", sortBy = "date-newest" }
 
   const deleteTask = async (task_id) => {
     try {
-      const response = await fetch(`${BASE_URL}/tasks/${task_id}`, { method: "DELETE" });
+      const token = localStorage.getItem("accessToken");
+      const response = await fetch(`${BASE_URL}/tasks/${task_id}`, { 
+        method: "DELETE",
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       if (!response.ok) {
         throw new Error(`HTTP error status: ${response.status}`);
       }
@@ -96,9 +113,13 @@ const Task = ({ refreshTrigger, filterPriority = "All", sortBy = "date-newest" }
   const completeTask = async (task, event) => {
     event.stopPropagation();
     try {
+      const token = localStorage.getItem("accessToken");
       const response = await fetch(`${BASE_URL}/tasks/edit/${task.task_id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({ ...task, status: 'completed' }),
       });
       if (response.ok) {

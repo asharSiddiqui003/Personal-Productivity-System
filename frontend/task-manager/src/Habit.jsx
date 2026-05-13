@@ -34,7 +34,12 @@ export default function Habit() {
     useEffect(() => {
         const fetchHabits = async () => {
             try {
-                const res = await fetch(`${BASE_URL}/habits`);
+                const token = localStorage.getItem("accessToken");
+                const res = await fetch(`${BASE_URL}/habits`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
                 const data = await res.json();
                 const rawHabits = data.rows || data || [];
                 setHabits(rawHabits.map(mapHabit));
@@ -67,9 +72,13 @@ export default function Habit() {
         setIsCompleting(true);
         setHabits(prev => prev.map(h => h.id === id ? { ...h, streak: newStreak } : h));
         try {
-            await fetch(`http://localhost:3000/habits/${id}`, {
+            const token = localStorage.getItem("accessToken");
+            await fetch(`${BASE_URL}/habits/${id}`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
                 body: JSON.stringify({
                     title: habit.title,
                     subtitle: habit.subtitle,
@@ -100,49 +109,47 @@ export default function Habit() {
     const handleSave = async () => {
         if (!formData.title.trim()) return;
 
-        if (editingHabit) {
-            try {
-                const res = await fetch(`${BASE_URL}/habits/${editingHabit.id}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        title: formData.title,
-                        subtitle: formData.subtitle,
-                        streak: editingHabit.streak,
-                        done: editingHabit.done,
-                        icon: formData.icon
-                    })
-                });
-                const updatedHabit = await res.json();
-                setHabits(habits.map(h => h.id === editingHabit.id ? mapHabit(updatedHabit) : h));
-            } catch (e) {
-                console.error("Error updating habit", e);
+        try {
+            const token = localStorage.getItem("accessToken");
+            const url = editingHabit ? `${BASE_URL}/habits/${editingHabit.id}` : `${BASE_URL}/habits`;
+            const method = editingHabit ? 'PUT' : 'POST';
+
+            const res = await fetch(url, {
+                method,
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    title: formData.title,
+                    subtitle: formData.subtitle,
+                    streak: editingHabit ? editingHabit.streak : 0,
+                    done: editingHabit ? editingHabit.done : false,
+                    icon: formData.icon
+                })
+            });
+            const data = await res.json();
+            
+            if (editingHabit) {
+                setHabits(habits.map(h => h.id === editingHabit.id ? mapHabit(data) : h));
+            } else {
+                setHabits([...habits, mapHabit(data)]);
             }
-        } else {
-            try {
-                const res = await fetch(`${BASE_URL}/habits`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        title: formData.title,
-                        subtitle: formData.subtitle,
-                        streak: 0,
-                        done: false,
-                        icon: formData.icon
-                    })
-                });
-                const newHabit = await res.json();
-                setHabits([...habits, mapHabit(newHabit)]);
-            } catch (e) {
-                console.error("Error adding habit", e);
-            }
+        } catch (e) {
+            console.error("Error saving habit", e);
         }
         setIsModalOpen(false);
     };
 
     const handleDelete = async (id) => {
         try {
-            await fetch(`${BASE_URL}/habits/${id}`, { method: 'DELETE' });
+            const token = localStorage.getItem("accessToken");
+            await fetch(`${BASE_URL}/habits/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
             setHabits(habits.filter(h => h.id !== id));
             if (selectedHabit === id) setSelectedHabit(null);
         } catch (e) {
@@ -258,11 +265,11 @@ export default function Habit() {
 
                     return (
                         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-                            <motion.div 
+                            <motion.div
                                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
                                 exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                                className="w-full max-w-md p-8 relative" 
+                                className="w-full max-w-md p-8 relative"
                                 style={{ background: 'rgba(10,9,30,0.97)', border: '1px solid rgba(152,37,152,0.25)', borderRadius: '2.5rem', backdropFilter: 'blur(24px)', boxShadow: '0 32px 80px rgba(0,0,0,0.7)' }}
                             >
                                 <button

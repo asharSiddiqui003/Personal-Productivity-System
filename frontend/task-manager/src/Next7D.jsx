@@ -21,9 +21,13 @@ export default function Next7D() {
   const fetchTasks = async () => {
     setLoading(true);
     setError(null);
-
     try {
-      const response = await fetch(`${BASE_URL}/tasks`);
+      const token = localStorage.getItem("accessToken");
+      const response = await fetch(`${BASE_URL}/tasks`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       const data = await response.json();
       setAllTasks(data);
     } catch (e) {
@@ -37,9 +41,13 @@ export default function Next7D() {
   const completeTask = async (task, event) => {
     event.stopPropagation();
     try {
+      const token = localStorage.getItem("accessToken");
       const response = await fetch(`${BASE_URL}/tasks/edit/${task.task_id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({ ...task, status: "completed" }),
       });
 

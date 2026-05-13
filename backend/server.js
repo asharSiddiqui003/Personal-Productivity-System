@@ -9,6 +9,25 @@ const bcrypt = require('bcrypt');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const jwt = require('jsonwebtoken');
+
+// Helper to get profile ID from the email in the JWT token
+async function getUserId(email) {
+  const res = await db.query("SELECT id FROM profile WHERE email = $1", [email]);
+  return res.rows[0]?.id;
+}
+
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers.authorization;
+  const token = authHeader && authHeader.split(' ')[1]
+  if (token == null) return res.status(401).json('Error authenticating token');
+
+  jwt.verify(token, process.env.ACCESS_TOKEN, (err, user) => {
+    if (err) return res.sendStatus(403);
+    req.user = user
+    next()
+  })
+}
 
 
 const corsOption = {
@@ -85,23 +104,25 @@ seedDefaultProfile();
 // ---------------API Routes--------------------
 
 
-app.get('/tasks', async (req, res) => {
+app.get('/tasks', authenticateToken, async (req, res) => {
   try {
-    const result = await db.query(`SELECT * FROM tasks ORDER BY created DESC`);
+    const userId = await getUserId(req.user.name);
+    const result = await db.query(`SELECT * FROM tasks WHERE user_id = $1 ORDER BY created DESC`, [userId]);
     res.status(200).json(result.rows);
   } catch (e) {
-    console.log("Error Fetching data from the database");
+    console.log("Error Fetching data from the database", e);
     res.status(500).json("Error failed to load task");
   }
 });
 
 //------------------ADD TASK-------------------------
 
-app.post('/addTasks', async (req, res) => {
+app.post('/addTasks', authenticateToken, async (req, res) => {
   try {
+    const userId = await getUserId(req.user.name);
     const { task, priority, createdAt } = req.body;
-    const result = await db.query(`INSERT INTO tasks (title, priority, created, status) VALUES ($1,$2,$3,$4) RETURNING *`,
-      [task, priority, createdAt, 'active']
+    const result = await db.query(`INSERT INTO tasks (title, priority, created, status, user_id) VALUES ($1,$2,$3,$4,$5) RETURNING *`,
+      [task, priority, createdAt, 'active', userId]
     );
     res.status(201).json(result.rows[0]);
 
@@ -114,13 +135,14 @@ app.post('/addTasks', async (req, res) => {
 
 //----------------DELETE TASK------------------------
 
-app.delete('/tasks/:task_id', async (req, res) => {
+app.delete('/tasks/:task_id', authenticateToken, async (req, res) => {
   try {
+    const userId = await getUserId(req.user.name);
     const { task_id } = req.params;
     if (!task_id) {
       return res.status(400).json({ error: "task_id is required" });
     }
-    const result = await db.query(`DELETE FROM tasks WHERE task_id = $1 RETURNING *`, [task_id]);
+    const result = await db.query(`DELETE FROM tasks WHERE task_id = $1 AND user_id = $2 RETURNING *`, [task_id, userId]);
     res.status(200).json(result.rows[0]);
   } catch (e) {
     console.log("Error deleting data" + e);
@@ -234,23 +256,24 @@ app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 //-----------------Fetch Data---------------------------
 
-app.get('/habits', async (req, res) => {
+app.get('/habits', authenticateToken, async (req, res) => {
   try {
-    const result = await db.query("SELECT * FROM habit");
-    res.status(200).json(result);
+    const userId = await getUserId(req.user.name);
+    const result = await db.query("SELECT * FROM habit WHERE user_id = $1", [userId]);
+    res.status(200).json(result.rows);
   } catch (e) {
     res.status(500).json("Error fetching data for habits: " + e);
     console.log("Error fetching data for habits: " + e);
   }
-
 })
 
 //------------------Add Habits-------------------------
 
-app.post("/habits", async (req, res) => {
+app.post("/habits", authenticateToken, async (req, res) => {
   try {
+    const userId = await getUserId(req.user.name);
     const { title, subtitle, streak, done, icon } = req.body;
-    const result = await db.query("INSERT INTO habit (habit_name, subtitle, count, status, icon) VALUES ($1,$2,$3,$4,$5) RETURNING *", [title, subtitle, streak, done, icon]);
+    const result = await db.query("INSERT INTO habit (habit_name, subtitle, count, status, icon, user_id) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *", [title, subtitle, streak, done, icon, userId]);
     res.status(201).json(result.rows[0]);
   } catch (e) {
     console.log("Error adding data : " + e);
@@ -260,13 +283,14 @@ app.post("/habits", async (req, res) => {
 
 //----------------Delete Habit---------------------
 
-app.delete('/habits/:id', async (req, res) => {
+app.delete('/habits/:id', authenticateToken, async (req, res) => {
   try {
+    const userId = await getUserId(req.user.name);
     const { id } = req.params;
     if (!id) {
       return res.status(400).json({ error: "id is required" });
     }
-    const result = await db.query("DELETE FROM habit WHERE id = $1 RETURNING *", [id]);
+    const result = await db.query("DELETE FROM habit WHERE id = $1 AND user_id = $2 RETURNING *", [id, userId]);
     res.status(200).json(result.rows[0]);
   } catch (e) {
     console.log("Error deleting data" + e);
@@ -276,12 +300,13 @@ app.delete('/habits/:id', async (req, res) => {
 
 //--------------Edit Habit------------------
 
-app.put(`/habits/:id`, async (req, res) => {
+app.put(`/habits/:id`, authenticateToken, async (req, res) => {
   try {
+    const userId = await getUserId(req.user.name);
     const { id } = req.params;
     const { title, subtitle, streak, done, icon } = req.body;
-    const result = await db.query("UPDATE habit SET habit_name = $1, subtitle = $2, count = $3, status = $4, icon = $5 WHERE id = $6 RETURNING *",
-      [title, subtitle, streak, done, icon, id]);
+    const result = await db.query("UPDATE habit SET habit_name = $1, subtitle = $2, count = $3, status = $4, icon = $5 WHERE id = $6 AND user_id = $7 RETURNING *",
+      [title, subtitle, streak, done, icon, id, userId]);
     res.status(200).json(result.rows[0]);
   } catch (e) {
     console.log("Error editing data" + e);
@@ -293,11 +318,12 @@ app.put(`/habits/:id`, async (req, res) => {
 
 //------------------Search-------------------------
 
-app.get('/search', async (req, res) => {
+app.get('/search', authenticateToken, async (req, res) => {
   try {
+    const userId = await getUserId(req.user.name);
     const { query } = req.query;
-    const result = await db.query("SELECT * FROM tasks WHERE title LIKE $1", [`%${query}%`]);
-    res.status(200).json(result);
+    const result = await db.query("SELECT * FROM tasks WHERE title LIKE $1 AND user_id = $2", [`%${query}%`, userId]);
+    res.status(200).json(result.rows);
   } catch (e) {
     res.status(500).json("Error fetching data for search: " + e);
     console.log("Error fetching data for search: " + e);
@@ -307,10 +333,11 @@ app.get('/search', async (req, res) => {
 //-------------------Pomodoro------------------------- 
 
 //------------------Get Details-------------------------
-app.get('/pomodoro', async (req, res) => {
+app.get('/pomodoro', authenticateToken, async (req, res) => {
   try {
-    const result = await db.query("SELECT * FROM pomodoro")
-    res.status(200).json(result);
+    const userId = await getUserId(req.user.name);
+    const result = await db.query("SELECT * FROM pomodoro WHERE user_id = $1", [userId]);
+    res.status(200).json(result.rows);
   } catch (e) {
     console.log("Error fetching data for pomodoro" + e);
     res.status(500).json("Error fetching data for pomodoro" + e);
@@ -319,10 +346,11 @@ app.get('/pomodoro', async (req, res) => {
 
 //------------------Insert Details-------------------------
 
-app.post("/pomodoro", async (req, res) => {
+app.post("/pomodoro", authenticateToken, async (req, res) => {
   try {
+    const userId = await getUserId(req.user.name);
     const { title, duration, mode } = req.body;
-    const result = await db.query("INSERT INTO pomodoro (title, duration, mode) VALUES ($1,$2,$3) RETURNING*", [title, duration, mode]);
+    const result = await db.query("INSERT INTO pomodoro (title, duration, mode, user_id) VALUES ($1,$2,$3,$4) RETURNING*", [title, duration, mode, userId]);
     res.status(201).json(result.rows[0]);
   } catch (e) {
     console.log("Error updating data for pomodoro" + e);
@@ -334,10 +362,10 @@ app.post("/pomodoro", async (req, res) => {
 
 //-----------------FETCH DETAIL-----------------------
 
-app.get('/profile', async (req, res) => {
+app.get('/profile', authenticateToken, async (req, res) => {
   try {
-    const result = await db.query("SELECT * FROM profile")
-    res.status(200).json(result);
+    const result = await db.query("SELECT id, name, email, bio, avatar FROM profile WHERE email = $1", [req.user.name]);
+    res.status(200).json(result.rows[0]);
   } catch (e) {
     console.log("Error fetching data for profile: " + e);
     res.status(500).json("Error fetching data for profile: " + e);
@@ -346,11 +374,11 @@ app.get('/profile', async (req, res) => {
 
 //------------------GET DETAIL PER ID--------------------
 
-app.put('/profile/:id', async (req, res) => {
+app.put('/profile/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
     const { name, email, bio, avatar } = req.body;
-    const result = await db.query("UPDATE profile SET name = $1, email = $2, bio = $3, avatar = $4 WHERE id = $5 RETURNING*", [name, email, bio, avatar, id]);
+    const result = await db.query("UPDATE profile SET name = $1, email = $2, bio = $3, avatar = $4 WHERE id = $5 AND email = $6 RETURNING*", [name, email, bio, avatar, id, req.user.name]);
     res.status(200).json(result.rows[0]);
   } catch (e) {
     console.log("Error updating data for profile: " + e);

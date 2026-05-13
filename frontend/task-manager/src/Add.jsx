@@ -46,10 +46,12 @@ const Add = ({ onTaskAdded }) => {
     console.log("Sending to Server: " , requestBody);
 
     try {
+      const token = localStorage.getItem("accessToken");
       const response = await fetch(`${BASE_URL}/addTasks`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(requestBody),
       })

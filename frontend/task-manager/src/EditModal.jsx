@@ -32,7 +32,12 @@ const EditModal = ({ taskId, onClose, onTaskUpdated }) => {
     const fetchTask = async () => {
       try {
         setIsLoading(true);
-        const res = await fetch(`${BASE_URL}/tasks/${taskId}`);
+        const token = localStorage.getItem("accessToken");
+        const res = await fetch(`${BASE_URL}/tasks/${taskId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
         if (!res.ok) throw new Error("Failed to load task");
         const data = await res.json();
         setTaskData({
@@ -85,9 +90,13 @@ const EditModal = ({ taskId, onClose, onTaskUpdated }) => {
         dueDate: taskData.dueDate || null,
       };
 
+      const token = localStorage.getItem("accessToken");
       const res = await fetch(`${BASE_URL}/tasks/edit/${taskId}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify(body),
       });
 

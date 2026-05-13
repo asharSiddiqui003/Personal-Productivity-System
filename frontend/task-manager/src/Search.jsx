@@ -40,7 +40,12 @@ export default function Search({ isOpen, onClose }) {
         const fetchResults = async () => {
             setIsLoading(true);
             try {
-                const res = await fetch(`${BASE_URL}/search?query=${encodeURIComponent(searchTerm)}`);
+                const token = localStorage.getItem("accessToken");
+                const res = await fetch(`${BASE_URL}/search?query=${encodeURIComponent(searchTerm)}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
                 const data = await res.json();
 
                 const rows = data.rows || data || [];

@@ -20,7 +20,12 @@ const Pomodoro = () => {
   useEffect(() => {
     const fetchSessions = async () => {
       try {
-        const response = await fetch(`${BASE_URL}/pomodoro`);
+        const token = localStorage.getItem("accessToken");
+        const response = await fetch(`${BASE_URL}/pomodoro`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
         if (response.ok) {
           const data = await response.json();
           setSavedSessions(data);
@@ -83,9 +88,13 @@ const Pomodoro = () => {
     };
 
     try {
+      const token = localStorage.getItem("accessToken");
       const response = await fetch(`${BASE_URL}/pomodoro`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify(sessionData)
       });
       if (response.ok) {
