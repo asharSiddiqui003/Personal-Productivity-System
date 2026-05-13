@@ -84,7 +84,7 @@ export default function Calendar() {
     };
 
     return (
-        <div className="relative md:left-[336px] top-0 min-h-screen w-full md:w-[calc(100%-336px)] px-4 md:px-0 md:pr-8 pt-8 pb-12 text-[#F1E9E9] transition-all duration-300">
+        <div className="relative md:left-[336px] top-0 min-h-screen w-full md:w-[calc(100%-336px)] text-[#F1E9E9] p-4 md:p-8 pt-8 pb-12 transition-all duration-300">
             <div className="max-w-6xl mx-auto">
                 {/* Header */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
@@ -143,7 +143,7 @@ export default function Calendar() {
                             return (
                                 <div
                                     key={i}
-                                    className={`min-h-[120px] rounded-2xl p-3 border transition-all
+                                    className={`min-h-[80px] md:min-h-[120px] rounded-2xl p-2 md:p-3 border transition-all
                                         ${!isCurrentMonth ? 'opacity-25' : 'hover:border-[#982598]/40'}
                                         ${isToday ? 'ring-2 ring-[#982598]' : ''}
                                     `}

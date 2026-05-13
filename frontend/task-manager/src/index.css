@@ -44,7 +44,7 @@ body {
   }
 
   .add-task {
-    @apply w-full md:w-[900px];
+    @apply w-full max-w-[900px] mx-auto px-4;
   }
 
   .task-submit {
@@ -57,7 +57,7 @@ body {
   }
 
   .task-bar {
-    @apply rounded-2xl transition-all duration-200 mt-4 md:mt-8 h-auto min-h-[80px] md:h-[92px] mx-2 md:mx-16 border border-white/8 hover:border-[#982598]/50 hover:shadow-xl hover:shadow-[#982598]/10 cursor-pointer;
+    @apply rounded-2xl transition-all duration-200 mt-4 md:mt-8 h-auto min-h-[80px] md:h-[92px] mx-4 md:mx-16 border border-white/8 hover:border-[#982598]/50 hover:shadow-xl hover:shadow-[#982598]/10 cursor-pointer;
     background: rgba(29, 31, 73, 0.55);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);

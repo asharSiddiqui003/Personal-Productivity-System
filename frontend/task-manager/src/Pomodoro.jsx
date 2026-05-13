@@ -119,7 +119,7 @@ const Pomodoro = () => {
   const progress = ((currentTotalTime - timeLeft) / currentTotalTime) * 100;
 
   return (
-    <div className="md:ml-20 min-h-screen text-[#F1E9E9] p-4 md:p-8">
+    <div className="relative md:left-[336px] top-0 min-h-screen w-full md:w-[calc(100%-336px)] text-[#F1E9E9] p-4 md:p-8">
       <div className="max-w-5xl mx-auto pb-16">
 
         <div className="rounded-[2rem] p-6 md:p-12 w-full min-h-[75vh] flex flex-col items-center justify-center relative overflow-hidden" style={{ background: 'rgba(10,9,30,0.84)', border: '1px solid rgba(152,37,152,0.18)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 24px 64px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.04)' }}>
@@ -185,8 +185,8 @@ const Pomodoro = () => {
             />
           </div>
 
-          <div className="relative flex items-center justify-center mb-10 md:mb-16">
-            <svg className="w-[280px] h-[280px] md:w-[440px] md:h-[440px] transform -rotate-90" viewBox="0 0 440 440">
+          <div className="relative flex items-center justify-center mb-6 md:mb-16 scale-75 md:scale-100">
+            <svg className="w-[300px] h-[300px] md:w-[440px] md:h-[440px] transform -rotate-90" viewBox="0 0 440 440">
               <circle
                 cx="220"
                 cy="220"
@@ -218,7 +218,7 @@ const Pomodoro = () => {
                     value={inputMinutes}
                     onChange={(e) => setInputMinutes(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleTimeSubmit()}
-                    className="custom-number-input w-32 bg-[#15173D] text-white text-6xl font-black text-center rounded-xl border-2 border-[#982598] focus:outline-none focus:ring-4 focus:ring-[#982598]/30 py-2"
+                    className="custom-number-input w-24 md:w-32 bg-[#15173D] text-white text-4xl md:text-6xl font-black text-center rounded-xl border-2 border-[#982598] focus:outline-none focus:ring-4 focus:ring-[#982598]/30 py-2"
                     min="1"
                     max="999"
                     autoFocus
@@ -241,7 +241,7 @@ const Pomodoro = () => {
                   }}
                   title={!isActive ? "Click to edit time" : ""}
                 >
-                  <span className={`relative text-8xl font-black tracking-widest drop-shadow-lg transition-colors ${!isActive ? 'group-hover:text-purple-200 text-white' : 'text-white'}`}>
+                  <span className={`relative text-6xl md:text-8xl font-black tracking-widest drop-shadow-lg transition-colors ${!isActive ? 'group-hover:text-purple-200 text-white' : 'text-white'}`}>
                     {formatTime(timeLeft)}
                     {!isActive && (
                       <div className="absolute top-1/2 -right-5 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">

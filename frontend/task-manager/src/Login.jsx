@@ -1,14 +1,20 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  IoMailOutline,
-  IoLockClosedOutline,
-  IoArrowForwardOutline,
-  IoEyeOutline,
-  IoEyeOffOutline,
-  IoAlertCircleOutline,
-} from "react-icons/io5";
+import { IoMailOutline, IoLockClosedOutline, IoArrowForwardOutline, IoEyeOutline, IoEyeOffOutline, IoAlertCircleOutline } from "react-icons/io5";
+import { useGoogleLogin } from "@react-oauth/google";
 import { useNavigate } from "react-router-dom";
+
+// Google "G" SVG
+function GoogleIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 48 48" fill="none">
+      <path d="M47.532 24.552c0-1.636-.132-3.2-.396-4.704H24.48v8.928h12.984c-.564 3.012-2.232 5.568-4.752 7.284v6.024h7.692c4.5-4.14 7.128-10.248 7.128-17.532z" fill="#4285F4"/>
+      <path d="M24.48 48c6.504 0 11.964-2.16 15.948-5.88l-7.692-6.024c-2.16 1.44-4.908 2.304-8.256 2.304-6.348 0-11.724-4.284-13.644-10044H3.024v6.216C6.984 42.756 15.204 48 24.48 48z" fill="#34A853"/>
+      <path d="M10.836 28.356A14.61 14.61 0 0 1 9.9 24c0-1.512.264-2.976.936-4.356v-6.216H3.024A23.988 23.988 0 0 0 .48 24c0 3.876.924 7.548 2.544 10.572l7.812-6.216z" fill="#FBBC05"/>
+      <path d="M24.48 9.6c3.576 0 6.78 1.236 9.3 3.648l6.948-6.948C36.444 2.388 30.984 0 24.48 0 15.204 0 6.984 5.244 3.024 13.428l7.812 6.216C12.756 13.884 18.132 9.6 24.48 9.6z" fill="#EA4335"/>
+    </svg>
+  );
+}
 
 const AUTH_URL = import.meta.env.VITE_AUTH_URL || "http://localhost:4000";
 
@@ -18,7 +24,37 @@ function Login({ onLogin }) {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+
+  const handleGoogleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      setGoogleLoading(true);
+      setErrorMessage("");
+      try {
+        const res = await fetch(`${AUTH_URL}/auth/google`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ access_token: tokenResponse.access_token }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          localStorage.setItem("accessToken", data.accessToken);
+          localStorage.setItem("refreshToken", data.refreshToken);
+          onLogin();
+          navigate("/");
+        } else {
+          const err = await res.json();
+          setErrorMessage(err || "Google login failed.");
+        }
+      } catch {
+        setErrorMessage("Network error during Google login.");
+      } finally {
+        setGoogleLoading(false);
+      }
+    },
+    onError: () => setErrorMessage("Google login was cancelled."),
+  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -91,6 +127,25 @@ function Login({ onLogin }) {
             </motion.div>
           )}
         </AnimatePresence>
+        {/* Google OAuth button */}
+        <button
+          type="button"
+          onClick={() => { setErrorMessage(""); handleGoogleLogin(); }}
+          disabled={googleLoading}
+          className="w-full flex items-center justify-center gap-3 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white font-medium py-3 px-4 rounded-xl transition-all active:scale-[0.98] disabled:opacity-60 disabled:pointer-events-none mb-6"
+        >
+          {googleLoading
+            ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            : <GoogleIcon />}
+          Continue with Google
+        </button>
+
+        {/* Divider */}
+        <div className="flex items-center gap-4 mb-6">
+          <div className="flex-1 h-px bg-white/10" />
+          <span className="text-xs text-gray-500 font-medium uppercase tracking-widest">or</span>
+          <div className="flex-1 h-px bg-white/10" />
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Email */}
