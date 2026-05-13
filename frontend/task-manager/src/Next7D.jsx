@@ -116,24 +116,30 @@ export default function Next7D() {
   const TaskItem = ({ task }) => (
     <div
       key={task.task_id}
-      className="task-bar w-full max-w-[1120px] relative cursor-pointer mb-4"
+      className="task-bar w-full max-w-[1120px] flex items-center px-8 md:px-12 py-4 cursor-pointer mb-4 gap-4"
       onClick={() => handleClick(task.task_id)}
     >
       <input
         type="checkbox"
         onClick={(e) => completeTask(task, e)}
-        className="w-[24px] h-[24px] absolute top-[36px] left-[70px]"
+        className="w-6 h-6 rounded-lg border-white/20 bg-white/5 cursor-pointer accent-[#982598] shrink-0"
       />
-      <p className="absolute left-[128px] top-[26px] text-3xl text-[#F1E9E9] font-medium">
-        {task.title}
-      </p>
-      <p className="absolute left-[820px] top-[32px] text-2xl text-[#B8AED4]">
-        {formatDate(task.created)}
-      </p>
-      <div className="w-[2px] h-[60px] bg-[#982598] rounded-full absolute left-[966px] top-[18px]"></div>
-      <p className="absolute top-[32px] text-2xl left-[980px] text-[#F1E9E9]">
-        {task.priority}
-      </p>
+      
+      <div className="flex-1 min-w-0 ml-4">
+        <p className="text-2xl md:text-3xl text-[#F1E9E9] font-medium truncate">
+          {task.title}
+        </p>
+      </div>
+
+      <div className="hidden sm:flex items-center gap-6 shrink-0">
+        <p className="text-xl md:text-2xl text-[#B8AED4]">
+          {formatDate(task.created)}
+        </p>
+        <div className="w-[2px] h-10 bg-[#982598] rounded-full"></div>
+        <p className="text-xl md:text-2xl text-[#F1E9E9] min-w-[80px] text-center">
+          {task.priority}
+        </p>
+      </div>
     </div>
   );
 
@@ -159,7 +165,7 @@ export default function Next7D() {
 
   // Layout wrapper
   const NextLayout = ({ children }) => (
-    <div className="relative md:left-[336px] top-0 min-h-screen w-full md:w-[calc(100%-336px)] px-4 md:px-0 md:pr-8">
+    <div className="relative md:left-[256px] top-0 min-h-screen w-full md:w-[calc(100%-256px)] px-4 md:px-0 md:pr-8">
       <div className="flex items-center gap-3 my-4">
         <svg
           viewBox="0 0 35 24"

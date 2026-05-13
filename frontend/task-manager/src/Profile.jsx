@@ -191,7 +191,7 @@ function Profile({ onLogout }) {
   }
 
   return (
-    <div className="md:ml-20 min-h-screen text-[#F1E9E9] p-4 md:p-8">
+    <div className="md:ml-64 min-h-screen text-[#F1E9E9] p-4 md:p-8">
       <motion.div
         initial="initial" animate="in" exit="out"
         variants={pageVariants} transition={{ duration: 0.3 }}
