@@ -250,7 +250,11 @@ function Profile({ onLogout }) {
               <div className="relative group">
                 <div className="w-40 h-40 rounded-full overflow-hidden border-2 flex items-center justify-center relative z-10 shadow-2xl" style={{ borderColor: 'rgba(152, 37, 152, 0.4)', background: 'rgba(15, 17, 35, 0.5)' }}>
                   {profile.avatar ? (
-                    <img src={profile.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                    <img 
+                      src={profile.avatar.replace('http://localhost:3000', BASE_URL)} 
+                      alt="Avatar" 
+                      className="w-full h-full object-cover" 
+                    />
                   ) : (
                     <IoPersonCircleOutline size={120} className="text-[#B8AED4]" />
                   )}
