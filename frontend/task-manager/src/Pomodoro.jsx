@@ -119,10 +119,10 @@ const Pomodoro = () => {
   const progress = ((currentTotalTime - timeLeft) / currentTotalTime) * 100;
 
   return (
-    <div className="relative md:left-[290px] top-0 min-h-screen w-full md:w-[calc(100%-290px)] text-[#F1E9E9] p-4 md:p-8">
-      <div className="max-w-5xl mx-auto pb-16">
+    <div className="relative md:left-[312px] top-0 min-h-screen w-full md:w-[calc(100%-312px)] text-[#F1E9E9] p-4 md:p-8">
+      <div className="max-w-3xl mx-auto pb-16">
 
-        <div className="rounded-[2rem] p-4 md:p-8 w-full min-h-[65vh] flex flex-col items-center justify-center relative overflow-hidden" style={{ background: 'rgba(10,9,30,0.84)', border: '1px solid rgba(152,37,152,0.18)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 24px 64px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.04)' }}>
+        <div className="rounded-[2rem] p-6 md:p-10 w-full min-h-[500px] flex flex-col items-center justify-center relative overflow-hidden" style={{ background: 'rgba(10,9,30,0.84)', border: '1px solid rgba(152,37,152,0.18)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 24px 64px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.04)' }}>
 
           <div className="absolute top-6 left-6 md:top-8 md:left-10">
             <h1 className="text-2xl font-bold text-white">Pomodoro</h1>
@@ -160,7 +160,7 @@ const Pomodoro = () => {
             </div>
           )}
 
-          <div className="flex gap-2 md:gap-4 mb-10 md:mb-16 p-2 rounded-2xl mt-14" style={{ background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(255,255,255,0.06)' }}>
+          <div className="flex gap-2 md:gap-4 mb-8 md:mb-12 p-2 rounded-2xl mt-16" style={{ background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(255,255,255,0.06)' }}>
             {["work", "short", "long"].map((m) => (
               <button
                 key={m}
@@ -175,18 +175,18 @@ const Pomodoro = () => {
             ))}
           </div>
 
-          <div className="w-full max-w-md md:max-w-2xl mb-6 md:mb-10 px-4">
+          <div className="w-full max-w-lg mb-6 md:mb-8 px-4">
             <input
               type="text"
               placeholder="What are you working on?"
               value={taskTitle}
               onChange={(e) => setTaskTitle(e.target.value)}
-              className="w-full text-center text-xl md:text-3xl font-bold bg-transparent text-white placeholder-[#B8AED4]/40 focus:outline-none focus:border-b-2 focus:border-[#982598] transition-all pb-2"
+              className="w-full text-center text-xl md:text-2xl font-bold bg-transparent text-white placeholder-[#B8AED4]/40 focus:outline-none focus:border-b-2 focus:border-[#982598] transition-all pb-2"
             />
           </div>
 
-          <div className="relative flex items-center justify-center mb-6 md:mb-16 scale-75 md:scale-100">
-            <svg className="w-[300px] h-[300px] md:w-[440px] md:h-[440px] transform -rotate-90" viewBox="0 0 440 440">
+          <div className="relative flex items-center justify-center mb-6 md:mb-12 scale-75 md:scale-90">
+            <svg className="w-[300px] h-[300px] md:w-[400px] md:h-[400px] transform -rotate-90" viewBox="0 0 440 440">
               <circle
                 cx="220"
                 cy="220"
@@ -241,7 +241,7 @@ const Pomodoro = () => {
                   }}
                   title={!isActive ? "Click to edit time" : ""}
                 >
-                  <span className={`relative text-6xl md:text-8xl font-black tracking-widest drop-shadow-lg transition-colors ${!isActive ? 'group-hover:text-purple-200 text-white' : 'text-white'}`}>
+                  <span className={`relative text-7xl md:text-8xl font-black tracking-widest drop-shadow-lg transition-colors ${!isActive ? 'group-hover:text-purple-200 text-white' : 'text-white'}`}>
                     {formatTime(timeLeft)}
                     {!isActive && (
                       <div className="absolute top-1/2 -right-5 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -251,50 +251,48 @@ const Pomodoro = () => {
                   </span>
                 </div>
               )}
-              <span className="text-[#B8AED4] mt-6 font-bold uppercase tracking-[0.3em] text-xl">
+              <span className="text-[#B8AED4] mt-4 font-bold uppercase tracking-[0.3em] text-sm md:text-base">
                 {mode === "work" ? "Time to Focus" : "Break Time"}
               </span>
             </div>
           </div>
 
-          <div className="flex gap-8">
+          <div className="flex gap-6">
             <button
               onClick={toggleTimer}
-              className="w-24 h-24 rounded-lg transition-all shadow-xl flex items-center justify-center bg-[#982598] hover:bg-[#ab3fb6] text-white hover:scale-105 hover:shadow-lg hover:shadow-purple-500/20"
+              className="w-20 h-20 md:w-24 md:h-24 rounded-lg transition-all shadow-xl flex items-center justify-center bg-[#982598] hover:bg-[#ab3fb6] text-white hover:scale-105"
             >
-              {isActive ? <FiPause size={40} /> : <FiPlay size={40} className="ml-2" />}
+              {isActive ? <FiPause size={36} /> : <FiPlay size={36} className="ml-1" />}
             </button>
             <button
               onClick={resetTimer}
-              className="w-24 h-24 rounded-lg transition-all shadow-xl flex items-center justify-center hover:bg-[#ab3fb6] hover:text-white hover:scale-105 text-[#B8AED4]"
+              className="w-20 h-20 md:w-24 md:h-24 rounded-lg transition-all shadow-xl flex items-center justify-center hover:bg-[#ab3fb6] hover:text-white hover:scale-105 text-[#B8AED4]"
               style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
             >
-              <FiRefreshCw size={40} />
+              <FiRefreshCw size={36} />
             </button>
-            {/* Show Save Button if they've worked for some time */}
             {(currentTotalTime - timeLeft > 0) && (
               <button
                 onClick={() => { setIsActive(false); setShowSavePrompt(true); }}
-                className="w-24 h-24 rounded-lg transition-all shadow-xl flex items-center justify-center hover:bg-[#ab3fb6] hover:text-white hover:scale-105 text-[#B8AED4]"
+                className="w-20 h-20 md:w-24 md:h-24 rounded-lg transition-all shadow-xl flex items-center justify-center hover:bg-[#ab3fb6] hover:text-white hover:scale-105 text-[#B8AED4]"
                 style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
-                title="Save Session"
               >
-                <FiSave size={40} />
+                <FiSave size={36} />
               </button>
             )}
           </div>
 
           {savedSessions.length > 0 && (
-            <div className="mt-16 w-full max-w-2xl pt-8" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-              <h3 className="text-xl font-bold mb-4 text-[#B8AED4]">Today's Logs</h3>
-              <div className="space-y-3">
-                {savedSessions.map(session => (
-                  <div key={session.id} className="flex justify-between items-center p-5 rounded-xl" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
+            <div className="mt-12 w-full max-w-2xl pt-6" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+              <h3 className="text-lg font-bold mb-3 text-[#B8AED4]">Today's Logs</h3>
+              <div className="space-y-2">
+                {savedSessions.slice(-3).map(session => (
+                  <div key={session.id} className="flex justify-between items-center p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
                     <div>
-                      <p className="font-semibold text-white text-lg">{session.title}</p>
-                      <p className="text-xs text-[#B8AED4] uppercase tracking-wider">{new Date(session.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {session.mode}</p>
+                      <p className="font-semibold text-white text-base">{session.title}</p>
+                      <p className="text-[10px] text-[#B8AED4] uppercase tracking-wider">{new Date(session.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {session.mode}</p>
                     </div>
-                    <span className="text-[#982598] font-black text-xl">
+                    <span className="text-[#982598] font-black text-lg">
                       {Math.floor(session.duration / 60)}m {session.duration % 60}s
                     </span>
                   </div>
