@@ -79,14 +79,17 @@ body {
     }
   }
 
-  .edit-page {
-    @apply min-h-screen pr-4 md:pr-8 pt-8 pb-12 text-[#F1E9E9];
+  .main-content {
+    @apply min-h-screen transition-all duration-300;
     padding-left: 1rem;
+    padding-right: 1rem;
   }
 
   @media (min-width: 768px) {
-    .edit-page {
-      padding-left: 352px;
+    .main-content {
+      margin-left: 256px; /* Width of w-64 sidebar */
+      padding-left: 2rem;
+      padding-right: 2rem;
     }
   }
 

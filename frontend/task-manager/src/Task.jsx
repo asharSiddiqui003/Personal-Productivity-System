@@ -181,19 +181,29 @@ const Task = ({ refreshTrigger, filterPriority = "All", sortBy = "date-newest" }
           {displayedTasks.map((p) => (
             <motion.div 
               variants={itemVariants}
-              className="task-bar w-[1070px] relative" 
+              className="task-bar w-full max-w-[1120px] flex items-center px-6 md:px-10 py-4 cursor-pointer mb-4 gap-4" 
               key={p.task_id} 
               onClick={() => handleClick(p.task_id)}
             >
               <input
                 type="checkbox"
                 onClick={(e) => completeTask(p, e)}
-                className="w-[24px] h-[24px] absolute top-[36px] left-[70px] cursor-pointer z-10"
+                className="w-6 h-6 rounded-lg border-white/20 bg-white/5 cursor-pointer accent-[#982598] shrink-0 z-10"
               />
-              <p className="absolute left-[128px] top-[26px] text-3xl text-[#F1E9E9] font-medium">{p.title}</p>
-              <p className="absolute left-[820px] top-[32px] text-2xl text-[#B8AED4]">{formatDate(p.created)}</p>
-              <div className="w-[2px] h-[60px] bg-[#982598] rounded-full absolute left-[966px] top-[18px]"></div>
-              <p className="absolute top-[32px] text-2xl left-[980px] text-[#F1E9E9]">{p.priority}</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-xl md:text-2xl text-[#F1E9E9] font-medium truncate">
+                  {p.title}
+                </p>
+              </div>
+              <div className="hidden md:flex items-center gap-6 shrink-0">
+                <p className="text-lg text-[#B8AED4]">
+                  {formatDate(p.created)}
+                </p>
+                <div className="w-[1px] h-10 bg-white/10"></div>
+                <p className="text-lg font-bold text-[#F1E9E9] min-w-[80px] text-center">
+                  {p.priority}
+                </p>
+              </div>
             </motion.div>
           ))}
         </motion.div>

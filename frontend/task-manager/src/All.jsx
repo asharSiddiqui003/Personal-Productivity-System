@@ -36,7 +36,7 @@ const All = () => {
   const isFiltered = filterPriority !== "All" || sortBy !== "date-newest";
 
   return (
-    <div className="relative md:left-[336px] top-0 min-h-screen w-full md:w-[calc(100%-336px)] px-4 md:px-0 md:pr-8">
+    <div className="main-content">
       {/* Page heading */}
       <div className="flex items-center gap-3 my-4">
         <GoStack size={32} className="text-[#982598]" />
