@@ -91,7 +91,7 @@ const Pomodoro = () => {
       const token = localStorage.getItem("accessToken");
       const response = await fetch(`${BASE_URL}/pomodoro`, {
         method: "POST",
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
           'Authorization': `Bearer ${token}`
         },
@@ -119,10 +119,10 @@ const Pomodoro = () => {
   const progress = ((currentTotalTime - timeLeft) / currentTotalTime) * 100;
 
   return (
-    <div className="relative md:left-[312px] top-0 min-h-screen w-full md:w-[calc(100%-312px)] text-[#F1E9E9] p-4 md:p-8">
+    <div className="relative md:left-[280px] top-0 min-h-screen w-full md:w-[calc(100%-312px)] text-[#F1E9E9] p-4 md:p-8">
       <div className="max-w-3xl mx-auto pb-16">
 
-        <div className="rounded-[2rem] p-6 md:p-10 w-full min-h-[500px] flex flex-col items-center justify-center relative overflow-hidden" style={{ background: 'rgba(10,9,30,0.84)', border: '1px solid rgba(152,37,152,0.18)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 24px 64px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.04)' }}>
+        <div className="rounded-[2rem] p-6 md:p-10 w-full min-h-[300px] flex flex-col items-center justify-center relative overflow-hidden" style={{ background: 'rgba(10,9,30,0.84)', border: '1px solid rgba(152,37,152,0.18)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 24px 64px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.04)' }}>
 
           <div className="absolute top-6 left-6 md:top-8 md:left-10">
             <h1 className="text-2xl font-bold text-white">Pomodoro</h1>
