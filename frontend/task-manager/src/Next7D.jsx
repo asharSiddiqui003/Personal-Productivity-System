@@ -165,7 +165,7 @@ export default function Next7D() {
 
   // Layout wrapper
   const NextLayout = ({ children }) => (
-    <div className="relative md:left-[256px] top-0 min-h-screen w-full md:w-[calc(100%-256px)] px-4 md:px-0 md:pr-8">
+    <div className="relative md:left-[312px] top-0 min-h-screen w-full md:w-[calc(100%-312px)] px-4 md:px-0 md:pr-8">
       <div className="flex items-center gap-3 my-4">
         <svg
           viewBox="0 0 35 24"
