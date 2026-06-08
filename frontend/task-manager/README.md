@@ -1,16 +1,25 @@
-# React + Vite
+# Personal Productivity System - Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This directory contains the React 19 + Vite frontend client for the Personal Productivity System.
 
-Currently, two official plugins are available:
+For the full-stack setup instructions, backend configuration, and database schemas, please refer to the main [Root README](../../README.md).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Technology Stack
+- **Framework**: React 19
+- **Build Tool**: Vite
+- **Styling**: Tailwind CSS v4
+- **Animations**: Framer Motion
+- **Routing**: React Router DOM
 
-## React Compiler
+## Scripts
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+In this directory, you can run:
 
-## Expanding the ESLint configuration
+### `npm install`
+Installs frontend dependencies.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### `npm run dev`
+Runs the app in development mode. Open [http://localhost:5173](http://localhost:5173) to view it in your browser.
+
+### `npm run build`
+Builds the app for production to the `dist` folder.
