@@ -9,30 +9,94 @@ const bcrypt = require('bcrypt');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const helmet = require('helmet');
 const jwt = require('jsonwebtoken');
+const { z } = require('zod');
 
-// Helper to get profile ID from the email in the JWT token
+app.use(helmet());
+app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
+
+// ─── Zod Schemas: validate user INPUT only (req.body) ─────────────────────────────────
+
+// POST /addTasks — only title and priority are required on add
+const addTaskSchema = z.object({
+  task: z.string().min(1, "Task cannot be empty").max(100, "Task title too long"),
+  priority: z.enum(["High", "Medium", "Low"], { message: "Priority must be High, Medium, or Low" }),
+  createdAt: z.string().optional()
+});
+
+// PUT /tasks/edit/:id — full task edit, dueDate and description are optional
+const editTaskSchema = z.object({
+  title: z.string().min(1, "Title cannot be empty").max(100, "Title too long"),
+  description: z.string().max(1000, "Description too long").optional().nullable(),
+  priority: z.enum(["High", "Medium", "Low"], { message: "Priority must be High, Medium, or Low" }),
+  status: z.enum(["active", "completed"]).default("active"),
+  created: z.string().optional().nullable(),
+  dueDate: z.string().optional().nullable()
+});
+
+// PUT /profile/:id — profile updates
+const profileSchema = z.object({
+  name: z.string().min(1, "Name cannot be empty").max(50, "Name too long"),
+  email: z.string().email("Invalid email address"),
+  bio: z.string().max(300, "Bio too long").optional().nullable(),
+  avatar: z.string().optional().nullable()
+});
+
+// POST /habits and PUT /habits/:id — matches what Habit.jsx sends
+const habitSchema = z.object({
+  title: z.string().min(1, "Habit name cannot be empty").max(50, "Habit name too long"),
+  subtitle: z.string().max(100, "Subtitle too long").optional().nullable(),
+  streak: z.number().int().min(0, "Streak cannot be negative"),
+  done: z.boolean(),
+  icon: z.string().min(1, "Icon cannot be empty").max(50, "Icon too long")
+});
+
+// POST /pomodoro — matches what Pomodoro.jsx sends
+const pomodoroSchema = z.object({
+  title: z.string().min(1, "Title cannot be empty").max(100, "Title too long"),
+  duration: z.number().int().min(1, "Duration must be at least 1 second"),
+  mode: z.enum(["work", "short", "long"], { message: "Mode must be work, short, or long" })
+});
+
+// POST /users — signup
+const signupSchema = z.object({
+  name: z.string().min(1, "Name cannot be empty").max(50, "Name too long"),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters").max(72, "Password too long")
+});
+
+// PATCH /profile/password
+const changePasswordSchema = z.object({
+  email: z.string().email("Invalid email"),
+  currentPassword: z.string().min(1, "Current password required"),
+  newPassword: z.string().min(8, "New password must be at least 8 characters").max(72, "Password too long")
+});
+
+
+// Helper to get profile ID from the email stored on req.user
 async function getUserId(email) {
   const res = await db.query("SELECT id FROM profile WHERE email = $1", [email]);
   return res.rows[0]?.id;
 }
 
+// JWT auth middleware — verifies the Bearer token on every protected route
 function authenticateToken(req, res, next) {
   const authHeader = req.headers.authorization;
-  const token = authHeader && authHeader.split(' ')[1]
-  if (token == null) return res.status(401).json('Error authenticating token');
+  const token = authHeader && authHeader.split(' ')[1];
+  if (!token) return res.status(401).json('Error authenticating token');
 
   jwt.verify(token, process.env.ACCESS_TOKEN, (err, user) => {
     if (err) return res.sendStatus(403);
-    req.user = user
-    next()
-  })
+    req.user = user;
+    next();
+  });
 }
 
 
 const corsOption = {
   origin: process.env.FRONTEND_URL || "http://localhost:5173",
-  methods: ["GET", "POST", "PUT", "DELETE"],
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
   optionSuccessStatus: 200
@@ -104,6 +168,11 @@ seedDefaultProfile();
 
 // ---------------API Routes--------------------
 
+// /me — lets frontend verify token validity and get the current user's email on page load
+app.get('/me', authenticateToken, (req, res) => {
+  res.json({ email: req.user.name });
+});
+
 
 app.get('/tasks', authenticateToken, async (req, res) => {
   try {
@@ -121,17 +190,21 @@ app.get('/tasks', authenticateToken, async (req, res) => {
 app.post('/addTasks', authenticateToken, async (req, res) => {
   try {
     const userId = await getUserId(req.user.name);
-    const { task, priority, createdAt } = req.body;
-    const result = await db.query(`INSERT INTO tasks (title, priority, created, status, user_id) VALUES ($1,$2,$3,$4,$5) RETURNING *`,
+    // Validate user input before touching the DB
+    const parsed = addTaskSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json(parsed.error.errors[0].message);
+    }
+    const { task, priority, createdAt } = parsed.data;
+    const result = await db.query(
+      `INSERT INTO tasks (title, priority, created, status, user_id) VALUES ($1,$2,$3,$4,$5) RETURNING *`,
       [task, priority, createdAt, 'active', userId]
     );
     res.status(201).json(result.rows[0]);
-
   } catch (e) {
     console.log("Database error " + e);
     res.status(500).json("Error failed to add task");
   }
-
 });
 
 //----------------DELETE TASK------------------------
@@ -171,8 +244,14 @@ app.put(`/tasks/edit/:task_id`, authenticateToken, async (req, res) => {
     const { task_id } = req.params;
     let { title, description, priority, status, created, dueDate } = req.body;
     if (dueDate === '') dueDate = null;
-    const result = await db.query("UPDATE tasks SET title = $1, description = $2, priority = $3, status = $4, created = $5, dueDate = $6 WHERE task_id = $7 RETURNING *"
-      , [title, description, priority, status || 'active', created, dueDate, task_id]
+    // Validate the full edit body before writing to DB
+    const parsed = editTaskSchema.safeParse({ title, description, priority, status, created, dueDate });
+    if (!parsed.success) {
+      return res.status(400).json(parsed.error.errors[0].message);
+    }
+    const result = await db.query(
+      "UPDATE tasks SET title = $1, description = $2, priority = $3, status = $4, created = $5, dueDate = $6 WHERE task_id = $7 RETURNING *",
+      [parsed.data.title, parsed.data.description, parsed.data.priority, parsed.data.status, parsed.data.created, parsed.data.dueDate, task_id]
     );
     res.status(200).json(result.rows[0]);
   } catch (e) {
@@ -230,17 +309,21 @@ app.put('/profile/me', async (req, res) => {
   }
 });
 
-// Change password — verify current, then save hashed new password
+// Change password — validate new password before hashing
 app.patch('/profile/password', async (req, res) => {
   try {
     const { email, currentPassword, newPassword } = req.body;
-    if (!email || !currentPassword || !newPassword) return res.status(400).json("All fields are required");
-    const result = await db.query("SELECT password FROM profile WHERE email = $1", [email]);
+    // Validate all fields before any DB or crypto work
+    const parsed = changePasswordSchema.safeParse({ email, currentPassword, newPassword });
+    if (!parsed.success) {
+      return res.status(400).json(parsed.error.errors[0].message);
+    }
+    const result = await db.query("SELECT password FROM profile WHERE email = $1", [parsed.data.email]);
     if (result.rows.length === 0) return res.status(404).json("User not found");
-    const isValid = await bcrypt.compare(currentPassword, result.rows[0].password);
+    const isValid = await bcrypt.compare(parsed.data.currentPassword, result.rows[0].password);
     if (!isValid) return res.status(401).json("Current password is incorrect");
-    const hashed = await bcrypt.hash(newPassword, 10);
-    await db.query("UPDATE profile SET password = $1 WHERE email = $2", [hashed, email]);
+    const hashed = await bcrypt.hash(parsed.data.newPassword, 10);
+    await db.query("UPDATE profile SET password = $1 WHERE email = $2", [hashed, parsed.data.email]);
     res.status(200).json("Password updated successfully");
   } catch (e) {
     console.log("Error changing password: " + e);
@@ -273,8 +356,16 @@ app.get('/habits', authenticateToken, async (req, res) => {
 app.post("/habits", authenticateToken, async (req, res) => {
   try {
     const userId = await getUserId(req.user.name);
-    const { title, subtitle, streak, done, icon } = req.body;
-    const result = await db.query("INSERT INTO habit (habit_name, subtitle, count, status, icon, user_id) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *", [title, subtitle, streak, done, icon, userId]);
+    // Validate input before inserting
+    const parsed = habitSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json(parsed.error.errors[0].message);
+    }
+    const { title, subtitle, streak, done, icon } = parsed.data;
+    const result = await db.query(
+      "INSERT INTO habit (habit_name, subtitle, count, status, icon, user_id) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *",
+      [title, subtitle, streak, done, icon, userId]
+    );
     res.status(201).json(result.rows[0]);
   } catch (e) {
     console.log("Error adding data : " + e);
@@ -305,9 +396,16 @@ app.put(`/habits/:id`, authenticateToken, async (req, res) => {
   try {
     const userId = await getUserId(req.user.name);
     const { id } = req.params;
-    const { title, subtitle, streak, done, icon } = req.body;
-    const result = await db.query("UPDATE habit SET habit_name = $1, subtitle = $2, count = $3, status = $4, icon = $5 WHERE id = $6 AND user_id = $7 RETURNING *",
-      [title, subtitle, streak, done, icon, id, userId]);
+    // Validate input before updating
+    const parsed = habitSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json(parsed.error.errors[0].message);
+    }
+    const { title, subtitle, streak, done, icon } = parsed.data;
+    const result = await db.query(
+      "UPDATE habit SET habit_name = $1, subtitle = $2, count = $3, status = $4, icon = $5 WHERE id = $6 AND user_id = $7 RETURNING *",
+      [title, subtitle, streak, done, icon, id, userId]
+    );
     res.status(200).json(result.rows[0]);
   } catch (e) {
     console.log("Error editing data" + e);
@@ -350,8 +448,16 @@ app.get('/pomodoro', authenticateToken, async (req, res) => {
 app.post("/pomodoro", authenticateToken, async (req, res) => {
   try {
     const userId = await getUserId(req.user.name);
-    const { title, duration, mode } = req.body;
-    const result = await db.query("INSERT INTO pomodoro (title, duration, mode, user_id) VALUES ($1,$2,$3,$4) RETURNING*", [title, duration, mode, userId]);
+    // Validate input before inserting
+    const parsed = pomodoroSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json(parsed.error.errors[0].message);
+    }
+    const { title, duration, mode } = parsed.data;
+    const result = await db.query(
+      "INSERT INTO pomodoro (title, duration, mode, user_id) VALUES ($1,$2,$3,$4) RETURNING*",
+      [title, duration, mode, userId]
+    );
     res.status(201).json(result.rows[0]);
   } catch (e) {
     console.log("Error updating data for pomodoro" + e);
@@ -379,7 +485,15 @@ app.put('/profile/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
     const { name, email, bio, avatar } = req.body;
-    const result = await db.query("UPDATE profile SET name = $1, email = $2, bio = $3, avatar = $4 WHERE id = $5 AND email = $6 RETURNING*", [name, email, bio, avatar, id, req.user.name]);
+    // Validate profile update input before writing
+    const parsed = profileSchema.safeParse({ name, email, bio, avatar });
+    if (!parsed.success) {
+      return res.status(400).json(parsed.error.errors[0].message);
+    }
+    const result = await db.query(
+      "UPDATE profile SET name = $1, email = $2, bio = $3, avatar = $4 WHERE id = $5 AND email = $6 RETURNING*",
+      [parsed.data.name, parsed.data.email, parsed.data.bio, parsed.data.avatar, id, req.user.name]
+    );
     res.status(200).json(result.rows[0]);
   } catch (e) {
     console.log("Error updating data for profile: " + e);
@@ -387,10 +501,10 @@ app.put('/profile/:id', authenticateToken, async (req, res) => {
   }
 })
 
-//------------------UPATE--------------------
+//------------------UPDATE--------------------
 app.put('/profile', async (req, res) => {
   try {
-    const { name, email, bio, avatar } = req.body;
+    const { id, name, email, bio, avatar } = req.body;
     const result = await db.query("UPDATE profile SET name = $1, email = $2, bio = $3, avatar = $4 WHERE id = $5 RETURNING*", [name, email, bio, avatar, id]);
     res.status(200).json(result.rows[0]);
   } catch (e) {
@@ -418,9 +532,17 @@ app.delete('/profile/:id', async (req, res) => {
 
 app.post("/users", async (req, res) => {
   const { name, email, password } = req.body;
+  // Validate signup input before inserting
+  const parsed = signupSchema.safeParse({ name, email, password });
+  if (!parsed.success) {
+    return res.status(400).json(parsed.error.errors[0].message);
+  }
   try {
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const result = await db.query("INSERT INTO profile (name,email,password) VALUES($1,$2,$3) RETURNING*", [name, email, hashedPassword]);
+    const hashedPassword = await bcrypt.hash(parsed.data.password, 10);
+    const result = await db.query(
+      "INSERT INTO profile (name,email,password) VALUES($1,$2,$3) RETURNING*",
+      [parsed.data.name, parsed.data.email, hashedPassword]
+    );
     res.status(201).json(result.rows[0]);
   } catch (e) {
     console.log("Error inserting data for login" + e);

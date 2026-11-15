@@ -38,11 +38,19 @@ CREATE TABLE IF NOT EXISTS pomodoro (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Table for JWT refresh tokens
+-- Table for JWT refresh tokens (kept for non-browser clients e.g. Postman)
 CREATE TABLE IF NOT EXISTS refreshTokens (
     id SERIAL PRIMARY KEY,
     token TEXT NOT NULL,
     user_email TEXT NOT NULL
+);
+
+-- Table for session-based auth (used by the web frontend)
+CREATE TABLE IF NOT EXISTS sessions (
+    session_id  TEXT PRIMARY KEY,
+    user_email  TEXT NOT NULL REFERENCES profile(email) ON DELETE CASCADE,
+    created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    expires_at  TIMESTAMP NOT NULL
 );
 
 -- Seed an initial profile if needed

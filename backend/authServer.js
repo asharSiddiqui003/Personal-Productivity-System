@@ -5,6 +5,23 @@ const pg = require('pg');
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const rateLimit = require('express-rate-limit');
+const zod = require('zod');
+
+const loginSchema = zod.object({
+    email: zod.string().email("Must be a valid email"),
+    password: zod.string().min(8, "Password must be at least 8 characters long").max(20, "Password must be at most 20 characters long")
+});
+
+const loginLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 20,
+    standardHeaders: true,
+    message: { error: "Too many attempts. Try again after 15 mins." },
+    skipSuccessfulRequests: true,
+    legacyHeaders: false,
+});
+
 
 const corsOption = {
     origin: process.env.FRONTEND_URL || "http://localhost:5173",
@@ -16,6 +33,7 @@ const corsOption = {
 
 app.use(cors(corsOption));
 app.use(express.json());
+app.set('trust proxy', 1);
 
 const dbConfig = process.env.DATABASE_URL ? {
     connectionString: process.env.DATABASE_URL,
@@ -36,29 +54,38 @@ db.connect();
 
 //-----------------Creating TOKENS------------------
 
-app.post('/login', async (req, res) => {
+app.post('/login', loginLimiter, async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        // 1. Verify the user exists in the database
+        const validatedInput = loginSchema.safeParse({ email, password });
+        if (!validatedInput.success) {
+            return res.status(401).json(validatedInput.error.issues.map(err => err.message))
+        }
         const result = await db.query("SELECT * FROM profile WHERE email = $1", [email]);
         if (result.rows.length === 0) {
             return res.status(404).json("User not found");
         }
-
-        // 2. Verify the password matches
         const dbUser = result.rows[0];
         const isPasswordValid = await bcrypt.compare(password, dbUser.password);
         if (!isPasswordValid) {
             return res.status(401).json("Invalid password");
         }
 
-        // 3. Generate tokens ONLY if password is valid
+        const sessionId = crypto.randomUUID();
+        await db.query("INSERT INTO sessions (session_id,user_email) VALUES($1,$2)", [sessionId, email]);
+
+        res.cookie('sessionId', sessionId, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'lax',
+            maxAge: 5 * 24 * 60 * 60 * 1000 //5 days
+        })
+
         const userPayload = { name: email };
         const accessToken = jwt.sign(userPayload, process.env.ACCESS_TOKEN, { expiresIn: '15m' });
         const refreshToken = jwt.sign(userPayload, process.env.REFRESH_TOKEN, { expiresIn: '7d' });
 
-        // 4. Save refresh token to database
         await db.query("INSERT INTO refreshTokens (token, user_email) VALUES ($1,$2) RETURNING *", [refreshToken, email]);
 
         res.json({ accessToken: accessToken, refreshToken: refreshToken });
@@ -101,6 +128,7 @@ app.delete('/logout', async (req, res) => {
 
     try {
         await db.query("DELETE FROM refreshTokens WHERE token = $1", [refreshToken]);
+        res.clearCookie('sessionId');
         res.status(204).send();
     } catch (err) {
         console.error(err);
