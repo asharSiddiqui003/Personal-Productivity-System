@@ -44,3 +44,11 @@ yarn-error.log*
 DESIGN.md
 .agents
 .claude
+
+flowchart.md
+flowchart
+.mermaid
+
+DATABASE_SCHEMA.md
+
+APP_DESIGN.md

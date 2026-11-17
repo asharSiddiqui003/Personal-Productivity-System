@@ -13,7 +13,7 @@ import Login from './Login'
 import Signup from './Signup'
 import Landing from './landing/Landing'
 import { Routes, Route, useLocation, Navigate } from "react-router-dom"
-import { AnimatePresence } from 'framer-motion'
+import { AnimatePresence, MotionConfig } from 'framer-motion'
 import GlobalBackground from './GlobalBackground'
 
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
@@ -86,7 +86,7 @@ function App() {
       <>
         <GlobalBackground />
         <div className="min-h-screen flex items-center justify-center">
-          <div className="w-10 h-10 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+          <div className="w-10 h-10 border-2 border-[var(--accent)] border-t-transparent rounded-full animate-spin" />
         </div>
       </>
     );
@@ -105,6 +105,7 @@ function App() {
   }
 
   return (
+    <MotionConfig reducedMotion="user">
     <>
       <GlobalBackground />
       <div className="pb-16 md:pb-0">
@@ -135,6 +136,7 @@ function App() {
         </Routes>
       </div>
     </>
+    </MotionConfig>
   )
 }
 

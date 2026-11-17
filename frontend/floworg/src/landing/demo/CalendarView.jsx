@@ -92,14 +92,14 @@ function CalendarGrid({ currentDate, tasks, selectedDay, onSelectDay }) {
   return (
     <>
       {/* Day-of-week header */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", marginBottom: "6.25rem" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", marginBottom: "0.25rem" }}>
         {DAY_LABELS.map((d) => (
           <div
             key={d}
             style={{
               textAlign: "center",
               fontFamily: "var(--font-mono)",
-              fontSize: "1.25rem",
+              fontSize: "0.65rem",
               color: "var(--muted)",
               letterSpacing: "0.04em",
               padding: "0.1rem 0",
@@ -126,7 +126,7 @@ function CalendarGrid({ currentDate, tasks, selectedDay, onSelectDay }) {
               aria-pressed={isSelected}
               style={{
                 position: "relative",
-                height: 64,
+                height: 32,
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
@@ -153,7 +153,7 @@ function CalendarGrid({ currentDate, tasks, selectedDay, onSelectDay }) {
               <span
                 style={{
                   fontFamily: "var(--font-mono)",
-                  fontSize: "1.15rem",
+                  fontSize: "0.75rem",
                   color: isSelected || isToday ? "var(--color-saffron)" : "var(--color-white)",
                   fontVariantNumeric: "tabular-nums",
                   lineHeight: 1,
@@ -231,7 +231,7 @@ function CalendarLoop({ playLoop }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "0.5rem" }}>
-        <span style={{ fontFamily: "var(--font-body)", fontWeight: 500, fontSize: "1.25rem", color: "var(--color-white)" }}>
+        <span style={{ fontFamily: "var(--font-body)", fontWeight: 500, fontSize: "0.8125rem", color: "var(--color-white)" }}>
           Calendar
         </span>
         <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.65rem", color: "var(--muted)" }}>

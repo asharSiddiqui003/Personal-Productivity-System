@@ -22,7 +22,7 @@ const NAV_CSS = `
   .nav-link {
     font-family: var(--font-body);
     font-weight: 500;
-    font-size: 1.15rem;
+    font-size: 0.9375rem;
     color: rgba(224,226,219,0.75);
     text-decoration: none;
     white-space: nowrap;
@@ -56,7 +56,7 @@ const NAV_CSS = `
   .nav-login-link {
     font-family: var(--font-body);
     font-weight: 500;
-    font-size: 1.25rem;
+    font-size: 0.9375rem;
     color: rgba(224,226,219,0.75);
     text-decoration: none;
     transition: color 150ms, opacity 150ms;
@@ -381,7 +381,7 @@ export default function LandingNavbar() {
             style={{
               fontFamily: "var(--font-heading)",
               fontWeight: 700,
-              fontSize: "2rem",
+              fontSize: "1.375rem",
               color: "var(--color-white)",
               letterSpacing: "-0.02em",
               flexShrink: 0,

@@ -143,6 +143,13 @@ const Task = ({ refreshTrigger, filterPriority = "All", sortBy = "date-newest" }
     fetchTask();
   }, [refreshTrigger]);
 
+  const getPriorityColor = (priority) => {
+    const p = priority?.toLowerCase();
+    if (p === "high") return "var(--danger)";
+    if (p === "medium") return "var(--accent)";
+    return "rgb(224 226 219 / 0.45)";
+  };
+
   const formatDate = (value) =>
     new Date(value ? value : Date.now()).toLocaleDateString("en-IN", {
       day: "2-digit",
@@ -151,15 +158,15 @@ const Task = ({ refreshTrigger, filterPriority = "All", sortBy = "date-newest" }
     });
 
   if (isLoading) {
-    return <div className="flex items-center justify-center text-6xl text-gray-500 h-screen">Loading Tasks....</div>;
+    return <div className="flex items-center justify-center text-6xl text-[var(--text-muted)] h-screen">Loading Tasks....</div>;
   }
 
   return (
     <div className="task-list">
-      {error && <p className="text-red-500">{error}</p>}
+      {error && <p className="text-[var(--danger)]">{error}</p>}
 
       {displayedTasks.length === 0 && completedTasks.length === 0 ? (
-        <p className="text-lg text-[#7a7aac] mt-6 ml-4">
+        <p className="text-lg text-[var(--text-muted)] mt-6 ml-4">
           {filterPriority !== "All" ? `No "${filterPriority}" priority tasks found.` : "No active tasks found."}
         </p>
       ) : (
@@ -167,36 +174,42 @@ const Task = ({ refreshTrigger, filterPriority = "All", sortBy = "date-newest" }
           variants={containerVariants}
           initial="hidden"
           animate="show"
-          className="space-y-4"
+          className="w-auto max-w-[1070px] mx-4 md:mx-16 flex flex-col"
         >
           {displayedTasks.map((p) => (
             <motion.div 
               variants={itemVariants}
-              className="task-bar w-auto max-w-[1070px] flex items-center px-8 md:px-12 py-4 cursor-pointer mb-4 gap-4" 
+              className={`task-row ${selectedTaskId === p.task_id ? "selected" : ""}`} 
               key={p.task_id} 
               onClick={() => handleClick(p.task_id)}
             >
+              {/* Priority bar */}
+              <div
+                className="priority-bar"
+                style={{ backgroundColor: getPriorityColor(p.priority) }}
+              />
+
               {/* Checkbox */}
               <input
                 type="checkbox"
                 onClick={(e) => completeTask(p, e)}
-                className="w-6 h-6 rounded-lg border-white/20 bg-white/5 cursor-pointer accent-[#982598] shrink-0 z-10"
+                onChange={() => {}}
+                className="task-checkbox z-10"
               />
               
               {/* Title - expands to fill space */}
-              <div className="flex-1 min-w-0 ml-4">
-                <p className="text-2xl md:text-3xl text-[#F1E9E9] font-medium truncate">
+              <div className="flex-1 min-w-0 ml-3">
+                <p className="text-[15px] text-[var(--text-strong)] font-medium truncate">
                   {p.title}
                 </p>
               </div>
 
               {/* Info section - stays on the right */}
-              <div className="hidden sm:flex items-center gap-6 shrink-0">
-                <p className="text-xl md:text-2xl text-[#B8AED4]">
+              <div className="hidden sm:flex items-center gap-4 shrink-0">
+                <p className="text-[13px] font-mono tabular-nums text-[var(--text-muted)]">
                   {formatDate(p.created)}
                 </p>
-                <div className="w-[2px] h-10 bg-[#982598] rounded-full"></div>
-                <p className="text-xl md:text-2xl text-[#F1E9E9] min-w-[80px] text-center">
+                <p className="text-[13px] text-[var(--text-muted)] min-w-[60px] text-right">
                   {p.priority}
                 </p>
               </div>
@@ -210,37 +223,50 @@ const Task = ({ refreshTrigger, filterPriority = "All", sortBy = "date-newest" }
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="mt-12 w-full max-w-[1120px]"
+          className="mt-12 w-auto max-w-[1070px] mx-4 md:mx-16"
         >
-          <hr className="border-gray-300 mb-6 opacity-20" />
+          <hr className="border-[var(--line)] mb-6" />
           <div className="mb-4 ml-6">
-            <h2 className="text-2xl text-[#E8D9F7] font-semibold">Completed</h2>
-            <p className="text-sm text-gray-400">Completed tasks move here after checking the box.</p>
+            <h2 className="text-2xl font-normal text-[var(--text-strong)] font-heading">Completed</h2>
+            <p className="text-sm text-[var(--text-muted)]">Completed tasks move here after checking the box.</p>
           </div>
           <motion.div 
             variants={containerVariants}
             initial="hidden"
             animate="show"
-            className="space-y-4"
+            className="w-auto max-w-[1070px] mx-4 md:mx-16 flex flex-col"
           >
             {completedTasks.map((p) => (
               <motion.div
                 key={p.task_id}
                 variants={itemVariants}
-                className="task-bar w-[1070px] relative opacity-90"
+                className="task-row w-full relative flex items-center h-[48px] px-4 md:px-6 bg-transparent border-b border-[var(--line)] hover:bg-[var(--hover)] cursor-pointer"
                 onClick={() => deleteTask(p.task_id)}
               >
+                {/* Priority bar at left edge (50% strength) */}
+                <div
+                  className="priority-bar"
+                  style={{ backgroundColor: getPriorityColor(p.priority), opacity: 0.5 }}
+                />
+
                 <input
                   type="checkbox"
                   checked
                   onChange={() => {}} // Controlled input
                   onClick={(e) => uncompleteTask(p, e)}
-                  className="w-[24px] h-[24px] absolute top-[36px] left-[70px] cursor-pointer z-10"
+                  className="task-checkbox z-10"
                 />
-                <p className="absolute left-[128px] top-[26px] text-3xl line-through text-gray-500">{p.title}</p>
-                <p className="absolute left-[820px] top-[32px] text-2xl text-gray-500">{formatDate(p.created)}</p>
-                <div className="w-[2px] h-[60px] bg-[#982598] rounded-full absolute left-[966px] top-[18px]"></div>
-                <p className="absolute top-[32px] text-2xl left-[980px] text-gray-500">{p.priority}</p>
+
+                {/* Title */}
+                <div className="flex-1 min-w-0 ml-3">
+                  <p className="text-[15px] line-through text-[var(--text-subtle)] truncate">{p.title}</p>
+                </div>
+
+                {/* Info */}
+                <div className="hidden sm:flex items-center gap-4 shrink-0">
+                  <p className="text-[13px] font-mono tabular-nums text-[var(--text-subtle)]">{formatDate(p.created)}</p>
+                  <p className="text-[13px] text-[var(--text-subtle)] min-w-[60px] text-right">{p.priority}</p>
+                </div>
               </motion.div>
             ))}
           </motion.div>

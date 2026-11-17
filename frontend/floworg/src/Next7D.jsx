@@ -96,6 +96,13 @@ export default function Next7D() {
     return groups;
   }, [allTasks]);
 
+  const getPriorityColor = (priority) => {
+    const p = priority?.toLowerCase();
+    if (p === "high") return "var(--danger)";
+    if (p === "medium") return "var(--accent)";
+    return "rgb(224 226 219 / 0.45)";
+  };
+
   const formatDate = (value) =>
     new Date(value ? value : Date.now()).toLocaleDateString("en-IN", {
       day: "2-digit",
@@ -111,27 +118,36 @@ export default function Next7D() {
   const TaskItem = ({ task }) => (
     <div
       key={task.task_id}
-      className="task-bar w-auto max-w-[1120px] flex items-center px-8 md:px-12 py-4 cursor-pointer mb-4 gap-4"
+      className={`task-row ${selectedTaskId === task.task_id ? "selected" : ""}`}
       onClick={() => handleClick(task.task_id)}
     >
+      {/* Priority bar */}
+      <div
+        className="priority-bar"
+        style={{ backgroundColor: getPriorityColor(task.priority) }}
+      />
+
+      {/* Checkbox */}
       <input
         type="checkbox"
         onClick={(e) => completeTask(task, e)}
-        className="w-6 h-6 rounded-lg border-white/20 bg-white/5 cursor-pointer accent-[#982598] shrink-0"
+        onChange={() => {}}
+        className="task-checkbox z-10"
       />
       
-      <div className="flex-1 min-w-0 ml-4">
-        <p className="text-2xl md:text-3xl text-[#F1E9E9] font-medium truncate">
+      {/* Title */}
+      <div className="flex-1 min-w-0 ml-3">
+        <p className="text-[15px] text-[var(--text-strong)] font-medium truncate">
           {task.title}
         </p>
       </div>
 
-      <div className="hidden sm:flex items-center gap-6 shrink-0">
-        <p className="text-xl md:text-2xl text-[#B8AED4]">
+      {/* Info section */}
+      <div className="hidden sm:flex items-center gap-4 shrink-0">
+        <p className="text-[13px] font-mono tabular-nums text-[var(--text-muted)]">
           {formatDate(task.created)}
         </p>
-        <div className="w-[2px] h-10 bg-[#982598] rounded-full"></div>
-        <p className="text-xl md:text-2xl text-[#F1E9E9] min-w-[80px] text-center">
+        <p className="text-[13px] text-[var(--text-muted)] min-w-[60px] text-right">
           {task.priority}
         </p>
       </div>
@@ -143,17 +159,19 @@ export default function Next7D() {
     if (tasks.length === 0) return null;
     
     return (
-      <div className="mb-8">
+      <div className="mb-8 w-full max-w-[1120px]">
         <div className="flex items-center gap-2 mb-4">
           <span className="text-2xl">{icon}</span>
-          <h2 className="text-2xl font-bold text-white">{title}</h2>
-          <span className="bg-[#982598]/20 border border-[#982598]/30 rounded-full px-2.5 py-0.5 text-sm font-semibold text-[#982598]">
+          <h2 className="text-2xl font-normal text-[var(--text-strong)] font-heading">{title}</h2>
+          <span className="bg-[var(--accent-tint)] border border-[var(--accent)]/30 rounded-full px-2.5 py-0.5 text-sm font-semibold text-[var(--accent)] font-mono tabular-nums">
             {tasks.length}
           </span>
         </div>
-        {tasks.map((task) => (
-          <TaskItem key={task.task_id} task={task} />
-        ))}
+        <div className="w-auto max-w-[1120px] mx-4 md:mx-16 flex flex-col">
+          {tasks.map((task) => (
+            <TaskItem key={task.task_id} task={task} />
+          ))}
+        </div>
       </div>
     );
   };
@@ -166,7 +184,7 @@ export default function Next7D() {
           viewBox="0 0 35 24"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="w-8 h-8 text-[#982598]"
+          className="w-8 h-8 text-[var(--accent)]"
         >
           <path
             d="M25.8159 7.81367L23.1909 16.5637C23.1503 16.6988 23.0673 16.8173 22.9541 16.9015C22.8409 16.9857 22.7036 17.0312 22.5625 17.0312C22.4986 17.0313 22.435 17.0219 22.3738 17.0034C22.2076 16.9528 22.0682 16.8384 21.9862 16.6853C21.9042 16.5321 21.8863 16.3527 21.9363 16.1863L24.3054 8.28125H20.8125C20.6385 8.28125 20.4715 8.21211 20.3485 8.08904C20.2254 7.96597 20.1562 7.79905 20.1562 7.625C20.1562 7.45095 20.2254 7.28403 20.3485 7.16096C20.4715 7.03789 20.6385 6.96875 20.8125 6.96875H25.1875C25.2898 6.96878 25.3907 6.99272 25.4821 7.03867C25.5735 7.08462 25.6529 7.15129 25.7139 7.23338C25.775 7.31547 25.816 7.41069 25.8337 7.51144C25.8514 7.6122 25.8453 7.71569 25.8159 7.81367Z"
@@ -186,7 +204,7 @@ export default function Next7D() {
             strokeLinejoin="round"
           />
         </svg>
-        <h1 className="text-3xl font-bold text-white tracking-tight">Next 7 Days</h1>
+        <h1 className="text-3xl font-normal text-[var(--text-strong)] font-heading tracking-tight">Next 7 Days</h1>
       </div>
 
       <div className="add-task mb-8">
@@ -201,7 +219,7 @@ export default function Next7D() {
   if (isLoading) {
     return (
       <NextLayout>
-        <div className="flex items-center justify-center text-4xl text-gray-500">
+        <div className="flex items-center justify-center text-4xl text-[var(--text-muted)]">
           Loading tasks...
         </div>
       </NextLayout>
@@ -212,7 +230,7 @@ export default function Next7D() {
   if (error) {
     return (
       <NextLayout>
-        <p className="text-red-500">{error}</p>
+        <p className="text-[var(--danger)]">{error}</p>
       </NextLayout>
     );
   }
@@ -225,7 +243,7 @@ export default function Next7D() {
   if (hasNoTasks) {
     return (
       <NextLayout>
-        <p className="text-xl text-gray-600">No active tasks found for the next 7 days.</p>
+        <p className="text-xl text-[var(--text-muted)]">No active tasks found for the next 7 days.</p>
       </NextLayout>
     );
   }

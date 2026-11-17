@@ -131,8 +131,8 @@ const Edit = () => {
     return (
       <div className="edit-page">
         <div className="flex justify-center items-center h-64">
-          <div className="flex items-center gap-3 text-[#B8AED4]">
-            <div className="w-5 h-5 rounded-full border-2 border-[#982598] border-t-transparent animate-spin" />
+          <div className="flex items-center gap-3 text-[var(--text-muted)]">
+            <div className="w-5 h-5 rounded-full border-2 border-[var(--accent)] border-t-transparent animate-spin" />
             <p className="text-lg">Loading task...</p>
           </div>
         </div>
@@ -143,8 +143,8 @@ const Edit = () => {
   return (
     <div className="edit-page">
       <div className="flex items-center gap-3 mb-6">
-        <FaEdit className="text-[#982598]" size={24} />
-        <h1 className="text-3xl font-bold text-white tracking-tight">Edit Task</h1>
+        <FaEdit className="text-[var(--accent)]" size={24} />
+        <h1 className="text-3xl font-normal text-[var(--text-strong)] font-heading tracking-tight">Edit Task</h1>
       </div>
 
       <div className="edit-card-wrapper">
@@ -238,7 +238,7 @@ const Edit = () => {
           {status && (
             <p
               className={`edit-status mt-4 ${
-                status.includes("successfully") ? "text-green-400" : "text-red-400"
+                status.includes("successfully") ? "text-[var(--accent)]" : "text-[var(--danger)]"
               }`}
             >
               {status}

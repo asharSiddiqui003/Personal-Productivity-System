@@ -51,7 +51,7 @@ export default function Closing({ flowerRef }) {
         style={{
           position: "relative",
           zIndex: 1,
-          maxWidth: 1600,
+          maxWidth: 1200,
           margin: "0 auto",
           padding: "0 clamp(20px, 5vw, 48px)",
         }}
@@ -61,7 +61,7 @@ export default function Closing({ flowerRef }) {
           style={{
             fontFamily: "var(--font-heading)",
             fontWeight: 700,
-            fontSize: "clamp(2rem, 4.5vw, 3.75rem)",
+            fontSize: "clamp(1.75rem, 3vw, 2.75rem)",
             letterSpacing: "-0.02em",
             color: "var(--color-white)",
             margin: "0 0 1rem",
@@ -74,10 +74,11 @@ export default function Closing({ flowerRef }) {
         <p
           style={{
             fontFamily: "var(--font-body)",
-            fontSize: "1.25rem",
+            fontSize: "1.0625rem",
             lineHeight: 1.6,
             color: "var(--color-linen)",
             margin: "0 0 2.5rem",
+            maxWidth: "52ch",
           }}
         >
           {CLOSING_SUB}
@@ -106,8 +107,8 @@ export default function Closing({ flowerRef }) {
               color: "var(--color-carbon)",
               fontFamily: "var(--font-body)",
               fontWeight: 600,
-              fontSize: "1.15rem",
-              padding: "0.875rem 1.75rem",
+              fontSize: "1rem",
+              padding: "0.75rem 1.5rem",
               borderRadius: "var(--radius)",
               textDecoration: "none",
               transition: "filter 150ms",
@@ -138,7 +139,7 @@ export default function Closing({ flowerRef }) {
             style={{
               fontFamily: "var(--font-body)",
               fontWeight: 500,
-              fontSize: "1.25rem",
+              fontSize: "1rem",
               color: "var(--color-linen)",
               textDecoration: "underline",
               textDecorationColor: "rgba(224,226,219,0.35)",
@@ -161,7 +162,7 @@ export default function Closing({ flowerRef }) {
             href={`mailto:${EMAIL}`}
             style={{
               fontFamily: "var(--font-body)",
-              fontSize: "1.25rem",
+              fontSize: "1rem",
               color: "var(--color-linen)",
               textDecoration: "none",
               opacity: 0.75,
@@ -173,7 +174,7 @@ export default function Closing({ flowerRef }) {
             href={`tel:${PHONE}`}
             style={{
               fontFamily: "var(--font-body)",
-              fontSize: "1.25rem",
+              fontSize: "1rem",
               color: "var(--color-linen)",
               textDecoration: "none",
               opacity: 0.75,
@@ -187,7 +188,7 @@ export default function Closing({ flowerRef }) {
             rel="noopener noreferrer"
             style={{
               fontFamily: "var(--font-body)",
-              fontSize: "1.25rem",
+              fontSize: "1rem",
               color: "var(--color-linen)",
               textDecoration: "none",
               opacity: 0.75,

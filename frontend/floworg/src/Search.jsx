@@ -100,11 +100,11 @@ export default function Search({ isOpen, onClose }) {
     // Helper to get color class based on type
     const getResultColorClass = (type) => {
         if (type === 'Task') {
-            return 'bg-blue-500/20 text-blue-400';
+            return 'bg-[var(--accent-tint)] text-[var(--accent)]';
         } else if (type === 'Habit') {
-            return 'bg-pink-500/20 text-pink-400';
+            return 'bg-[rgb(224,226,219,0.08)] text-[var(--text-strong)]';
         } else {
-            return 'bg-purple-500/20 text-purple-400';
+            return 'bg-[rgb(224,226,219,0.08)] text-[var(--text-strong)]';
         }
     };
 
@@ -113,14 +113,14 @@ export default function Search({ isOpen, onClose }) {
         if (isLoading) {
             return (
                 <div className="flex flex-col items-center justify-center py-16 text-center">
-                    <div className="w-10 h-10 border-4 border-[#982598] border-t-transparent rounded-full animate-spin mb-4"></div>
-                    <p className="text-[#B8AED4] text-lg">Searching...</p>
+                    <div className="w-10 h-10 border-4 border-[var(--accent)] border-t-transparent rounded-full animate-spin mb-4"></div>
+                    <p className="text-[var(--text-muted)] text-lg">Searching...</p>
                 </div>
             );
         } else if (searchTerm && displayedResults.length > 0) {
             return (
                 <div className="space-y-3 pb-4">
-                    <h3 className="text-xs font-bold text-[#B8AED4] uppercase tracking-widest mb-4 px-2">
+                    <h3 className="text-xs font-bold font-mono tabular-nums text-[var(--text-subtle)] uppercase tracking-widest mb-4 px-2">
                         Found {displayedResults.length} results
                     </h3>
 
@@ -128,7 +128,7 @@ export default function Search({ isOpen, onClose }) {
                         <div
                             key={result.id}
                             onClick={() => handleResultClick(result.id)}
-                            className="group flex items-center justify-between p-4 rounded-2xl bg-[#1D1F49]/50 hover:bg-[#2a2c5b] border border-transparent hover:border-[#982598]/30 transition-all cursor-pointer shadow-sm hover:shadow-md"
+                            className="group flex items-center justify-between p-4 rounded-2xl bg-[var(--surface)] hover:bg-[var(--oxblood-selected)] border border-[var(--line-card)] transition-all cursor-pointer"
                         >
                             <div className="flex items-center space-x-4">
                                 {/* Dynamic Icon based on type */}
@@ -139,14 +139,14 @@ export default function Search({ isOpen, onClose }) {
                                 </div>
 
                                 <div>
-                                    <h4 className="text-lg font-semibold text-white group-hover:text-[#982598] transition-colors">{result.title}</h4>
-                                    <span className="text-sm text-[#B8AED4]">{result.type} &bull; {result.date}</span>
+                                    <h4 className="text-lg font-semibold text-[var(--text-strong)] group-hover:text-[var(--text-strong)] transition-colors">{result.title}</h4>
+                                    <span className="text-sm text-[var(--text-muted)]">{result.type} &bull; {result.date}</span>
                                 </div>
                             </div>
 
                             {/* Hover Arrow indicator */}
-                            <div className="w-8 h-8 rounded-full bg-[#15173D] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
-                                <span className="text-[#982598] font-bold">&rarr;</span>
+                            <div className="w-8 h-8 rounded-full bg-[var(--raised)] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
+                                <span className="text-[var(--accent)] font-bold">&rarr;</span>
                             </div>
                         </div>
                     ))}
@@ -155,17 +155,17 @@ export default function Search({ isOpen, onClose }) {
         } else if (searchTerm) {
             return (
                 <div className="flex flex-col items-center justify-center py-16 text-center">
-                    <div className="w-20 h-20 rounded-full bg-[#2a2c5b]/50 flex items-center justify-center mb-6">
-                        <IoSearch size={36} className="text-[#B8AED4]/40" />
+                    <div className="w-20 h-20 rounded-full bg-[var(--surface)] border border-[var(--line-card)] flex items-center justify-center mb-6">
+                        <IoSearch size={36} className="text-[var(--text-subtle)]" />
                     </div>
-                    <p className="text-xl font-semibold text-[#F1E9E9]">No results found for "{searchTerm}"</p>
-                    <p className="text-md text-[#B8AED4] mt-2 max-w-sm">We couldn't find what you're looking for. Try adjusting your filters or search terms.</p>
+                    <p className="text-xl font-semibold text-[var(--text-strong)]">No results found for "{searchTerm}"</p>
+                    <p className="text-md text-[var(--text-muted)] mt-2 max-w-sm">We couldn't find what you're looking for. Try adjusting your filters or search terms.</p>
                 </div>
             );
         } else {
             return (
                 <div className="flex flex-col items-center justify-center py-16 text-center">
-                    <p className="text-[#B8AED4] text-lg">Start typing to search your workspace...</p>
+                    <p className="text-[var(--text-muted)] text-lg">Start typing to search your workspace...</p>
                 </div>
             );
         }
@@ -191,29 +191,29 @@ export default function Search({ isOpen, onClose }) {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -20, scale: 0.96 }}
                         transition={{ duration: 0.2, ease: 'easeOut' }}
-                        className="relative w-full max-w-3xl bg-[#15173D] border border-[#2a2c5b] shadow-2xl rounded-3xl overflow-hidden flex flex-col max-h-[80vh]"
+                        className="relative w-full max-w-3xl bg-[var(--raised)] border border-[var(--line-card)] shadow-2xl rounded-3xl overflow-hidden flex flex-col max-h-[80vh]"
                     >
                         {/* Search Input Header */}
-                        <div className="relative border-b border-[#2a2c5b] bg-[#1D1F49] p-4 flex items-center">
-                            <IoSearch size={28} className="text-[#982598] ml-2 mr-4 flex-shrink-0" />
+                        <div className="relative border-b border-[var(--line-card)] bg-[var(--surface)] p-4 flex items-center">
+                            <IoSearch size={28} className="text-[var(--accent)] ml-2 mr-4 flex-shrink-0" />
                             <input
                                 type="text"
                                 autoFocus
                                 placeholder="Search tasks, habits, events..."
                                 value={searchTerm}
                                 onChange={handleSearchChange}
-                                className="flex-1 bg-transparent border-none outline-none text-2xl text-[#F1E9E9] placeholder-[#B8AED4]/50"
+                                className="flex-1 bg-transparent border-none outline-none text-2xl text-[var(--text-strong)] placeholder-[var(--text-subtle)]"
                             />
                             <button
                                 onClick={onClose}
-                                className="p-2 ml-4 rounded-xl hover:bg-[#2a2c5b] text-[#B8AED4] hover:text-white transition-colors flex-shrink-0"
+                                className="p-2 ml-4 rounded-xl hover:bg-[var(--raised)] text-[var(--text-muted)] hover:text-[var(--text-strong)] transition-colors flex-shrink-0"
                             >
                                 <IoClose size={24} />
                             </button>
                         </div>
 
                         {/* Filters and Sorting Bar */}
-                        <div className="flex flex-wrap items-center justify-between p-4 bg-[#15173D] border-b border-[#2a2c5b]/50 gap-4">
+                        <div className="flex flex-wrap items-center justify-between p-4 bg-[var(--surface)] border-b border-[var(--line-card)] gap-4">
                             {/* Category Pills */}
                             <div className="flex space-x-2">
                                 {['All', 'Tasks', 'Habits', 'Calendar'].map((filter) => (
@@ -221,8 +221,8 @@ export default function Search({ isOpen, onClose }) {
                                         key={filter}
                                         onClick={() => handleFilterClick(filter)}
                                         className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${activeFilter === filter
-                                            ? 'bg-[#982598] text-white shadow-lg shadow-[#982598]/20 ring-2 ring-[#982598]/50'
-                                            : 'bg-[#2a2c5b] text-[#B8AED4] hover:bg-[#2a2c5b]/80 hover:text-white'
+                                            ? 'bg-[var(--oxblood-selected)] text-[var(--text-strong)] border border-[var(--line-card)] font-semibold'
+                                            : 'bg-[var(--raised)] text-[var(--text-muted)] hover:bg-[var(--hover)] hover:text-[var(--text-strong)] border border-[var(--line-control)]'
                                             }`}
                                     >
                                         {filter}
@@ -232,14 +232,14 @@ export default function Search({ isOpen, onClose }) {
 
                             {/* Sorting Dropdown */}
                             <div className="flex items-center space-x-3 text-sm">
-                                <span className="text-[#B8AED4] flex items-center space-x-1">
+                                <span className="text-[var(--text-muted)] flex items-center space-x-1">
                                     <FiFilter size={14} />
                                     <span>Sort by:</span>
                                 </span>
                                 <select
                                     value={activeSort}
                                     onChange={handleSortChange}
-                                    className="bg-[#2a2c5b] text-white border border-[#2a2c5b] rounded-lg px-3 py-1.5 outline-none focus:border-[#982598] cursor-pointer hover:bg-[#2a2c5b]/80 transition-colors"
+                                    className="bg-[var(--raised)] text-[var(--text-strong)] border border-[var(--line-control)] rounded-lg px-3 py-1.5 outline-none focus:border-[var(--accent)] cursor-pointer hover:bg-[var(--hover)] transition-colors"
                                 >
                                     <option value="Newest">Newest</option>
                                     <option value="Oldest">Oldest</option>
@@ -250,7 +250,7 @@ export default function Search({ isOpen, onClose }) {
                         </div>
 
                         {/* Results Area */}
-                        <div className="flex-1 overflow-y-auto p-4 custom-scrollbar bg-[#15173D]">
+                        <div className="flex-1 overflow-y-auto p-4 custom-scrollbar bg-[var(--raised)]">
                             {renderResultsArea()}
                         </div>
                     </motion.div>

@@ -39,8 +39,8 @@ const All = () => {
     <div className="relative md:left-[336px] top-0 min-h-screen w-full md:w-[calc(100%-336px)] px-4 md:px-0 md:pr-8">
       {/* Page heading */}
       <div className="flex items-center gap-3 my-4">
-        <GoStack size={32} className="text-[#982598]" />
-        <h1 className="text-3xl font-bold text-white tracking-tight">All</h1>
+        <GoStack size={32} className="text-[var(--accent)]" />
+        <h1 className="text-3xl font-normal text-[var(--text-strong)] font-heading tracking-tight">All</h1>
       </div>
 
       {/* Add row + Filter button */}
@@ -56,20 +56,18 @@ const All = () => {
             className="flex items-center gap-2 h-[46px] px-4 rounded-xl text-sm font-medium transition-all duration-200"
             style={{
               background: filterOpen || isFiltered
-                ? "rgba(152,37,152,0.18)"
-                : "rgba(255,255,255,0.05)",
-              border: `1px solid ${filterOpen || isFiltered
-                ? "rgba(152,37,152,0.4)"
-                : "rgba(255,255,255,0.08)"}`,
-              color: isFiltered ? "#c060c0" : "#7a7aac",
+                ? "var(--oxblood-selected)"
+                : "var(--surface)",
+              border: "1px solid var(--line-control)",
+              color: isFiltered ? "var(--accent)" : "var(--text)",
             }}
           >
             <LuSlidersHorizontal size={16} />
             <span>Filter</span>
             {isFiltered && (
               <span
-                className="w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center"
-                style={{ background: "#982598", color: "white" }}
+                className="w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center font-mono tabular-nums"
+                style={{ background: "var(--accent)", color: "var(--on-accent)" }}
               >
                 !
               </span>
@@ -79,16 +77,16 @@ const All = () => {
           {/* Dropdown panel */}
           {filterOpen && (
             <div
-              className="absolute top-full right-0 mt-2 z-50 rounded-2xl p-4 w-52"
+              className="absolute top-full right-0 mt-2 z-50 rounded-xl p-4 w-52"
               style={{
-                background: "rgba(10,9,30,0.97)",
-                border: "1px solid rgba(152,37,152,0.2)",
+                background: "var(--raised)",
+                border: "1px solid var(--line-card)",
                 backdropFilter: "blur(24px)",
-                boxShadow: "0 16px 48px rgba(0,0,0,0.6)",
+                boxShadow: "none",
               }}
             >
               {/* Priority filter */}
-              <p className="text-[10px] uppercase tracking-[0.18em] text-white/30 font-semibold mb-2">
+              <p className="text-[10px] uppercase tracking-[0.18em] text-[var(--text-subtle)] font-semibold mb-2">
                 Priority
               </p>
               {PRIORITIES.map((p) => (
@@ -97,10 +95,10 @@ const All = () => {
                   onClick={() => setFilterPriority(p)}
                   className="w-full text-left px-3 py-1.5 rounded-lg text-sm mb-0.5 transition-all duration-150"
                   style={{
-                    background: filterPriority === p ? "rgba(152,37,152,0.15)" : "transparent",
-                    borderLeft: `2px solid ${filterPriority === p ? "#982598" : "transparent"}`,
+                    background: filterPriority === p ? "var(--oxblood-selected)" : "transparent",
+                    borderLeft: `2px solid ${filterPriority === p ? "var(--accent)" : "transparent"}`,
                     paddingLeft: filterPriority === p ? "10px" : "12px",
-                    color: filterPriority === p ? "white" : "#7a7aac",
+                    color: filterPriority === p ? "var(--text-strong)" : "var(--text-muted)",
                   }}
                 >
                   {p}
@@ -108,10 +106,10 @@ const All = () => {
               ))}
 
               {/* Divider */}
-              <div className="h-px my-3" style={{ background: "rgba(255,255,255,0.06)" }} />
+              <div className="h-px my-3" style={{ background: "var(--line)" }} />
 
               {/* Sort */}
-              <p className="text-[10px] uppercase tracking-[0.18em] text-white/30 font-semibold mb-2">
+              <p className="text-[10px] uppercase tracking-[0.18em] text-[var(--text-subtle)] font-semibold mb-2">
                 Sort By
               </p>
               {SORTS.map((s) => (
@@ -120,10 +118,10 @@ const All = () => {
                   onClick={() => setSortBy(s.value)}
                   className="w-full text-left px-3 py-1.5 rounded-lg text-sm mb-0.5 transition-all duration-150"
                   style={{
-                    background: sortBy === s.value ? "rgba(152,37,152,0.15)" : "transparent",
-                    borderLeft: `2px solid ${sortBy === s.value ? "#982598" : "transparent"}`,
+                    background: sortBy === s.value ? "var(--oxblood-selected)" : "transparent",
+                    borderLeft: `2px solid ${sortBy === s.value ? "var(--accent)" : "transparent"}`,
                     paddingLeft: sortBy === s.value ? "10px" : "12px",
-                    color: sortBy === s.value ? "white" : "#7a7aac",
+                    color: sortBy === s.value ? "var(--text-strong)" : "var(--text-muted)",
                   }}
                 >
                   {s.label}
@@ -133,10 +131,10 @@ const All = () => {
               {/* Reset */}
               {isFiltered && (
                 <>
-                  <div className="h-px my-3" style={{ background: "rgba(255,255,255,0.06)" }} />
+                  <div className="h-px my-3" style={{ background: "var(--line)" }} />
                   <button
                     onClick={() => { setFilterPriority("All"); setSortBy("date-newest"); }}
-                    className="w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm text-red-400 hover:text-red-300 transition-colors"
+                    className="w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm text-[var(--danger)] hover:opacity-80 transition-opacity"
                   >
                     <IoClose size={14} /> Reset filters
                   </button>

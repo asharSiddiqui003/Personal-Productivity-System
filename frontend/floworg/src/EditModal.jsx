@@ -109,16 +109,16 @@ const EditModal = ({ taskId, onClose, onTaskUpdated }) => {
   };
 
   const statusColor = status.startsWith("Saved")
-    ? "text-green-400"
+    ? "text-[var(--accent)]"
     : status === "Saving…"
-    ? "text-[#B8AED4]"
-    : "text-red-400";
+    ? "text-[var(--text-muted)]"
+    : "text-[var(--danger)]";
 
   return (
     /* Backdrop */
     <div
       className="fixed inset-0 z-[200] flex items-center justify-center"
-      style={{ background: "rgba(0,0,0,0.65)", backdropFilter: "blur(8px)" }}
+      style={{ background: "rgba(0, 0, 0, 0.60)", backdropFilter: "blur(8px)" }}
       onClick={onClose}
     >
       {/* Card — stop propagation so clicking inside doesn't close */}
@@ -127,11 +127,11 @@ const EditModal = ({ taskId, onClose, onTaskUpdated }) => {
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.94, y: 20 }}
         transition={{ duration: 0.2, ease: "easeOut" }}
-        className="w-full max-w-[520px] mx-4 rounded-2xl p-6 relative"
+        className="w-full max-w-[520px] mx-4 rounded-xl p-6 relative"
         style={{
-          background: "rgba(10, 9, 30, 0.96)",
-          border: "1px solid rgba(152, 37, 152, 0.25)",
-          boxShadow: "0 32px 80px rgba(0,0,0,0.75), inset 0 1px 0 rgba(255,255,255,0.05)",
+          background: "var(--raised)",
+          border: "1px solid var(--line-card)",
+          boxShadow: "none",
           backdropFilter: "blur(24px)",
         }}
         onClick={(e) => e.stopPropagation()}
@@ -139,27 +139,27 @@ const EditModal = ({ taskId, onClose, onTaskUpdated }) => {
         {/* Header */}
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-2.5">
-            <FaEdit size={17} className="text-[#982598]" />
-            <h2 className="text-lg font-bold text-white tracking-tight">Edit Task</h2>
+            <FaEdit size={17} className="text-[var(--accent)]" />
+            <h2 className="text-lg font-normal text-[var(--text-strong)] font-heading tracking-tight">Edit Task</h2>
           </div>
           <button
             onClick={onClose}
             className="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-150"
-            style={{ color: "rgba(255,255,255,0.35)" }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.08)"; e.currentTarget.style.color = "white"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "rgba(255,255,255,0.35)"; }}
+            style={{ color: "var(--text-subtle)" }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = "var(--hover)"; e.currentTarget.style.color = "var(--text-strong)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-subtle)"; }}
           >
             <IoClose size={20} />
           </button>
         </div>
 
         {/* Divider */}
-        <div className="h-px mb-5" style={{ background: "rgba(255,255,255,0.06)" }} />
+        <div className="h-px mb-5" style={{ background: "var(--line)" }} />
 
         {/* Loading */}
         {isLoading ? (
-          <div className="flex items-center justify-center h-40 gap-3 text-[#B8AED4]">
-            <div className="w-5 h-5 rounded-full border-2 border-[#982598] border-t-transparent animate-spin" />
+          <div className="flex items-center justify-center h-40 gap-3 text-[var(--text-muted)]">
+            <div className="w-5 h-5 rounded-full border-2 border-[var(--accent)] border-t-transparent animate-spin" />
             <p>Loading task…</p>
           </div>
         ) : (
@@ -194,11 +194,26 @@ const EditModal = ({ taskId, onClose, onTaskUpdated }) => {
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <label className="edit-label">Created Date</label>
-                <input name="created" type="date" value={taskData.created} onChange={handleChange} className="edit-input" required />
+                <input
+                  name="created"
+                  type="date"
+                  value={taskData.created}
+                  onChange={handleChange}
+                  className="edit-input"
+                  style={{ accentColor: "var(--accent)", colorScheme: "dark" }}
+                  required
+                />
               </div>
               <div className="space-y-1.5">
                 <label className="edit-label">Due Date</label>
-                <input name="dueDate" type="date" value={taskData.dueDate} onChange={handleChange} className="edit-input" />
+                <input
+                  name="dueDate"
+                  type="date"
+                  value={taskData.dueDate}
+                  onChange={handleChange}
+                  className="edit-input"
+                  style={{ accentColor: "var(--accent)", colorScheme: "dark" }}
+                />
               </div>
             </div>
 

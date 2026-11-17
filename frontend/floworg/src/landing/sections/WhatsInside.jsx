@@ -129,7 +129,7 @@ export default function WhatsInside() {
       >
         <div
           style={{
-            maxWidth: 1800,
+            maxWidth: 1200,
             margin: "0 auto",
             padding: "0 clamp(20px, 5vw, 48px)",
           }}
@@ -141,7 +141,7 @@ export default function WhatsInside() {
               style={{
                 fontFamily: "var(--font-heading)",
                 fontWeight: 300,
-                fontSize: "clamp(1.75rem, 4vw, 3.25rem)",
+                fontSize: "clamp(1.75rem, 3vw, 2.75rem)",
                 letterSpacing: "-0.02em",
                 lineHeight: 1.06,
                 color: "var(--color-white)",

@@ -192,7 +192,7 @@ export default function Hero() {
           style={{
             fontFamily: "var(--font-heading)",
             fontWeight: 700,
-            fontSize: "clamp(3rem, 4.5vw, 4rem)",
+            fontSize: "clamp(3rem, 7.5vw, 4rem)",
             lineHeight: 0.95,
             letterSpacing: "-0.03em",
             color: "var(--color-white)",
@@ -209,12 +209,12 @@ export default function Hero() {
           style={{
             fontFamily: "var(--font-body)",
             fontWeight: 400,
-            fontSize: "clamp(1.5rem, 0.9vw, 3rem)",
-            lineHeight: 1.55,
+            fontSize: "1.0625rem",
+            lineHeight: 1.6,
             color: "var(--color-linen)",
             opacity: 0.7,
             margin: "0.75rem 0 0",
-            maxWidth: "34ch",
+            maxWidth: "40ch",
           }}
         >
           {HERO_SUB}
@@ -242,7 +242,7 @@ export default function Hero() {
           style={{
             fontFamily: "var(--font-heading)",
             fontWeight: 700,
-            fontSize: "clamp(3rem, 7.5vw, 6rem)",
+            fontSize: "clamp(3rem, 7.5vw, 4rem)",
             lineHeight: 0.95,
             letterSpacing: "-0.03em",
             color: "var(--color-white)",
@@ -274,8 +274,8 @@ export default function Hero() {
               color: "var(--color-carbon)",
               fontFamily: "var(--font-body)",
               fontWeight: 600,
-              fontSize: "1.15rem",
-              padding: "0.875rem 1.75rem",
+              fontSize: "1rem",
+              padding: "0.75rem 1.5rem",
               borderRadius: "var(--radius)",
               textDecoration: "none",
               transition: "filter 150ms",
@@ -300,7 +300,7 @@ export default function Hero() {
             style={{
               fontFamily: "var(--font-body)",
               fontWeight: 500,
-              fontSize: "1.15rem",
+              fontSize: "1rem",
               color: "var(--color-linen)",
               textDecoration: "underline",
               textDecorationColor: "rgba(224,226,219,0.35)",

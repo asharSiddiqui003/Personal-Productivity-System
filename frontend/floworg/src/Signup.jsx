@@ -12,14 +12,15 @@ import {
 } from "react-icons/io5";
 import { useGoogleLogin } from "@react-oauth/google";
 import { useNavigate } from "react-router-dom";
+import flowerBloom from "./assets/flower-seq/flower_051.png";
 
 // Password strength helper
 function getStrength(pw) {
   if (pw.length === 0) return { level: 0, label: "", color: "" };
-  if (pw.length < 8)   return { level: 1, label: "Too short", color: "bg-red-500" };
-  if (pw.length < 12)  return { level: 2, label: "Fair", color: "bg-yellow-500" };
-  if (pw.length < 16)  return { level: 3, label: "Good", color: "bg-blue-500" };
-  return               { level: 4, label: "Strong", color: "bg-green-500" };
+  if (pw.length < 8)   return { level: 1, label: "Too short", color: "bg-[var(--danger)]" };
+  if (pw.length < 12)  return { level: 2, label: "Fair", color: "bg-[var(--accent)]" };
+  if (pw.length < 16)  return { level: 3, label: "Good", color: "bg-[var(--accent)]" };
+  return               { level: 4, label: "Strong", color: "bg-[var(--accent)]" };
 }
 
 // Google "G" SVG (official brand colors)
@@ -45,7 +46,6 @@ function Signup({ onLogin }) {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -56,7 +56,6 @@ function Signup({ onLogin }) {
   // ── Email/password signup ──────────────────────────────────
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!agreedToTerms) { setErrorMessage("Please agree to the Terms of Service."); return; }
     if (password !== confirmPassword) { setErrorMessage("Passwords do not match."); return; }
     if (password.length < 8) { setErrorMessage("Password must be at least 8 characters."); return; }
 
@@ -122,199 +121,199 @@ function Signup({ onLogin }) {
   });
 
   return (
-    <div className="min-h-screen bg-[#0f1123] flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Decorative blobs */}
-      <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[120px] pointer-events-none" />
-
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
-        className="w-full max-w-md bg-[#1D1F49]/80 backdrop-blur-2xl border border-white/5 rounded-3xl p-10 shadow-[0_0_50px_rgba(79,70,229,0.15)] z-10"
-      >
-        {/* Logo + heading */}
-        <div className="text-center mb-8">
-          <motion.div
-            initial={{ scale: 0.8, rotate: -10 }}
-            animate={{ scale: 1, rotate: 0 }}
-            transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-            className="w-16 h-16 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-2xl mx-auto mb-6 flex items-center justify-center shadow-lg shadow-indigo-500/30 border border-white/20"
-          >
-            <span className="text-white text-2xl font-bold tracking-tighter">TM</span>
-          </motion.div>
-          <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">Create Account</h1>
-          <p className="text-gray-400 text-sm">Join us to master your productivity</p>
-        </div>
-
-        {/* Feedback banners */}
-        <AnimatePresence>
-          {errorMessage && (
-            <motion.div
-              key="error"
-              initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
-              className="mb-5 flex items-center gap-2 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm font-medium"
-            >
-              <IoAlertCircleOutline size={18} className="shrink-0" />
-              {errorMessage}
-            </motion.div>
-          )}
-          {successMessage && (
-            <motion.div
-              key="success"
-              initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
-              className="mb-5 flex items-center gap-2 p-3 rounded-xl bg-green-500/10 border border-green-500/30 text-green-400 text-sm font-medium"
-            >
-              <IoCheckmarkCircleOutline size={18} className="shrink-0" />
-              {successMessage}
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Google OAuth button */}
-        <button
-          type="button"
-          onClick={() => { setErrorMessage(""); handleGoogleLogin(); }}
-          disabled={googleLoading}
-          className="w-full flex items-center justify-center gap-3 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white font-medium py-3 px-4 rounded-xl transition-all active:scale-[0.98] disabled:opacity-60 disabled:pointer-events-none mb-6"
+    <div className="min-h-screen w-full flex flex-row bg-[var(--bg-canvas)] overflow-hidden">
+      {/* Left panel: flat --oxblood panel with peeking bloom (hidden below 900px) */}
+      <div className="hidden min-[900px]:flex min-[900px]:w-1/2 min-h-screen h-full bg-[var(--oxblood)] relative overflow-hidden flex-col justify-between p-10 md:p-14 lg:p-16 shrink-0">
+        <h1
+          className="text-[var(--text-strong)] font-heading leading-[1.12] tracking-tight max-w-md z-10"
+          style={{ fontSize: "clamp(32px, 4vw, 56px)", fontWeight: 300 }}
         >
-          {googleLoading
-            ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-            : <GoogleIcon />}
-          Continue with Google
-        </button>
+          Start with one task.
+        </h1>
 
-        {/* Divider */}
-        <div className="flex items-center gap-4 mb-6">
-          <div className="flex-1 h-px bg-white/10" />
-          <span className="text-xs text-gray-500 font-medium uppercase tracking-widest">or</span>
-          <div className="flex-1 h-px bg-white/10" />
+        <div
+          className="absolute left-1/2 -translate-x-1/2 top-[55%] pointer-events-none select-none z-0"
+          style={{ width: "min(180%, 2050px)" }}
+        >
+          <img
+            src={flowerBloom}
+            alt=""
+            aria-hidden="true"
+            className="w-full h-auto object-contain block"
+            style={{ transform: "translateY(-17.07%)" }}
+          />
         </div>
+      </div>
 
-        {/* Email/password form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Username */}
-          <div className="relative group">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-500 group-focus-within:text-indigo-400 transition-colors">
-              <IoPersonOutline size={20} />
-            </div>
-            <input
-              id="signup-username"
-              type="text" required value={username}
-              onChange={(e) => { setUsername(e.target.value); setErrorMessage(""); }}
-              className="w-full bg-[#0a0b16]/50 border border-white/10 rounded-xl py-3.5 pl-12 pr-4 text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all shadow-inner"
-              placeholder="Username"
-            />
+      {/* Right panel: --bg-canvas with the form directly on canvas */}
+      <div className="w-full min-[900px]:w-1/2 min-h-screen flex items-center justify-center p-6 md:p-10 overflow-y-auto">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.98, y: 16 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
+          className="w-full max-w-[400px] py-8 z-10"
+        >
+          {/* Logo + heading */}
+          <div className="text-center mb-8">
+            <motion.div
+              initial={{ scale: 0.8, rotate: -10 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+              className="w-16 h-16 bg-[var(--accent)] rounded-2xl mx-auto mb-6 flex items-center justify-center border border-[var(--line-card)]"
+            >
+              <span className="text-[var(--on-accent)] text-3xl font-heading font-bold select-none">F</span>
+            </motion.div>
+            <h2 className="text-3xl font-normal font-heading text-[var(--text-strong)] mb-2 tracking-tight">Create Account</h2>
+            <p className="text-[var(--text-muted)] text-sm">Join us to master your productivity</p>
           </div>
 
-          {/* Email */}
-          <div className="relative group">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-500 group-focus-within:text-indigo-400 transition-colors">
-              <IoMailOutline size={20} />
-            </div>
-            <input
-              id="signup-email"
-              type="email" required value={email}
-              onChange={(e) => { setEmail(e.target.value); setErrorMessage(""); }}
-              className="w-full bg-[#0a0b16]/50 border border-white/10 rounded-xl py-3.5 pl-12 pr-4 text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all shadow-inner"
-              placeholder="Email address"
-            />
+          {/* Feedback banners */}
+          <AnimatePresence>
+            {errorMessage && (
+              <motion.div
+                key="error"
+                initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
+                className="mb-5 flex items-center gap-2 p-3 rounded-xl bg-[var(--danger)]/10 border border-[var(--danger)]/30 text-[var(--danger)] text-sm font-medium"
+              >
+                <IoAlertCircleOutline size={18} className="shrink-0" />
+                {errorMessage}
+              </motion.div>
+            )}
+            {successMessage && (
+              <motion.div
+                key="success"
+                initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+                className="mb-5 flex items-center gap-2 p-3 rounded-xl bg-[var(--accent-tint)] border border-[var(--accent)]/30 text-[var(--accent)] text-sm font-medium"
+              >
+                <IoCheckmarkCircleOutline size={18} className="shrink-0" />
+                {successMessage}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Google OAuth button */}
+          <button
+            type="button"
+            onClick={() => { setErrorMessage(""); handleGoogleLogin(); }}
+            disabled={googleLoading}
+            className="w-full flex items-center justify-center gap-3 bg-[var(--surface)] hover:bg-[var(--hover)] border border-[var(--line-control)] text-[var(--text-strong)] font-medium py-3 px-4 rounded-xl transition-all active:scale-[0.98] disabled:opacity-60 disabled:pointer-events-none mb-6"
+          >
+            {googleLoading
+              ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              : <GoogleIcon />}
+            Continue with Google
+          </button>
+
+          {/* Divider */}
+          <div className="flex items-center gap-4 mb-6">
+            <div className="flex-1 h-px bg-[var(--line)]" />
+            <span className="text-xs text-[var(--text-subtle)] font-medium uppercase tracking-widest">or</span>
+            <div className="flex-1 h-px bg-[var(--line)]" />
           </div>
 
-          {/* Password + strength */}
-          <div className="space-y-2">
+          {/* Email/password form */}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Username */}
             <div className="relative group">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-500 group-focus-within:text-indigo-400 transition-colors">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[var(--text-subtle)] group-focus-within:text-[var(--accent)] transition-colors">
+                <IoPersonOutline size={20} />
+              </div>
+              <input
+                id="signup-username"
+                type="text" required value={username}
+                onChange={(e) => { setUsername(e.target.value); setErrorMessage(""); }}
+                className="w-full bg-[var(--surface)] border border-[var(--line-control)] rounded-xl py-3.5 pl-12 pr-4 text-[var(--text-strong)] placeholder-[var(--text-subtle)] focus:outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)] transition-all"
+                placeholder="Username"
+              />
+            </div>
+
+            {/* Email */}
+            <div className="relative group">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[var(--text-subtle)] group-focus-within:text-[var(--accent)] transition-colors">
+                <IoMailOutline size={20} />
+              </div>
+              <input
+                id="signup-email"
+                type="email" required value={email}
+                onChange={(e) => { setEmail(e.target.value); setErrorMessage(""); }}
+                className="w-full bg-[var(--surface)] border border-[var(--line-control)] rounded-xl py-3.5 pl-12 pr-4 text-[var(--text-strong)] placeholder-[var(--text-subtle)] focus:outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)] transition-all"
+                placeholder="Email address"
+              />
+            </div>
+
+            {/* Password + strength */}
+            <div className="space-y-2">
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[var(--text-subtle)] group-focus-within:text-[var(--accent)] transition-colors">
+                  <IoLockClosedOutline size={20} />
+                </div>
+                <input
+                  id="signup-password"
+                  type={showPassword ? "text" : "password"} required value={password}
+                  onChange={(e) => { setPassword(e.target.value); setErrorMessage(""); }}
+                  className="w-full bg-[var(--surface)] border border-[var(--line-control)] rounded-xl py-3.5 pl-12 pr-12 text-[var(--text-strong)] placeholder-[var(--text-subtle)] focus:outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)] transition-all"
+                  placeholder="Password"
+                />
+                <button type="button" onClick={() => setShowPassword(v => !v)}
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-[var(--text-subtle)] hover:text-[var(--text-strong)] transition-colors"
+                  aria-label={showPassword ? "Hide password" : "Show password"}>
+                  {showPassword ? <IoEyeOffOutline size={20} /> : <IoEyeOutline size={20} />}
+                </button>
+              </div>
+              {/* Strength bar */}
+              {password && (
+                <div className="flex items-center gap-1.5 px-1">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div key={i} className={`h-1 flex-1 rounded-full transition-all duration-300 ${i <= strength.level ? strength.color : "bg-[var(--line-control)]"}`} />
+                  ))}
+                  <span className="text-xs text-[var(--text-subtle)] font-mono tabular-nums ml-1 w-14 text-right">{strength.label}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Confirm Password */}
+            <div className="relative group">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[var(--text-subtle)] group-focus-within:text-[var(--accent)] transition-colors">
                 <IoLockClosedOutline size={20} />
               </div>
               <input
-                id="signup-password"
-                type={showPassword ? "text" : "password"} required value={password}
-                onChange={(e) => { setPassword(e.target.value); setErrorMessage(""); }}
-                className="w-full bg-[#0a0b16]/50 border border-white/10 rounded-xl py-3.5 pl-12 pr-12 text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all shadow-inner"
-                placeholder="Password"
+                id="signup-confirm-password"
+                type={showConfirm ? "text" : "password"} required value={confirmPassword}
+                onChange={(e) => { setConfirmPassword(e.target.value); setErrorMessage(""); }}
+                className={`w-full bg-[var(--surface)] border rounded-xl py-3.5 pl-12 pr-12 text-[var(--text-strong)] placeholder-[var(--text-subtle)] focus:outline-none focus:ring-2 transition-all ${
+                  confirmPassword && confirmPassword !== password
+                    ? "border-[var(--danger)]/50 focus:border-[var(--danger)] focus:ring-[var(--danger)]"
+                    : "border-[var(--line-control)] focus:border-[var(--accent)] focus:ring-[var(--accent)]"
+                }`}
+                placeholder="Confirm password"
               />
-              <button type="button" onClick={() => setShowPassword(v => !v)}
-                className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-500 hover:text-gray-300 transition-colors"
-                aria-label={showPassword ? "Hide password" : "Show password"}>
-                {showPassword ? <IoEyeOffOutline size={20} /> : <IoEyeOutline size={20} />}
+              <button type="button" onClick={() => setShowConfirm(v => !v)}
+                className="absolute inset-y-0 right-0 pr-4 flex items-center text-[var(--text-subtle)] hover:text-[var(--text-strong)] transition-colors"
+                aria-label={showConfirm ? "Hide confirm password" : "Show confirm password"}>
+                {showConfirm ? <IoEyeOffOutline size={20} /> : <IoEyeOutline size={20} />}
               </button>
             </div>
-            {/* Strength bar */}
-            {password && (
-              <div className="flex items-center gap-1.5 px-1">
-                {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className={`h-1 flex-1 rounded-full transition-all duration-300 ${i <= strength.level ? strength.color : "bg-gray-700"}`} />
-                ))}
-                <span className="text-xs text-gray-500 ml-1 w-14 text-right">{strength.label}</span>
-              </div>
-            )}
-          </div>
 
-          {/* Confirm Password */}
-          <div className="relative group">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-500 group-focus-within:text-indigo-400 transition-colors">
-              <IoLockClosedOutline size={20} />
-            </div>
-            <input
-              id="signup-confirm-password"
-              type={showConfirm ? "text" : "password"} required value={confirmPassword}
-              onChange={(e) => { setConfirmPassword(e.target.value); setErrorMessage(""); }}
-              className={`w-full bg-[#0a0b16]/50 border rounded-xl py-3.5 pl-12 pr-12 text-white placeholder-gray-500 focus:outline-none focus:ring-1 transition-all shadow-inner ${
-                confirmPassword && confirmPassword !== password
-                  ? "border-red-500/50 focus:border-red-500 focus:ring-red-500"
-                  : "border-white/10 focus:border-indigo-500 focus:ring-indigo-500"
-              }`}
-              placeholder="Confirm password"
-            />
-            <button type="button" onClick={() => setShowConfirm(v => !v)}
-              className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-500 hover:text-gray-300 transition-colors"
-              aria-label={showConfirm ? "Hide confirm password" : "Show confirm password"}>
-              {showConfirm ? <IoEyeOffOutline size={20} /> : <IoEyeOutline size={20} />}
+            {/* Submit */}
+            <button
+              type="submit" disabled={loading}
+              className="w-full bg-[var(--accent)] hover:bg-[var(--accent-hover)] active:bg-[var(--accent-press)] text-[var(--on-accent)] font-semibold py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-70 disabled:pointer-events-none mt-2"
+            >
+              {loading
+                ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                : <><IoArrowForwardOutline size={18} /> Create Account</>}
             </button>
-          </div>
+          </form>
 
-          {/* Terms checkbox */}
-          <label className="flex items-start gap-3 cursor-pointer group pt-1">
-            <div className="relative flex items-center mt-0.5 shrink-0">
-              <input
-                type="checkbox"
-                checked={agreedToTerms}
-                onChange={(e) => { setAgreedToTerms(e.target.checked); setErrorMessage(""); }}
-                className="peer appearance-none w-4 h-4 border border-gray-600 rounded bg-[#0a0b16] checked:bg-indigo-500 checked:border-indigo-500 transition-all cursor-pointer"
-              />
-              <svg className="absolute w-3 h-3 text-white left-0.5 pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity"
-                fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <span className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors leading-relaxed">
-              I agree to the{" "}
-              <a href="#" className="text-indigo-400 hover:text-indigo-300 underline underline-offset-2">Terms of Service</a>
-              {" "}and{" "}
-              <a href="#" className="text-indigo-400 hover:text-indigo-300 underline underline-offset-2">Privacy Policy</a>
-            </span>
-          </label>
-
-          {/* Submit */}
-          <button
-            type="submit" disabled={loading}
-            className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold py-3.5 px-4 rounded-xl shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-70 disabled:pointer-events-none border border-white/10 hover:border-white/20 mt-2"
-          >
-            {loading
-              ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              : <><IoArrowForwardOutline size={18} /> Create Account</>}
-          </button>
-        </form>
-
-        <p className="mt-7 text-center text-sm text-gray-400">
-          Already have an account?{" "}
-          <button type="button" onClick={() => navigate("/login")}
-            className="text-indigo-400 hover:text-indigo-300 font-medium transition-colors ml-1">
-            Sign in
-          </button>
-        </p>
-      </motion.div>
+          <p className="mt-7 text-center text-sm text-[var(--text-muted)]">
+            Already have an account?{" "}
+            <button type="button" onClick={() => navigate("/login")}
+              className="text-[var(--accent)] hover:text-[var(--accent-hover)] font-medium transition-colors ml-1">
+              Sign in
+            </button>
+          </p>
+        </motion.div>
+      </div>
     </div>
   );
 }

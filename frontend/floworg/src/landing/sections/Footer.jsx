@@ -13,7 +13,7 @@ export default function Footer() {
 
   const linkStyle = {
     fontFamily: "var(--font-body)",
-    fontSize: "1.25rem",
+    fontSize: "1rem",
     color: "var(--color-linen)",
     textDecoration: "none",
     opacity: 0.65,
@@ -25,7 +25,7 @@ export default function Footer() {
   const colHeadStyle = {
     fontFamily: "var(--font-body)",
     fontWeight: 600,
-    fontSize: "1.5rem",
+    fontSize: "0.75rem",
     color: "var(--color-linen)",
     letterSpacing: "0.03em",
     opacity: 0.45,
@@ -47,7 +47,7 @@ export default function Footer() {
     >
       <div
         style={{
-          maxWidth: 1800,
+          maxWidth: 1200,
           margin: "0 auto",
           padding: "0 clamp(20px, 5vw, 48px)",
         }}

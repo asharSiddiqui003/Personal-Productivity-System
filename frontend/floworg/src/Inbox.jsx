@@ -62,6 +62,13 @@ const Inbox = () => {
     fetchTasks();
   }, [refreshKey]);
 
+  const getPriorityColor = (priority) => {
+    const p = priority?.toLowerCase();
+    if (p === "high") return "var(--danger)";
+    if (p === "medium") return "var(--accent)";
+    return "rgb(224 226 219 / 0.45)";
+  };
+
   const formatDate = (value) =>
     new Date(value ? value : Date.now()).toLocaleDateString("en-IN", {
       day: "2-digit",
@@ -73,8 +80,8 @@ const Inbox = () => {
 const InboxLayout = ({ children }) => (
   <div className="relative md:left-[336px] top-0 min-h-screen w-full md:w-[calc(100%-336px)] px-4 md:px-0 md:pr-8">
     <div className="flex items-center gap-3 my-4">
-      <FiInbox size={32} className="text-[#982598]" />
-      <h1 className="text-3xl font-bold text-white tracking-tight">Inbox</h1>
+      <FiInbox size={32} className="text-[var(--accent)]" />
+      <h1 className="text-3xl font-normal text-[var(--text-strong)] font-heading tracking-tight">Inbox</h1>
     </div>
 
     <div className="add-task mb-8">
@@ -89,7 +96,7 @@ const InboxLayout = ({ children }) => (
 if (isLoading) {
   return (
     <InboxLayout>
-      <div className="flex items-center justify-center text-4xl text-gray-500">
+      <div className="flex items-center justify-center text-4xl text-[var(--text-muted)]">
         Loading tasks...
       </div>
     </InboxLayout>
@@ -99,7 +106,7 @@ if (isLoading) {
 if (error) {
   return (
     <InboxLayout>
-      <p className="text-red-500">{error}</p>
+      <p className="text-[var(--danger)]">{error}</p>
     </InboxLayout>
   );
 }
@@ -108,33 +115,42 @@ return (
   <>
     <InboxLayout>
       {activeTasks.length === 0 ? (
-        <p className="text-xl text-[#B8AED4]">No active tasks found.</p>
+        <p className="text-xl text-[var(--text-muted)]">No active tasks found.</p>
       ) : (
-        <div className="space-y-6">
+        <div className="w-auto max-w-[1120px] mx-4 md:mx-16 flex flex-col">
           {activeTasks.map((task) => (
             <div
               key={task.task_id}
-              className="task-bar w-auto max-w-[1120px] flex items-center px-8 md:px-12 py-4 cursor-pointer mb-4 gap-4"
+              className={`task-row ${selectedTaskId === task.task_id ? "selected" : ""}`}
               onClick={() => handleClick(task.task_id)}
             >
+              {/* Priority bar */}
+              <div
+                className="priority-bar"
+                style={{ backgroundColor: getPriorityColor(task.priority) }}
+              />
+
+              {/* Checkbox */}
               <input
                 type="checkbox"
                 onClick={(e) => completeTask(task, e)}
-                className="w-6 h-6 rounded-lg border-white/20 bg-white/5 cursor-pointer accent-[#982598] shrink-0"
+                onChange={() => {}}
+                className="task-checkbox z-10"
               />
               
-              <div className="flex-1 min-w-0 ml-4">
-                <p className="text-2xl md:text-3xl text-[#F1E9E9] font-medium truncate">
+              {/* Title */}
+              <div className="flex-1 min-w-0 ml-3">
+                <p className="text-[15px] text-[var(--text-strong)] font-medium truncate">
                   {task.title}
                 </p>
               </div>
 
-              <div className="hidden sm:flex items-center gap-6 shrink-0">
-                <p className="text-xl md:text-2xl text-[#B8AED4]">
+              {/* Info section */}
+              <div className="hidden sm:flex items-center gap-4 shrink-0">
+                <p className="text-[13px] font-mono tabular-nums text-[var(--text-muted)]">
                   {formatDate(task.created)}
                 </p>
-                <div className="w-[2px] h-10 bg-[#982598] rounded-full"></div>
-                <p className="text-xl md:text-2xl text-[#F1E9E9] min-w-[80px] text-center">
+                <p className="text-[13px] text-[var(--text-muted)] min-w-[60px] text-right">
                   {task.priority}
                 </p>
               </div>

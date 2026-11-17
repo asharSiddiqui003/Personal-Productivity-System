@@ -95,7 +95,7 @@ export default function HowItWorks() {
 
       <div
         style={{
-          maxWidth: 1700,
+          maxWidth: 1200,
           margin: "0 auto",
           padding: "0 clamp(20px, 5vw, 48px)",
         }}
@@ -106,7 +106,7 @@ export default function HowItWorks() {
           style={{
             fontFamily: "var(--font-heading)",
             fontWeight: 300,
-            fontSize: "clamp(2rem, 4vw, 3.5rem)",
+            fontSize: "clamp(1.75rem, 3vw, 2.75rem)",
             letterSpacing: "-0.02em",
             lineHeight: 1.06,
             color: "var(--color-carbon)",

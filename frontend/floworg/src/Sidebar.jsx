@@ -33,22 +33,22 @@ function Sidebar({ mobileOpen, onMobileClose }) {
         <div
           className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl"
           style={{
-            background: "rgba(152,37,152,0.08)",
-            border: "1px solid rgba(152,37,152,0.2)",
+            background: "var(--surface)",
+            border: "1px solid var(--line-card)",
           }}
         >
           <div
-            className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 shadow-md shadow-[#982598]/50"
-            style={{ background: "linear-gradient(135deg, #982598, #6d28d9)" }}
+            className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
+            style={{ background: "var(--oxblood)" }}
           >
-            <BiTask size={15} className="text-white" />
+            <BiTask size={15} className="text-[var(--text)]" />
           </div>
-          <span className="text-white font-semibold text-sm tracking-tight">My Workspace</span>
+          <span className="text-[var(--text-strong)] font-semibold text-sm tracking-tight">My Workspace</span>
         </div>
       </div>
 
       {/* Section label */}
-      <p className="px-6 mb-1.5 text-[10px] uppercase tracking-[0.18em] text-white/30 font-semibold">
+      <p className="px-6 mb-1.5 text-[10px] uppercase tracking-[0.18em] text-[var(--text-subtle)] font-semibold">
         Menu
       </p>
 
@@ -78,8 +78,8 @@ function Sidebar({ mobileOpen, onMobileClose }) {
       />
 
       {/* Divider + Views section */}
-      <div className="mx-5 my-3 h-px" style={{ background: "rgba(255,255,255,0.06)" }} />
-      <p className="px-6 mb-1.5 text-[10px] uppercase tracking-[0.18em] text-white/30 font-semibold">
+      <div className="mx-5 my-3 h-px" style={{ background: "var(--line)" }} />
+      <p className="px-6 mb-1.5 text-[10px] uppercase tracking-[0.18em] text-[var(--text-subtle)] font-semibold">
         Views
       </p>
 
@@ -125,10 +125,10 @@ function Sidebar({ mobileOpen, onMobileClose }) {
               transition={{ duration: 0.3, ease: "easeInOut" }}
               className="md:hidden fixed left-0 top-0 bottom-16 z-[95] w-72 flex flex-col py-4"
               style={{
-                background: "rgba(11, 10, 32, 0.97)",
+                background: "var(--bg-sidebar)",
                 backdropFilter: "blur(28px)",
                 WebkitBackdropFilter: "blur(28px)",
-                borderRight: "1px solid rgba(152, 37, 152, 0.18)",
+                borderRight: "1px solid var(--line-card)",
                 boxShadow: "6px 0 40px rgba(0, 0, 0, 0.65)",
               }}
             >
@@ -136,8 +136,8 @@ function Sidebar({ mobileOpen, onMobileClose }) {
               <div className="flex justify-end px-4 mb-2">
                 <button
                   onClick={onMobileClose}
-                  className="w-8 h-8 rounded-lg flex items-center justify-center text-[#B8AED4] hover:text-white transition-colors"
-                  style={{ background: "rgba(255,255,255,0.05)" }}
+                  className="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-white transition-colors"
+                  style={{ background: "var(--hover)" }}
                 >
                   <IoCloseOutline size={20} />
                 </button>
@@ -155,35 +155,34 @@ const SidebarButton = ({ text, icon, onClick, isActive }) => {
   return (
     <button
       onClick={onClick}
-      className="group flex items-center gap-3 h-10 w-[232px] mx-auto px-4 rounded-xl mb-0.5 text-sm font-medium transition-all duration-200 cursor-pointer relative"
+      className="group flex items-center gap-3 h-10 w-[232px] mx-auto px-4 rounded-xl mb-0.5 text-sm font-medium transition-all duration-200 cursor-pointer relative outline-none focus-visible:outline-2 focus-visible:outline-[var(--accent)] focus-visible:outline-offset-2"
       style={
         isActive
           ? {
-              background: "rgba(152,37,152,0.15)",
-              borderLeft: "3px solid #982598",
+              background: "var(--oxblood-selected)",
+              borderLeft: "3px solid var(--accent)",
               paddingLeft: "13px",
-              color: "white",
-              boxShadow: "inset 0 0 24px rgba(152,37,152,0.06)",
+              color: "var(--text-strong)",
             }
-          : { color: "#7a7aac", borderLeft: "3px solid transparent" }
+          : { color: "rgb(224 226 219 / 0.75)", borderLeft: "3px solid transparent" }
       }
       onMouseEnter={(e) => {
         if (!isActive) {
-          e.currentTarget.style.background = "rgba(255,255,255,0.05)";
-          e.currentTarget.style.color = "white";
+          e.currentTarget.style.background = "var(--hover)";
+          e.currentTarget.style.color = "var(--text-strong)";
         }
       }}
       onMouseLeave={(e) => {
         if (!isActive) {
           e.currentTarget.style.background = "transparent";
-          e.currentTarget.style.color = "#7a7aac";
+          e.currentTarget.style.color = "rgb(224 226 219 / 0.75)";
         }
       }}
     >
-      <span className={isActive ? "text-[#c060c0]" : ""}>{icon}</span>
+      <span className={isActive ? "text-[var(--accent)]" : ""}>{icon}</span>
       {text}
       {isActive && (
-        <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[#982598]" />
+        <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[var(--accent)]" />
       )}
     </button>
   );

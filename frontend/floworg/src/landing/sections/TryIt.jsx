@@ -260,7 +260,7 @@ export default function TryIt() {
       >
         <div
           style={{
-            maxWidth: 1600,
+            maxWidth: 1200,
             margin: "0 auto",
             padding: "0 clamp(20px, 5vw, 48px)",
           }}
@@ -272,7 +272,7 @@ export default function TryIt() {
               style={{
                 fontFamily: "var(--font-heading)",
                 fontWeight: 300,
-                fontSize: "clamp(2rem, 4vw, 3.5rem)",
+                fontSize: "clamp(1.75rem, 3vw, 2.75rem)",
                 letterSpacing: "-0.02em",
                 lineHeight: 1.06,
                 color: "var(--color-white)",
@@ -284,7 +284,7 @@ export default function TryIt() {
             <p
               style={{
                 fontFamily: "var(--font-body)",
-                fontSize: "1.5rem",
+                fontSize: "1.0625rem",
                 lineHeight: 1.6,
                 color: "var(--muted)",
                 margin: 0,
@@ -317,7 +317,7 @@ export default function TryIt() {
                     style={{
                       fontFamily: "var(--font-mono)",
                       fontVariantNumeric: "tabular-nums",
-                      fontSize: "1.75rem",
+                      fontSize: "0.8125rem",
                       color: "var(--muted)",
                       display: "block",
                       marginBottom: "0.75rem",
@@ -345,7 +345,7 @@ export default function TryIt() {
                   <p
                     style={{
                       fontFamily: "var(--font-body)",
-                      fontSize: "1.5rem",
+                      fontSize: "1rem",
                       lineHeight: 1.65,
                       color: "var(--muted)",
                       margin: "0 0 1rem",

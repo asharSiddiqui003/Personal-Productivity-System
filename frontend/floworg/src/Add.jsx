@@ -82,7 +82,7 @@ const Add = ({ onTaskAdded }) => {
           value={notes.task}
           placeholder="Add a new task…"
           onChange={handleChange}
-          className="w-full bg-[#0a0b16]/60 border border-white/10 rounded-xl py-3 pl-4 pr-10 text-white placeholder-gray-500 focus:outline-none focus:border-[#982598] focus:ring-1 focus:ring-[#982598]/40 transition-all"
+          className="w-full bg-[var(--surface)] border border-[var(--line-control)] rounded-xl py-3 pl-4 pr-10 text-[var(--text-strong)] placeholder-[var(--text-subtle)] focus:outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)] transition-all"
         />
         <button type="submit" className="task-submit">
           <IoMdAdd size={22} />
@@ -99,7 +99,7 @@ const Add = ({ onTaskAdded }) => {
         <option value="Medium">Medium</option>
         <option value="Low">Low</option>
       </select>
-      {error && <p className="text-red-400 text-sm">{error}</p>}
+      {error && <p className="text-[var(--danger)] text-sm">{error}</p>}
     </div>
   );
 };
