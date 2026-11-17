@@ -32,14 +32,9 @@ async function parseErrorResponse(response, defaultMsg = "An error occurred") {
   return defaultMsg;
 }
 
-function Login({ onLogin }) {
+function ActiveGoogleLoginButton({ onLogin, setErrorMessage }) {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
 
   const handleGoogleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
@@ -69,6 +64,46 @@ function Login({ onLogin }) {
     },
     onError: () => setErrorMessage("Google login was cancelled."),
   });
+
+  return (
+    <button
+      type="button"
+      onClick={() => { setErrorMessage(""); handleGoogleLogin(); }}
+      disabled={googleLoading}
+      className="w-full flex items-center justify-center gap-3 bg-[var(--surface)] hover:bg-[var(--hover)] border border-[var(--line-control)] text-[var(--text-strong)] font-medium py-3 px-4 rounded-xl transition-all active:scale-[0.98] disabled:opacity-60 disabled:pointer-events-none mb-6 cursor-pointer"
+    >
+      {googleLoading
+        ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+        : <GoogleIcon />}
+      Continue with Google
+    </button>
+  );
+}
+
+function GoogleLoginButton({ onLogin, setErrorMessage }) {
+  const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+  if (!clientId || clientId === "not-configured") {
+    return (
+      <button
+        type="button"
+        onClick={() => setErrorMessage("Google Sign-In is not configured in this environment. Please sign in with email and password.")}
+        className="w-full flex items-center justify-center gap-3 bg-[var(--surface)] hover:bg-[var(--hover)] border border-[var(--line-control)] text-[var(--text-strong)] font-medium py-3 px-4 rounded-xl transition-all active:scale-[0.98] mb-6 cursor-pointer"
+      >
+        <GoogleIcon />
+        Continue with Google
+      </button>
+    );
+  }
+  return <ActiveGoogleLoginButton onLogin={onLogin} setErrorMessage={setErrorMessage} />;
+}
+
+function Login({ onLogin }) {
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -161,17 +196,7 @@ function Login({ onLogin }) {
             )}
           </AnimatePresence>
           {/* Google OAuth button */}
-          <button
-            type="button"
-            onClick={() => { setErrorMessage(""); handleGoogleLogin(); }}
-            disabled={googleLoading}
-            className="w-full flex items-center justify-center gap-3 bg-[var(--surface)] hover:bg-[var(--hover)] border border-[var(--line-control)] text-[var(--text-strong)] font-medium py-3 px-4 rounded-xl transition-all active:scale-[0.98] disabled:opacity-60 disabled:pointer-events-none mb-6"
-          >
-            {googleLoading
-              ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              : <GoogleIcon />}
-            Continue with Google
-          </button>
+          <GoogleLoginButton onLogin={onLogin} setErrorMessage={setErrorMessage} />
 
           {/* Divider */}
           <div className="flex items-center gap-4 mb-6">

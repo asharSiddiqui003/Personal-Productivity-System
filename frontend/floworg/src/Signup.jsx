@@ -38,6 +38,77 @@ function GoogleIcon() {
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 const AUTH_URL = import.meta.env.VITE_AUTH_URL || "http://localhost:4000";
 
+function ActiveGoogleSignupButton({ onLogin, setErrorMessage }) {
+  const navigate = useNavigate();
+  const [googleLoading, setGoogleLoading] = useState(false);
+
+  const handleGoogleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      setGoogleLoading(true);
+      setErrorMessage("");
+      try {
+        const res = await fetch(`${AUTH_URL}/auth/google`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ access_token: tokenResponse.access_token }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          localStorage.setItem('accessToken', data.accessToken);
+          localStorage.setItem('refreshToken', data.refreshToken);
+          onLogin();
+          navigate("/");
+        } else {
+          let msg = "Google sign-up failed.";
+          try {
+            const err = await res.json();
+            msg = typeof err === "string" ? err : (err?.error || err?.message || msg);
+          } catch {
+            // non-JSON response
+          }
+          setErrorMessage(msg);
+        }
+      } catch {
+        setErrorMessage("Network error during Google sign-up.");
+      } finally {
+        setGoogleLoading(false);
+      }
+    },
+    onError: () => setErrorMessage("Google sign-up was cancelled or failed."),
+  });
+
+  return (
+    <button
+      type="button"
+      onClick={() => { setErrorMessage(""); handleGoogleLogin(); }}
+      disabled={googleLoading}
+      className="w-full flex items-center justify-center gap-3 bg-[var(--surface)] hover:bg-[var(--hover)] border border-[var(--line-control)] text-[var(--text-strong)] font-medium py-3 px-4 rounded-xl transition-all active:scale-[0.98] disabled:opacity-60 disabled:pointer-events-none mb-6 cursor-pointer"
+    >
+      {googleLoading
+        ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+        : <GoogleIcon />}
+      Continue with Google
+    </button>
+  );
+}
+
+function GoogleSignupButton({ onLogin, setErrorMessage }) {
+  const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+  if (!clientId || clientId === "not-configured") {
+    return (
+      <button
+        type="button"
+        onClick={() => setErrorMessage("Google Sign-In is not configured in this environment. Please sign up with username, email and password.")}
+        className="w-full flex items-center justify-center gap-3 bg-[var(--surface)] hover:bg-[var(--hover)] border border-[var(--line-control)] text-[var(--text-strong)] font-medium py-3 px-4 rounded-xl transition-all active:scale-[0.98] mb-6 cursor-pointer"
+      >
+        <GoogleIcon />
+        Continue with Google
+      </button>
+    );
+  }
+  return <ActiveGoogleSignupButton onLogin={onLogin} setErrorMessage={setErrorMessage} />;
+}
+
 function Signup({ onLogin }) {
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
@@ -47,7 +118,6 @@ function Signup({ onLogin }) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
@@ -83,42 +153,6 @@ function Signup({ onLogin }) {
       setLoading(false);
     }
   };
-
-  // ── Google OAuth signup ────────────────────────────────────
-  const handleGoogleLogin = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      setGoogleLoading(true);
-      setErrorMessage("");
-      try {
-        const res = await fetch(`${AUTH_URL}/auth/google`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ access_token: tokenResponse.access_token }),
-        });
-        if (res.ok) {
-          const data = await res.json();
-          localStorage.setItem('accessToken', data.accessToken);
-          localStorage.setItem('refreshToken', data.refreshToken);
-          onLogin();
-          navigate("/");
-        } else {
-          let msg = "Google sign-up failed.";
-          try {
-            const err = await res.json();
-            msg = typeof err === "string" ? err : (err?.error || err?.message || msg);
-          } catch {
-            // non-JSON response
-          }
-          setErrorMessage(msg);
-        }
-      } catch {
-        setErrorMessage("Network error during Google sign-up.");
-      } finally {
-        setGoogleLoading(false);
-      }
-    },
-    onError: () => setErrorMessage("Google sign-up was cancelled or failed."),
-  });
 
   return (
     <div className="min-h-screen w-full flex flex-row bg-[var(--bg-canvas)] overflow-hidden">
@@ -192,17 +226,7 @@ function Signup({ onLogin }) {
           </AnimatePresence>
 
           {/* Google OAuth button */}
-          <button
-            type="button"
-            onClick={() => { setErrorMessage(""); handleGoogleLogin(); }}
-            disabled={googleLoading}
-            className="w-full flex items-center justify-center gap-3 bg-[var(--surface)] hover:bg-[var(--hover)] border border-[var(--line-control)] text-[var(--text-strong)] font-medium py-3 px-4 rounded-xl transition-all active:scale-[0.98] disabled:opacity-60 disabled:pointer-events-none mb-6"
-          >
-            {googleLoading
-              ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              : <GoogleIcon />}
-            Continue with Google
-          </button>
+          <GoogleSignupButton onLogin={onLogin} setErrorMessage={setErrorMessage} />
 
           {/* Divider */}
           <div className="flex items-center gap-4 mb-6">
